@@ -30,7 +30,7 @@ function App() {
   const handleNavigation = async (input) => {
     try {
       // Requisição para obter os projetos
-      const response = await fetch("https://poli-egs-fastapi-1.onrender.com/projetos", {
+      const response = await fetch(`${import.meta.env.VITE_url_backend}/projetos`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
