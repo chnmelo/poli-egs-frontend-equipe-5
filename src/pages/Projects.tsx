@@ -20,7 +20,7 @@ function Projects() {
   const [images, setImages] = useState({});
 
   useEffect(() => {
-    axios.get('https://poli-egs-fastapi-1.onrender.com/projetos/')
+    axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
       .then((response) => {
         const data = response.data.projetos;
 

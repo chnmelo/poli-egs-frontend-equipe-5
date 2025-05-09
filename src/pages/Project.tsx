@@ -15,7 +15,7 @@ function Project() {
 
   useEffect(() => {
     // Requisição para obter os dados do projeto
-    axios.get(`https://poli-egs-fastapi-1.onrender.com/projetos/${slug}`).then((response) => {
+    axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
       console.log("Resposta completa da API:", response);
       console.log("Dados retornados:", response.data);
       const projeto = response.data;
@@ -24,7 +24,7 @@ function Project() {
     });
   
     // Requisição para obter a imagem do logo do projeto
-    axios.get(`https://poli-egs-fastapi-1.onrender.com/view_logo_projeto/${slug}`).then((response) => {
+    axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
       setImg(response.data["url"]);
     });
   

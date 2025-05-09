@@ -21,7 +21,7 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
     }
   
     // Requisição POST para curtir o projeto
-    axios.post(`https://poli-egs-fastapi-1.onrender.com/projetos/${projectId}/curtir?id_token=${token}`)
+    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/curtir?id_token=${token}`)
       .then((response) => {
 
   
@@ -42,7 +42,7 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
 
   const fetchProjectLikes = async () => {
     try {
-      const response = await axios.get(`https://poli-egs-fastapi-1.onrender.com/projetos/${projectId}`);
+      const response = await axios.get(`${import.meta.env.VITE_url_backend}/projetos/${projectId}`);
       setLikes(response.data.curtidas); // Armazena o número de curtidas no estado
 
     } catch (error) {
