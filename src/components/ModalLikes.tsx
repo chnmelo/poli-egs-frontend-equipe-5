@@ -43,8 +43,9 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
   const fetchProjectLikes = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_url_backend}/projetos/${projectId}`);
+      const email = localStorage.getItem('email')
       setLikes(response.data.curtidas); // Armazena o número de curtidas no estado
-
+      if (email) setIsLiked(response.data.user_curtidas_email.includes(email))
     } catch (error) {
       console.error("Erro ao obter as curtidas do projeto:", error);
     }
@@ -52,9 +53,7 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
 
   // Buscar dados do projeto ao abrir o modal
   React.useEffect(() => {
-    if (open) {
       fetchProjectLikes();
-    }
   }, [open]);
 
   return (
