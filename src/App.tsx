@@ -170,13 +170,13 @@ function App() {
               </div>
             </div>
             <div className="mb-6">
-              <label htmlFor="user_occupation" className="block text-gray-700 font-semibold mb-2">Ocupação</label>
+              <label htmlFor="user_occupation" className="block text-gray-700 font-semibold mb-2">Tema</label>
               <input
                 type="text"
                 id="user_occupation"
                 name="user_occupation"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Sua ocupação"
+                placeholder="Tema"
               />
             </div>
             <div className="mb-6">
