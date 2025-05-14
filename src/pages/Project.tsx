@@ -155,7 +155,8 @@ function Project() {
                     className="w-8 h-8 rounded-full mr-3"
                   />
                   <div className="flex-grow">
-                    <p className="font-medium">{comentario.email}</p> {/* Exibindo o email do usuário */}
+                    <p className="font-medium">{comentario.username}</p> {/* Exibindo o email do usuário */}
+                    <p>{comentario.data}</p> {/* Exibindo data */}
                     <p>{comentario.comentario}</p> {/* Exibindo o comentário */}
                   </div>
                 </div>
