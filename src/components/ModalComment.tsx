@@ -13,7 +13,7 @@ export default function ModalComment({ projectId }: { projectId: string }) {
 
   const handleSendComment = () => {
     const token = localStorage.getItem("authToken");
-  
+    const user = localStorage.getItem("userName")
     if (!token) {
       console.error("Token não encontrado. Usuário não autenticado.");
       return;
@@ -26,7 +26,7 @@ export default function ModalComment({ projectId }: { projectId: string }) {
     }
     fetchProjectData();
     // Requisição POST para enviar o comentário
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?comentario=${comment}&id_token=${token}`,
+    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}&id_token=${token}`,
         { comentario: comment },
         {
           headers: {
