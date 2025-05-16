@@ -64,7 +64,7 @@ function App() {
   
   const handleButtonClick = (theme) => {
     setInput(theme);
-    handleNavigation(theme);
+    navigate(`/projetos`,{state: {themes: theme}});
   };
 
   const handleFormSubmit = (event) => {
@@ -122,7 +122,7 @@ function App() {
           ].map((theme, index) => (
             <button
               key={index}
-              /*onClick={() => handleButtonClick(theme.title)}*/
+              onClick={() => handleButtonClick(theme.title)}
               className="relative group overflow-hidden rounded-xl shadow-lg transform hover:scale-105 transition-transform"
             >
               <img
