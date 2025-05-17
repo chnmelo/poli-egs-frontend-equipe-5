@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
@@ -10,6 +11,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 function Projects() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
   const [input, setInput] = useState(searchQuery || slug || "");
@@ -23,7 +25,8 @@ function Projects() {
 
   useEffect(() => {
     setInput(searchQuery);
-    axios.get('https://poli-egs-fastapi-1.onrender.com/projetos/') //    axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
+    setThemes(location.state?.themes ? location.state?.themes : "")
+    axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
       .then((response) => {
         const data = response.data.projetos;
 
