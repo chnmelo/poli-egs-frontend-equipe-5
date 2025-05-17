@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
