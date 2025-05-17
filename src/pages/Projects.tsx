@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
@@ -10,6 +10,7 @@ import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o 
 function Projects() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [input, setInput] = useState(slug || '');
   const [inputMembers, setInputMembers] = useState('');
   const [themes, setThemes] = useState('');
@@ -20,6 +21,7 @@ function Projects() {
   const [images, setImages] = useState({});
 
   useEffect(() => {
+    setThemes(location.state?.themes ? location.state?.themes : "")
     axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
       .then((response) => {
         const data = response.data.projetos;
