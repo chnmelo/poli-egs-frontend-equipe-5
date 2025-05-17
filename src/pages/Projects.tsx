@@ -6,7 +6,6 @@ import { useParams, useNavigate, useLocation, useSearchParams } from 'react-rout
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 function Projects() {
   const { slug } = useParams();
