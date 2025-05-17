@@ -23,7 +23,7 @@ function App() {
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      navigate(`/projetos/${input}`);
+      handleNavigation(input);
     }
   };
 
@@ -53,8 +53,8 @@ function App() {
         // Redireciona para a página do projeto
         navigate(`/projetos/${foundProject.id}`);
       } else {
-        // Exibe mensagem de erro caso o projeto não seja encontrado
-        alert("Projeto não encontrado. Verifique o nome e tente novamente.");
+        // Redireciona para a página de Projects com o termo de busca
+        navigate(`/projetos?search=${encodeURIComponent(input)}`);
       }
     } catch (error) {
       console.error(error);
