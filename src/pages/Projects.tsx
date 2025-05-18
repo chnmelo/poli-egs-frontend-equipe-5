@@ -76,20 +76,23 @@ function Projects() {
   ? cards.filter((project) => {
       const searchInput = input.toLowerCase();
       const searchMembers = inputMembers.toLowerCase();
-      const searchThemes = themes.toLowerCase();
+      const searchThemes = themes.toLowerCase().split(/, | e /);
       const searchSemester = semester.toLowerCase();
+      const projectThemes = project.tema?.toLowerCase().split(/, | e /)
 
       // Garantindo que project.palavras_chave seja tratado como uma string
       const palavrasChave = Array.isArray(project.palavras_chave)
         ? project.palavras_chave.join(' ').toLowerCase() // Converte o array para uma string
         : '';
+      
+      const checker = (arr, target) => target.every(e => arr.includes(e));
 
       return (
         (project.titulo?.toLowerCase().includes(searchInput) ||
           palavrasChave.includes(searchInput) || // Usando palavras_chave como string
           project.tema?.toLowerCase().includes(searchInput)) &&
         (project.equipe ? project.equipe.toString().toLowerCase().includes(searchMembers) : '') &&
-        project.tema?.toLowerCase().includes(searchThemes) &&
+        (themes == '' ? true : checker(searchThemes, projectThemes)) &&
         project.semestre?.toLowerCase().includes(searchSemester)
       );
     })

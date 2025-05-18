@@ -111,18 +111,18 @@ function App() {
         <h2 className="text-4xl font-bold text-center mb-12">Temas em Destaque</h2>
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { image: IA, title: 'Inteligência Artificial' },
-            { image: CD, title: 'Ciência de Dados' },
-            { image: FIN, title: 'Finanças' },
-            { image: DT, title: 'Dívida Técnica' },
-            { image: GESTAO, title: 'Gestão' },
-            { image: LGPD, title: 'LGPD' },
-            { image: SAUDE, title: 'Saúde' },
-            { image: EDUCACAO, title: 'Educação' },
+            { image: IA, title: 'Inteligência Artificial', key_words: "Inteligência Artificial, IA, machine learning, aprendizado de máquina, redes neurais, algoritmo inteligente" },
+            { image: CD, title: 'Ciência de Dados', key_words: "Ciência de dados, Data Science, Análise de dados, Mineração de dados" },
+            { image: FIN, title: 'Finanças', key_words: "Finanças, Financeiro, Economia, Investimentos, Fintech" },
+            { image: DT, title: 'Dívida Técnica', key_words: "Dívida Técnica, Código legado, Refatoração, Débito técnico, Manutenção de código" },
+            { image: GESTAO, title: 'Gestão', key_words: "Gestão, Gerenciamento, Planejamento, Administração, Liderança, Indicadores Chave de Desempenho" },
+            { image: LGPD, title: 'LGPD', key_words: "LGPD, Lei Geral de Proteção de Dados, Dados Pessoais, Proteção de Dados, Vazamento de dados, Segurança da Informação, Anonimização" },
+            { image: SAUDE, title: 'Saúde', key_words: "Saúde, Sistema de Saúde, Paciente, Exame, Diagnóstico, Atendimento médico, Hospital, Hospitalar" },
+            { image: EDUCACAO, title: 'Educação', key_words: "Educação, Ensino, Professor, Aprendizagem, EAD, Pedagógico, Educacional, Alfabetização" }
           ].map((theme, index) => (
             <button
               key={index}
-              onClick={() => handleButtonClick(theme.title)}
+              onClick={() => handleButtonClick(theme.key_words)}
               className="relative group overflow-hidden rounded-xl shadow-lg transform hover:scale-105 transition-transform"
             >
               <img
