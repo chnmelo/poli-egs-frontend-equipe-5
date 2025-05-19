@@ -98,10 +98,10 @@ function Artigos() {
       {/* Lista de produtos */}
       <section className="py-20 bg-gray-100">
         <div className="container mx-auto">
-          {filteredProdutos.filter(produto => produto.revisado === "Aprovado").length > 0 ? (
+          {filteredProdutos.filter(produto => produto.status === "Aprovado").length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredProdutos
-                .filter(produto => produto.revisado === "Aprovado") // Filtra apenas os artigos aprovados
+                .filter(produto => produto.status === "Aprovado") // Filtra apenas os artigos aprovados
                 .map((produto) => (
                   <div
                     key={produto.id}
