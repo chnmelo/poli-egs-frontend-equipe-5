@@ -69,6 +69,10 @@ function Userprodutos () {
             'Content-Type': 'multipart/form-data'
           }
       })
+      .then(response => {
+        window.location.reload();
+        setOpen(false);
+      })
       .catch(error => console.log('Erro ao fazer upload do PDF:', error))
   }
 
@@ -105,12 +109,10 @@ function Userprodutos () {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        handlePdfUpload(response.data.produto.id);
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch(error => console.error('Erro ao adicionar produto:', error));
+    .then(response => {
+      handlePdfUpload(response.data.produto.id);
+    })
+    .catch(error => console.error('Erro ao adicionar produto:', error));
   };
 
   const handleUpdate = () => {

@@ -92,6 +92,10 @@ function ProdutosAdmin () {
             'Content-Type': 'multipart/form-data'
           }
       })
+      .then(response => {
+        window.location.reload();
+        setOpen(false);
+      })
       .catch(error => console.log('Erro ao fazer upload do PDF:', error))
   }
 
@@ -130,12 +134,10 @@ function ProdutosAdmin () {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        handlePdfUpload(response.data.produto.id)
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch(error => console.error('Erro ao adicionar projeto:', error));
+    .then(response => {
+      handlePdfUpload(response.data.produto.id)
+    })
+    .catch(error => console.error('Erro ao adicionar projeto:', error));
   };
 
   const handleUpdate = () => {
