@@ -61,6 +61,17 @@ function Userprodutos () {
     setFile(target.files[0]);
   }
 
+  const handlePdfUpload = (id: string) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_produto/${id}/`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+      })
+      .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+  }
+
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
 
@@ -95,7 +106,7 @@ function Userprodutos () {
       },
     })
       .then(response => {
-
+        handlePdfUpload(response.data.produto.id);
         window.location.reload();
         setOpen(false);
       })
