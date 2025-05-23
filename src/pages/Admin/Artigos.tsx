@@ -83,6 +83,21 @@ function ArticlesAdmin () {
         .catch(error => console.error('Erro ao reprovar projeto:', error));
   }
 
+  const handlePdfUpload = (id: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload();
+      setOpen(false);
+    })
+    .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+  }
+
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
     
@@ -121,11 +136,10 @@ function ArticlesAdmin () {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch(error => console.error('Erro ao adicionar projeto:', error));
+    .then(response => {
+      handlePdfUpload(response.data.artigo.id);
+    })
+    .catch(error => console.error('Erro ao adicionar projeto:', error));
   };
 
   const handleUpdate = () => {
