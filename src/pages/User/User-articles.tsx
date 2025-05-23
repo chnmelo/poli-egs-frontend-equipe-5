@@ -15,7 +15,7 @@ export interface ArticleInt {
   equipe?: string;
   tema?: string;
   data?: string;
-  palavras_chave?: string;
+  palavras_chave?: string[];
   id?: string,
   arquivo?: string,
 }
@@ -23,8 +23,7 @@ export interface ArticleInt {
 const columns = [
   { key: "titulo", label: "Titulo" },
   { key: "revisar", label: "Status" },
-  /*{ key: "editar", label: "Editar" },
-  { key: "excluir", label: "Excluir" },*/
+
 ];
 
 
@@ -144,7 +143,7 @@ function Userarticles () {
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
-      article.palavras_chave?.toLowerCase().includes(input) ||
+      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];
