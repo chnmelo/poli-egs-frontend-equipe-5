@@ -65,7 +65,7 @@ function Project() {
           <div className="flex flex-col md:flex-row items-center gap-5 bg-white shadow-lg rounded-lg p-6 md:p-8 max-w-4xl w-full">
             <div className="flex-shrink-0">
               <div className="h-32 w-32 md:h-48 md:w-48 rounded-full overflow-hidden border-4 border-gray-200 shadow-md flex items-center justify-center">
-                <img className="w-full h-full object-cover" src={iconImage} alt="Project Thumbnail" />
+                <img className="w-full h-full object-cover" src={images || iconImage} alt="Project Thumbnail" />
               </div>
             </div>
             <div className="flex flex-col justify-center text-center md:text-left">

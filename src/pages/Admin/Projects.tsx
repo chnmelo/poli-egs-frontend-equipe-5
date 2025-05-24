@@ -66,10 +66,10 @@ function ProjectsAdmin() {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        window.location.reload();
-      })
-        .catch(error => console.error('Erro ao aprovar projeto:', error));
+    .then(response => {
+      window.location.reload();
+    })
+    .catch(error => console.error('Erro ao aprovar projeto:', error));
   }
 
   const handleReprove = (project) => {
@@ -85,6 +85,22 @@ function ProjectsAdmin() {
         window.location.reload();
       })
         .catch(error => console.error('Erro ao reprovar projeto:', error));
+  }
+
+  const handleLogoUpload = (id: string) => {
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload();
+      setOpen(false);
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
   }
 
   const handlePost = () => {
@@ -139,8 +155,7 @@ function ProjectsAdmin() {
       },
     })
       .then(response => {
-        window.location.reload();
-        setOpen(false);
+        handleLogoUpload(response.data.projeto.id);
       })
       .catch(error => console.error('Erro ao adicionar projeto:', error));
   };
