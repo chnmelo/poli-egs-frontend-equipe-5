@@ -18,7 +18,11 @@ const Register = () => {
       alert("As senhas não coincidem!");
       return;
     }
-
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(poli\.br|ecomp\.poli\.br|upe\.br)$/;
+    if (!emailRegex.test(email)) {
+    alert("Apenas e-mails dos domínios @poli.br, @ecomp.poli.br ou @upe.br são permitidos.");
+    return;
+  }
     try {
       const response = await fetch(`${import.meta.env.VITE_url_backend}/register`, {
         method: 'POST',
