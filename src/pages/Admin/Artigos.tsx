@@ -38,6 +38,7 @@ function ArticlesAdmin () {
     id: '',
     arquivo: '#',
     revisado: "",
+    resumo: '',
   })
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
@@ -127,6 +128,7 @@ function ArticlesAdmin () {
       data: NewArticle.data || "",
       arquivo: NewArticle.arquivo || '#',
       revisado: NewArticle.revisado || "Pendente",
+      resumo: NewArticle.resumo || "Resumo ausente",
     };
   
 
@@ -163,7 +165,7 @@ function ArticlesAdmin () {
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
-      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
+      article.palavras_chave?.toLowerCase().includes(input) ||
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];

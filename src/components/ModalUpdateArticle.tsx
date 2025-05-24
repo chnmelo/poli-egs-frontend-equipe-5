@@ -20,6 +20,7 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
     data: article.data || "",
     arquivo: article.arquivo || '#',
     revisado: article.revisado || "Pendente",
+    resumo: article.resumo || "",
   });
   
   const handleUpdateArticle = () => {
@@ -53,6 +54,7 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
       data: UpdatedArticle.data || "",
       arquivo: UpdatedArticle.arquivo || '#',
       revisado: article.revisado || "Pendente",
+      resumo: Updatedarticle.resumo || "",
     };
 
 
@@ -114,6 +116,10 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
                 <div>
                   <h3 className="text-lg font-semibold">Descrição</h3>
                   <input type="text" name="titulo" id="titulo" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" value={UpdatedArticle.descricao} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, descricao:e.target.value}))}/>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Resumo</h3>
+                  <input type="text" name="titulo" id="titulo" placeholder="Ex: Esse artigo fala sobre..." value={UpdatedArticle.resumo} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, resumo:e.target.value}))}/>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Data de publicação</h3>
