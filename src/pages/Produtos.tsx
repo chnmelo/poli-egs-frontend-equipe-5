@@ -5,7 +5,7 @@ import axios from 'axios';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import backgroundImage from '../images/mainpage.jpg';
 
-function Artigos() {
+function Produtos() {
   const [input, setInput] = useState("");
   const [produtos, setProdutos] = useState([]);
 
@@ -117,12 +117,12 @@ function Artigos() {
                       </ul>
                     </div>
                     <div className="mb-4">
-                      <h3 className="font-semibold">Área de pesquisa:</h3>
-                      <p>{produto.tema || "Tipo não informado"}</p>
+                      <h3 className="font-semibold">Tipo de produto:</h3>
+                      <p>{produto.tipo || "Tipo não informado"}</p>
                     </div>
                     <div className="mb-4">
-                      <h3 className="font-semibold">Data de publicação:</h3>
-                      <p>{produto.data || "Semesstre não disponível"}</p>
+                      <h3 className="font-semibold">Semestre:</h3>
+                      <p>{produto.semestre || "Semesstre não disponível"}</p>
                     </div>
                     <button
                       className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
@@ -146,4 +146,4 @@ function Artigos() {
   );
 }
 
-export default Artigos;
+export default Produtos;
