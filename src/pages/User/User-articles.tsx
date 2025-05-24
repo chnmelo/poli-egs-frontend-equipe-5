@@ -15,15 +15,17 @@ export interface ArticleInt {
   equipe?: string;
   tema?: string;
   data?: string;
-  palavras_chave?: string[];
+  palavras_chave?: string;
   id?: string,
   arquivo?: string,
+  resumo?: string,
 }
 
 const columns = [
   { key: "titulo", label: "Titulo" },
   { key: "revisar", label: "Status" },
-
+  /*{ key: "editar", label: "Editar" },
+  { key: "excluir", label: "Excluir" },*/
 ];
 
 
@@ -52,6 +54,7 @@ function Userarticles () {
     id: '',
     arquivo: '#',
     revisado: "",
+    resumo: '',
   })
 
   const [file, setFile] = useState<File | undefined>();
@@ -106,6 +109,7 @@ function Userarticles () {
       data: NewArticle.data || "",
       arquivo: NewArticle.arquivo || '#',
       revisado: NewArticle.revisado || "Pendente",
+      resumo: NewArticle.resumo || "Resumo ausente",
     };
   
     console.log('Dados do novo projeto (com valores padrão, se necessário):', NewArticleWithDefaults);
@@ -143,7 +147,7 @@ function Userarticles () {
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
-      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
+      article.palavras_chave?.toLowerCase().includes(input) ||
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];
@@ -281,6 +285,17 @@ function Userarticles () {
                       placeholder="Descrição"
                       className="focus:outline-none border-b-2 w-[15vw]"
                       onChange={(e) => setNewArticle({ ...NewArticle, descricao: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Resumo</h3>
+                    <input
+                      type="text"
+                      name="resumo"
+                      id="resumo"
+                      placeholder="Resumo"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => setNewArticle({ ...NewArticle, resumo: e.target.value })}
                     />
                   </div>
                   <div>

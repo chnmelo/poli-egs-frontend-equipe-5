@@ -140,6 +140,10 @@ function Articles() {
                       <h3 className="font-semibold">Data de publicação:</h3>
                       <p>{article.data || "Data não disponível"}</p>
                     </div>
+                    <div className="mb-4">
+                      <h3 className="font-semibold">Resumo:</h3>
+                      <p>{article.resumo || "Resumo não disponível"}</p>
+                    </div>
                     <button
                       className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
                       onClick={() => handleDownload(article.id)}
