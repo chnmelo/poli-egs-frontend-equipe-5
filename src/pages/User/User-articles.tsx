@@ -147,7 +147,7 @@ function Userarticles () {
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
-      article.palavras_chave?.toLowerCase().includes(input) ||
+      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];
