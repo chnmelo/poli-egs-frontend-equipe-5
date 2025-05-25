@@ -352,6 +352,17 @@ function ArticlesAdmin () {
                     />
                   </div>
                   <div>
+                    <h3 className="text-lg font-semibold">Resumo</h3>
+                    <input
+                        type="text"
+                        name="resumo"
+                        id="resumo"
+                        placeholder="Resumo"
+                        className="focus:outline-none border-b-2 w-[15vw]"
+                        onChange={(e) => setNewArticle({ ...NewArticle, resumo: e.target.value })}
+                    />
+                  </div>
+                  <div>
                     <h3 className="text-lg font-semibold">Data de publicação</h3>
                     <input
                       id="datapublicacao"

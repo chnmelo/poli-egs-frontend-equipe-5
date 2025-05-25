@@ -54,7 +54,7 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
       data: UpdatedArticle.data || "",
       arquivo: UpdatedArticle.arquivo || '#',
       revisado: article.revisado || "Pendente",
-      resumo: Updatedarticle.resumo || "",
+      resumo: UpdatedArticle.resumo || "",
     };
 
 
