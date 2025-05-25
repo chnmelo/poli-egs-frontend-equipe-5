@@ -105,7 +105,7 @@ export default function ModalUpdateProduto({ produto }: { produto: ProdutoInt })
 
                 <div>
                   <h3 className="text-lg font-semibold">Descrição</h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" value={<UpdatedProduto></UpdatedProduto>.descricao} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, descricao:e.target.value}))}/>
+                  <input type="text" name="titulo" id="titulo" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" value={UpdatedProduto.descricao} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, descricao:e.target.value}))}/>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Semestre de publicação</h3>
