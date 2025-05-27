@@ -99,8 +99,20 @@ export default function ModalUpdateProduto({ produto }: { produto: ProdutoInt })
                   <input type="text" name="titulo" id="titulo" placeholder="Titulo" value={UpdatedProduto.titulo} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, titulo:e.target.value}))}/>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Área de pesquisa</h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Ex: POLI/UPE" value={UpdatedProduto.tipo} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, tipo:e.target.value}))}/>
+                  <h3 className="text-lg font-semibold">Tipo de produto</h3>
+                  <select type="text" name="titulo" id="titulo" value={UpdatedProduto.tipo}
+                         className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, tipo:e.target.value}))}>
+                        <option value="Outros">Outros</option>
+                        <option value="Patente de Software">Patente de Software</option>
+                        <option value="Registro de Software">Registro de Software</option>
+                        <option value="Startup">Startup</option>
+                        <option value="Artigos e Relatórios Técnicos">Artigos e Relatórios Técnicos</option>
+                        <option value="Plataforma Online">Plataforma Online</option>
+                        <option value="TCC">TCC</option>
+                        <option value="Dissertação e Tese">Dissertação e Tese</option>
+
+
+                  </select>
                 </div>               
 
                 <div>
