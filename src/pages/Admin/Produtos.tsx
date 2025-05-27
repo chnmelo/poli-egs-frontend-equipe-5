@@ -119,7 +119,7 @@ function ProdutosAdmin () {
     const NewProdutoWithDefaults = {
       id: NewProduto.id || "default-id",
       titulo: NewProduto.titulo || "Título não informado",
-      tipo: NewProduto.tipo || "Tipo não informado",
+      tipo: NewProduto.tipo || "Outros",
       descricao: NewProduto.descricao || "Sem descrição",
       equipe: equipeArray.length > 0 ? equipeArray : [],
       semestre: NewProduto.semestre || "",
@@ -312,14 +312,23 @@ function ProdutosAdmin () {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Tipo de produto</h3>
-                    <input
-                      type="text"
-                      name="tipo"
-                      id="tipo"
-                      placeholder="Ex: Inteligência Artificial"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProduto({ ...NewProduto, tipo: e.target.value })}
-                    />
+                    <select
+                        type="text"
+                        name="tipo"
+                        id="tipo"
+                        placeholder="Escolha um tipo"className="focus:outline-none border-b-2 w-[15vw]"
+                        onChange={(e) => setNewProduto({ ...NewProduto, tipo: e.target.value })}>
+                        <option value="Outros">Outros</option>
+                        <option value="Patente de Software">Patente de Software</option>
+                        <option value="Registro de Software">Registro de Software</option>
+                        <option value="Startup">Startup</option>
+                        <option value="Artigos e Relatórios Técnicos">Artigos e Relatórios Técnicos</option>
+                        <option value="Plataforma Online">Plataforma Online</option>
+                        <option value="TCC">TCC</option>
+                        <option value="Dissertação e Tese">Dissertação e Tese</option>
+
+
+                    </select>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Descrição</h3>
