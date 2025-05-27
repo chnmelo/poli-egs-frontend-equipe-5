@@ -11,6 +11,7 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import emailjs from '@emailjs/browser';
 import backgroundImage from './images/mainpage.jpg';
+import axios from "axios";
 
 function App() {
   const navigate = useNavigate();
@@ -67,11 +68,31 @@ function App() {
     navigate(`/projetos`,{state: {themes: theme}});
   };
 
-  const handleFormSubmit = (event) => {
+  /*const handleFormSubmit = (event) => {
     event.preventDefault();
     emailjs.sendForm('service_7m2mxjm', 'template_p254d1l', form.current, 'A-3hcvqKw-tFCA2W3')
-    
-  };
+  };*/
+
+  const handleQuestionSubmit = (event) => {
+    event.preventDefault();
+
+    const QuestionForm = form.current
+    const NewQuestion = {
+      id: 'default_id',
+      titulo: QuestionForm?.question_title.value,
+      mensagem: QuestionForm?.question_message.value,
+      autor: QuestionForm?.user_name.value,
+      email: QuestionForm?.user_email.value,
+      visualizacoes: [],
+      publicado: false,
+      resposta: 'Não respondido'
+    }
+
+    axios.post(`${import.meta.env.VITE_url_backend}/duvidas_add`, NewQuestion)
+    .then(response => console.log(`Upload realizado com sucesso! ${response.data.duvida}`))
+    .catch(error => console.log(error))
+
+  }
 
   return (
     <>
@@ -144,7 +165,7 @@ function App() {
             <h2 className="text-4xl font-bold">Entre em Contato</h2>
             <p className="text-gray-600 mt-4">Tem alguma dúvida ou sugestão? Envie uma mensagem para nós!</p>
           </div>
-          <form ref={form} onSubmit={handleFormSubmit} className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-xl shadow-md">
+          <form ref={form} onSubmit={handleQuestionSubmit} className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-xl shadow-md">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label htmlFor="user_name" className="block text-gray-700 font-semibold mb-2">Nome</label>
@@ -173,17 +194,18 @@ function App() {
               <label htmlFor="user_occupation" className="block text-gray-700 font-semibold mb-2">Tema</label>
               <input
                 type="text"
-                id="user_occupation"
-                name="user_occupation"
+                id="question_title"
+                name="question_title"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Tema"
+                required
               />
             </div>
             <div className="mb-6">
               <label htmlFor="user_message" className="block text-gray-700 font-semibold mb-2">Mensagem</label>
               <textarea
-                id="user_message"
-                name="user_message"
+                id="question_message"
+                name="question_message"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md h-32 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Escreva sua mensagem aqui"
                 required
