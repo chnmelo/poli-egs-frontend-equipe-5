@@ -159,7 +159,7 @@ function Userprodutos () {
           name="searchbar"
           id="searchbar"
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2]"
-          placeholder="Pesquise por nome e tipo"
+          placeholder="Pesquise por título, tipo de produto"
           value={Input}
           onChange={handleInputChange}
         />
