@@ -186,7 +186,7 @@ function ProjectsAdmin() {
           name="searchbar" 
           id="searchbar" 
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
-          placeholder="Pesquise por nome, tema, palavra-chave"
+          placeholder="Pesquise por título, tema, palavra-chave"
           value={Input}
           onChange={(e) => setInput(e.target.value)}
         />
