@@ -84,8 +84,10 @@ function App() {
       autor: QuestionForm?.user_name.value,
       email: QuestionForm?.user_email.value,
       visualizacoes: [],
-      publicado: false,
-      resposta: 'Não respondido'
+      postado: false,
+      resposta: 'Não respondido',
+      data_de_envio: new Date(),
+      data_de_postagem: new Date(0)
     }
 
     axios.post(`${import.meta.env.VITE_url_backend}/duvidas_add`, NewQuestion)
