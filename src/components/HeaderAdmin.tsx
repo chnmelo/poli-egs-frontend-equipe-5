@@ -13,7 +13,9 @@ function HeaderAdmin() {
         <div className="flex-1 flex justify-center space-x-8">
           <Nav.Link href="/admin-projects">Projetos</Nav.Link>
           <Nav.Link href="/admin-articles">Artigos</Nav.Link>
-            <Nav.Link href="/admin-produtos">Produtos</Nav.Link>
+          <Nav.Link href="/admin-produtos">Produtos</Nav.Link>
+          <Nav.Link href="/admin-gestao">Gestão de Dúvidas e Sugestões</Nav.Link>
+
 
         </div>
       </Nav>

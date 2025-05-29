@@ -8,6 +8,7 @@ import Project from './pages/Project.tsx'
 import ProjectsAdmin from './pages/Admin/Projects.tsx'
 import ArticlesAdmin from './pages/Admin/Artigos.tsx'
 import ProdutosAdmin from './pages/Admin/Produtos.tsx'
+import GestaoAdmin from './pages/Admin/Gestao.tsx'
 import Articles from './pages/Artigos.tsx'
 import Produtos from './pages/Produtos.tsx';
 import Login from './pages/Admin/Login.tsx'
@@ -45,6 +46,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path='/admin-projects' element={<ProjectsAdmin />} />
             <Route path='/admin-articles' element={<ArticlesAdmin />} />
             <Route path='/admin-produtos' element={<ProdutosAdmin/>} />
+            <Route path='/admin-gestao' element={<GestaoAdmin/>} />
             {/* <Route path='/logout' element={<Logout />} /> */}
           {/* </Route> */}
         </Routes>
