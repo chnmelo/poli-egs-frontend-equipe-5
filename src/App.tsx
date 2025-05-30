@@ -12,11 +12,13 @@ import { useNavigate } from "react-router-dom";
 import emailjs from '@emailjs/browser';
 import backgroundImage from './images/mainpage.jpg';
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const navigate = useNavigate();
   const [input, setInput] = useState("");
-  const form = useRef();
+  const form = useRef<HTMLFormElement>(null);
 
   const handleInputChange = (event) => {
     setInput(event.target.value);
@@ -91,14 +93,35 @@ function App() {
     }
 
     axios.post(`${import.meta.env.VITE_url_backend}/duvidas_add`, NewQuestion)
-    .then(response => console.log(`Upload realizado com sucesso! ${response.data.duvida}`))
-    .catch(error => console.log(error))
+    .then(response => {
+      console.log(`Upload realizado com sucesso! ${response.data.duvida}`);
 
+      toast.success("Mensagem enviada com sucesso!");
+      
+      // Limpa os campos após o envio
+      QuestionForm?.reset();
+    })
+
+    .catch(error => {
+      console.log(error);
+      toast.error("❌ Erro ao enviar mensagem.");
+    });
   }
 
   return (
     <>
       <Header />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+    />
 
       {/* Seção Hero */}
       <section className="relative bg-cover bg-center h-screen" style={{ backgroundImage: `url(${backgroundImage})` }}>
