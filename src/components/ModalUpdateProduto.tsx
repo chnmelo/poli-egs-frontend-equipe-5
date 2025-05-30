@@ -68,6 +68,23 @@ export default function ModalUpdateProduto({ produto }: { produto: ProdutoInt })
       console.error('Erro completo:', error);
     });
   };
+  const semesterGenerator = (): string[] => {
+   const current = new Date();
+   const currentYear = current.getFullYear();
+   const currentMonth = current.getMonth();
+
+   const semesters: string[] = [];
+
+   for (let year = 2023; year <= currentYear; year++) {
+    semesters.push(`${year}.1`);
+    if (year < currentYear || currentMonth >= 6) {
+      semesters.push(`${year}.2`);
+    }
+  }
+
+   return semesters.reverse();
+};
+  const ableSemesters= semesterGenerator();
 
   return(
       <>
@@ -121,7 +138,18 @@ export default function ModalUpdateProduto({ produto }: { produto: ProdutoInt })
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Semestre de publicação</h3>
-                  <input type="date" name="titulo" id="titulo" placeholder="Ex: 2024.1" value={UpdatedProduto.semestre} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProduto({...UpdatedProduto, semestre:e.target.value}))}/>
+                  <select
+                    name="semestre"
+                    id="semestre"
+                    value={UpdatedProduto.semestre}
+                    className="focus:outline-none border-b-2 w-[15vw]"
+                     onChange={(e) => setUpdatedProduto({ ...UpdatedProduto, semestre: e.target.value })}
+>
+                      <option value="">Selecione um semestre</option>
+                        {ableSemesters.map((semestre) => (<option key={semestre} value={semestre}>
+                        {semestre}
+                      </option>))}
+                  </select>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Equipe</h3>
