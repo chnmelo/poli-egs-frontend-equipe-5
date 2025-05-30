@@ -34,7 +34,18 @@ function GestaoAdmin() {
         axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
             .then(response => {
                 console.log("DÚVIDAS RECEBIDAS:", response.data);
-                setDuvida(response.data.duvidas || []);
+
+                const duvidas = response.data.duvidas;
+                const email = localStorage.getItem("email")
+                var duvidas_ordenadas = []
+                for (var i = 0; i < duvidas.length; i++){
+                    if(duvidas[i].visualizacoes.includes(email)) {
+                        duvidas_ordenadas.push(duvidas[i]);
+                    } else {
+                        duvidas_ordenadas.unshift(duvidas[i]);
+                    }
+                }
+                setDuvida(duvidas_ordenadas || []);
 
             })
             .catch(error => console.error('Erro ao buscar dúvidas:', error));
@@ -75,8 +86,28 @@ function GestaoAdmin() {
             console.error('Erro ao atualizar duvida', error);
         });
     };
-    /*checar se ta funcionando*/
 
+    const handleVisualizacao = (duvida) => {
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem('email');
+
+        if (duvida.visualizacoes.includes(email)) { return; }
+
+        axios.put(`${import.meta.env.VITE_url_backend}/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        .then(response => {
+            console.log(response.data)
+            duvida.visualizacoes.push(email)
+        })
+        .catch(error => console.log(error))
+
+        
+    }
+
+    /*checar se ta funcionando*/
     const filteredDuvida = Array.isArray(Duvida) ? Duvida.filter((duvida) => {
         const input = Input.toLowerCase();
         return (
@@ -137,6 +168,7 @@ function GestaoAdmin() {
                                         onClick={() => {
                                             if (column.key === "titulo") {
                                                 setExpandedId(expandedId === duvida.id ? null : duvida.id);
+                                                handleVisualizacao(duvida);
                                             }
                                         }}
                                     >
@@ -159,7 +191,8 @@ function GestaoAdmin() {
                                                 Postado
                                             </label>
                                         ) : column.key === "titulo" ? (
-                                            duvida.titulo
+                                            duvida.visualizacoes.includes(localStorage.getItem("email")) ?
+                                                duvida.titulo : <strong>{duvida.titulo}</strong>
                                         ) : null}
                                     </td>
                                 ))}
