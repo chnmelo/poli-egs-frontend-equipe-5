@@ -5,6 +5,16 @@ import axios from "axios";
 import ModalResponderDuvida from "../../components/ModalResponderDuvida.tsx";
 import ModalDeleteDuvida from "../../components/ModalDeleteDuvida.tsx";
 
+interface DuvidaType {
+    id: string;
+    titulo: string;
+    postado: boolean;
+    mensagem: string;
+    autor: string;
+    email: string;
+    resposta?: string;
+}
+
 const columns = [
     { key: "titulo", label: "Título" },
     { key: "status", label: "Status" },
@@ -14,7 +24,7 @@ const columns = [
 function GestaoAdmin() {
     const [Input, setInput] = useState<string>("");
     const [expandedId, setExpandedId] = useState<string | null>(null);
-    const [Duvida, setDuvida] = useState([]);
+    const [Duvida, setDuvida] = useState<DuvidaType[]>([]);
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInput(event.target.value);
@@ -30,31 +40,33 @@ function GestaoAdmin() {
             .catch(error => console.error('Erro ao buscar dúvidas:', error));
     }, []);
 
-    /*checar se ta funcionando*/
-    const handleApprove = (duvida) => {
+    /*checar se ta funcionando posteriormente*/
+    function togglePublicacao(duvida: { id: string; postado: boolean }) {
         const token = localStorage.getItem('authToken');
-        axios.put(`${import.meta.env.VITE_url_backend}/duvida_publicado/${duvida.id}/`, null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(() => handleUpdate())
-            .catch(error => console.error('Erro ao publicar resposta:', error));
-    };
-    /*checar se ta funcionando*/
-    const handleReprove = (duvida) => {
-        const token = localStorage.getItem('authToken');
-        axios.put(`${import.meta.env.VITE_url_backend}/duvida_publicado/${duvida.id}/`, null, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(() => window.location.reload())
-            .catch(error => console.error('Erro ao privar resposta:', error));
-    };
-    /*checar se ta funcionando*/
+        if (!token) {
+            console.error('Token não encontrado');
+            return;
+        }
+
+        axios.put(
+            `${import.meta.env.VITE_url_backend}/duvida_publicado/${duvida.id}/?id_token=${token}`,
+            null,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        )
+            .then(() => {
+                setDuvida(prev =>
+                    prev.map(duvidaItem =>
+                        duvidaItem.id === duvida.id ? { ...duvidaItem, postado: !duvidaItem.postado } : duvidaItem
+                    )
+                );
+            })
+            .catch(error => console.error('Erro ao atualizar status:', error));
+    }
+    /*checar se ta funcionando posteriormente*/
 
     const handleUpdate = () => {
         axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`).then(response => {
@@ -67,7 +79,11 @@ function GestaoAdmin() {
 
     const filteredDuvida = Array.isArray(Duvida) ? Duvida.filter((duvida) => {
         const input = Input.toLowerCase();
-        return duvida.titulo?.toLowerCase().includes(input);
+        return (
+            duvida.titulo?.toLowerCase().includes(input) ||
+            duvida.email?.toLowerCase().includes(input) ||
+            duvida.autor?.toLowerCase().includes(input)
+        );
     }) : [];
 
     return (
@@ -137,14 +153,8 @@ function GestaoAdmin() {
                                             <label className="flex items-center gap-2 justify-end">
                                                 <input
                                                     type="checkbox"
-                                                    checked={duvida.publicado === true}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            handleApprove(duvida);
-                                                        } else {
-                                                            handleReprove(duvida);
-                                                        }
-                                                    }}
+                                                    checked={duvida.postado}
+                                                    onChange={() => togglePublicacao(duvida)}
                                                 />
                                                 Postado
                                             </label>
@@ -159,7 +169,9 @@ function GestaoAdmin() {
                                     <td colSpan={columns.length} className="p-4 text-left text-gray-800">
                                         <strong>Mensagem:</strong> {duvida.mensagem}
                                         <br />
-                                        <strong>Autor:</strong> {duvida.autor} — <strong>Email:</strong> {duvida.email}
+                                        <strong>Autor:</strong> {duvida.autor}
+                                        <br />
+                                        <strong>E-mail:</strong> {duvida.email}
                                         <br />
                                         <strong>Resposta:</strong> {duvida.resposta || "Ainda não respondida."}
                                     </td>
