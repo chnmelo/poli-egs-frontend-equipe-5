@@ -165,6 +165,23 @@ function ProdutosAdmin () {
     );
   }) : [];
 
+  const semesterGenerator = (): string[] => {
+    const current = new Date();
+    const currentYear = current.getFullYear();
+    const currentMonth = current.getMonth();
+
+    const semesters: string[] = [];
+
+    for (let year = 2023; year <= currentYear; year++) {
+      semesters.push(`${year}.1`);
+      if (year < currentYear || currentMonth >= 6) {
+        semesters.push(`${year}.2`);
+      }
+    }
+
+    return semesters.reverse();
+    };
+
   return (
     <>
       <HeaderAdmin />
@@ -343,13 +360,16 @@ function ProdutosAdmin () {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Semestre</h3>
-                    <input
-                      id="datapublicacao"
-                      type="date"
-                      name="datapublicacao"
+                    <select
+                      name="semestre"
+                      id="semestre"
+                      value={NewProduto.semestre}
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProduto({ ...NewProduto, semestre: e.target.value })}
-                    />
+                      onChange={(e) => setNewProduto({ ...NewProduto, semestre: e.target.value })}>
+                      <option value="">Selecione um semestre</option>
+                      {semesterGenerator().map((semestre) => (
+                          <option key={semestre} value={semestre}>{semestre}</option>))}
+                    </select>
                   </div>
                   <div className="w-[15vw] relative">
                     <input
