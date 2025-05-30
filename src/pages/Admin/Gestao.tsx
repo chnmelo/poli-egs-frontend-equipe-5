@@ -45,7 +45,6 @@ function GestaoAdmin() {
                         duvidas_ordenadas.unshift(duvidas[i]);
                     }
                 }
-                console.log(duvidas_ordenadas)
                 setDuvida(duvidas_ordenadas || []);
 
             })
@@ -87,6 +86,27 @@ function GestaoAdmin() {
             console.error('Erro ao atualizar duvida', error);
         });
     };
+
+    const handleVisualizacao = (duvida) => {
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem('email');
+
+        if (duvida.visualizacoes.includes(email)) { return; }
+
+        axios.put(`${import.meta.env.VITE_url_backend}/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        .then(response => {
+            console.log(response.data)
+            duvida.visualizacoes.push(email)
+        })
+        .catch(error => console.log(error))
+
+        
+    }
+
     /*checar se ta funcionando*/
     const filteredDuvida = Array.isArray(Duvida) ? Duvida.filter((duvida) => {
         const input = Input.toLowerCase();
@@ -148,6 +168,7 @@ function GestaoAdmin() {
                                         onClick={() => {
                                             if (column.key === "titulo") {
                                                 setExpandedId(expandedId === duvida.id ? null : duvida.id);
+                                                handleVisualizacao(duvida);
                                             }
                                         }}
                                     >
