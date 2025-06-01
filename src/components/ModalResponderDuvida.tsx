@@ -19,8 +19,9 @@ export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) 
         autor: duvida.autor || "",
         email: duvida.email|| "",
         visualizacoes: duvida.visualizacoes|| "Pendente",
-        publicado: duvida.publicado|| "Privado",
         resposta: duvida.resposta|| "",
+        data_de_envio: duvida.data_de_envio || "",
+        data_de_postagem: duvida.data_de_postagem || "",
     });
 
     const handleUpdateDuvida = () => {
@@ -37,8 +38,9 @@ export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) 
             autor: duvida.autor || "",
             email: duvida.email|| "",
             visualizacoes: UpdatedDuvida.visualizacoes|| "Pendente",
-            publicado: UpdatedDuvida.publicado|| "Privado",
             resposta: UpdatedDuvida.resposta|| "",
+            data_de_envio: duvida.data_de_envio || "",
+            data_de_postagem: UpdateDuvida.data_de_postagem || "",
         };
 
         axios.put(`${import.meta.env.VITE_url_backend}/duvidas_add/${duvida.id}?id_token=${token}`, UpdatedDuvidaWithDefaults, {
@@ -64,8 +66,6 @@ export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) 
             >
                 Responder
             </button>
-
-
             <Dialog open={open} onClose={setOpen} className="relative z-10">
                 <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -80,35 +80,68 @@ export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) 
                                     </div>
                                 </div>
                             </div>
-
-                            <form onSubmit={(e) => e.preventDefault()}>
-                                <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
-                                    {[
-                                        { label: "Título", key: "titulo", placeholder: "" },
-                                        { label: "Mensagem", key: "mensagem", placeholder: "" },
-                                        { label: "Autor", key: "autor", placeholder: "" },
-                                        { label: "E-mail", key: "email", placeholder: "" },
-                                        { label: "Resposta", key: "resposta", placeholder: "", type: "" },
-                                    ].map(({ label, key, placeholder, type = "text" }) => (
-                                        <div key={key}>
-                                            <h3 className="text-lg font-semibold">{label}</h3>
+                                <form onSubmit={(e) => e.preventDefault()}>
+                                    <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh] gap-x-4">
+                                        {[
+                                            { label: "Título", key: "titulo", placeholder: "" },
+                                            { label: "Mensagem", key: "mensagem", placeholder: "" },
+                                            { label: "Autor", key: "autor", placeholder: "" },
+                                            { label: "E-mail", key: "email", placeholder: "" },
+                                        ].map(({ label, key, placeholder, type = "text" }) => (
+                                            <div key={key}>
+                                                <h3 className="text-lg font-semibold">{label}</h3>
+                                                <input
+                                                    type={type}
+                                                    name={key}
+                                                    id={key}
+                                                    placeholder={placeholder}
+                                                    value={UpdatedDuvida[key as keyof typeof UpdatedDuvida] as string}
+                                                    className="focus:outline-none border-b-2 w-full"
+                                                    onChange={(e) => setUpdatedDuvida({
+                                                        ...UpdatedDuvida,
+                                                        [key]: e.target.value
+                                                    })}
+                                                />
+                                            </div>
+                                        ))}
+                                        <div>
+                                            <h3 className="text-lg font-semibold">Data de Envio</h3>
                                             <input
-                                                type={type}
-                                                name={key}
-                                                id={key}
-                                                placeholder={placeholder}
-                                                value={UpdatedDuvida[key as keyof typeof UpdatedDuvida] as string}
-                                                className="focus:outline-none border-b-2 w-[15vw]"
+                                                type="text"
+                                                readOnly
+                                                value={new Date(duvida.data_de_envio).toLocaleDateString('pt-BR')}
+                                                className="focus:outline-none border-b-2 w-full bg-transparent text-gray-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold">Hora de Envio</h3>
+                                            <input
+                                                type="text"
+                                                readOnly
+                                                value={new Date(duvida.data_de_envio).toLocaleTimeString('pt-BR', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: false
+                                                })}
+                                                className="focus:outline-none border-b-2 w-full bg-transparent text-gray-700"
+                                            />
+                                        </div>
+                                        <div className="col-span-2">
+                                            <h3 className="text-lg font-semibold">Resposta</h3>
+                                            <textarea
+                                                name="resposta"
+                                                id="resposta"
+                                                placeholder="Digite a resposta..."
+                                                value={UpdatedDuvida.resposta}
+                                                className="focus:outline-none border-b-2 w-full"
                                                 onChange={(e) => setUpdatedDuvida({
                                                     ...UpdatedDuvida,
-                                                    [key]: e.target.value
+                                                    resposta: e.target.value
                                                 })}
                                             />
                                         </div>
-                                    ))}
-                                </div>
-                            </form>
-
+                                    </div>
+                                </form>
                             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                 <button
                                     type="button"

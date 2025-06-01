@@ -13,6 +13,7 @@ interface DuvidaType {
     autor: string;
     email: string;
     resposta?: string;
+    data_de_envio;
 }
 
 const columns = [
@@ -150,14 +151,14 @@ function GestaoAdmin() {
                                                 />
                                             </div>
                                         ) : column.key === "status" ? (
-                                            <label className="flex items-center gap-2 justify-end">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={duvida.postado}
-                                                    onChange={() => togglePublicacao(duvida)}
-                                                />
-                                                Postado
-                                            </label>
+                                            <div className="flex items-center justify-center gap-2">
+                                              <input
+                                                type="checkbox"
+                                                checked={duvida.postado}
+                                                onChange={() => togglePublicacao(duvida)}
+                                              />
+                                              <span className="text-sm">Postado</span>
+                                            </div>
                                         ) : column.key === "titulo" ? (
                                             duvida.titulo
                                         ) : null}
@@ -174,6 +175,13 @@ function GestaoAdmin() {
                                         <strong>E-mail:</strong> {duvida.email}
                                         <br />
                                         <strong>Resposta:</strong> {duvida.resposta || "Ainda não respondida."}
+                                        <br />
+                                        <strong>Data de envio:</strong> {new Date(duvida.data_de_envio).toLocaleDateString('pt-BR')}
+                                        <br />
+                                        <strong>Hora de envio:</strong> {new Date(duvida.data_de_envio).toLocaleTimeString('pt-BR', {
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
                                     </td>
                                 </tr>
                             )}
