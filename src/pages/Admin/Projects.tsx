@@ -227,7 +227,9 @@ function ProjectsAdmin() {
 
   const filteredProject = Array.isArray(Project) ? Project.filter((project) => {
     const input = Input.toLowerCase();
-    return project.titulo?.toLowerCase().includes(input) || project.palavras_chave?.toLowerCase().includes(input) || project.tema?.toLowerCase().includes(input);
+    return project.titulo?.toLowerCase().includes(input) ||
+        project.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
+        project.tema?.toLowerCase().includes(input);
   }) : [];
 
   return (
@@ -243,8 +245,9 @@ function ProjectsAdmin() {
           name="searchbar" 
           id="searchbar" 
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
-          placeholder="Pesquise por nome, tema, palavra-chave"
+          placeholder="Pesquise por título, tema, palavra-chave"
           value={Input}
+          onChange={(e) => setInput(e.target.value)}
         />
       </div>  
       <div className="px-[13vw] pt-10">
