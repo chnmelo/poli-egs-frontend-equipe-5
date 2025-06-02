@@ -126,9 +126,10 @@ function Userprojects() {
       },
     })
     .then(response => {
-      handleLogoUpload(response.data.projeto.id);
-      toast.success('Projeto cadastrado com sucesso!', {})
-    })
+        window.location.reload();
+        setOpen(false);
+        toast.success("Projeto cadastrado com sucesso!");
+      })
       .catch(error => {
         console.error('Erro ao adicionar projeto:', error);
         alert(`Erro ao cadastrar projeto: ${error.response?.data?.message || 'Verifique sua conexão'}`);
