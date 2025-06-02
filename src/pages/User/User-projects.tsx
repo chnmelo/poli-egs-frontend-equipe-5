@@ -129,7 +129,10 @@ function Userprojects() {
       handleLogoUpload(response.data.projeto.id);
       toast.success('Projeto cadastrado com sucesso!', {})
     })
-    .catch(error => console.error('Erro ao adicionar projeto:', error));
+      .catch(error => {
+        console.error('Erro ao adicionar projeto:', error);
+        alert(`Erro ao cadastrar projeto: ${error.response?.data?.message || 'Verifique sua conexão'}`);
+      });
   };
 
   useEffect(() => {

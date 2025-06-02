@@ -144,7 +144,7 @@ function ArticlesAdmin () {
       handlePdfUpload(response.data.artigo.id);
       toast.success("Artigo cadastrado com sucesso!");
     })
-    .catch(error => console.error('Erro ao adicionar projeto:', error));
+    .catch(error => console.error('Erro ao adicionar artigo:', error));
   };
 
   const handleUpdate = () => {
