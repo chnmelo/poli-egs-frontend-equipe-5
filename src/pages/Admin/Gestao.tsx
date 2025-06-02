@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import ModalResponderDuvida from "../../components/ModalResponderDuvida.tsx";
 import ModalDeleteDuvida from "../../components/ModalDeleteDuvida.tsx";
+import React from 'react';
 
 interface DuvidaType {
     id: string;
@@ -82,7 +83,7 @@ function GestaoAdmin() {
 
     const handleUpdate = () => {
         axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`).then(response => {
-            setDuvida(response.data.duvidas);
+            setDuvida(response.data.duvidas || []);
         }).catch(error => {
             console.error('Erro ao atualizar duvida', error);
         });
@@ -108,7 +109,6 @@ function GestaoAdmin() {
         
     }
 
-    /*checar se ta funcionando*/
     const filteredDuvida = Array.isArray(Duvida) ? Duvida.filter((duvida) => {
         const input = Input.toLowerCase();
         return (
@@ -154,8 +154,8 @@ function GestaoAdmin() {
                     </thead>
                     <tbody>
                     {filteredDuvida.map((duvida) => (
-                        <>
-                            <tr key={duvida.id} className="border border-light-color">
+                        <React.Fragment key={duvida.id}>
+                            <tr className="border border-light-color">
                                 {columns.map((column) => (
                                     <td
                                         key={column.key}
@@ -175,7 +175,7 @@ function GestaoAdmin() {
                                     >
                                         {column.key === "acoes" ? (
                                             <div className="flex justify-center items-center gap-4">
-                                                <ModalResponderDuvida duvida={duvida} />
+                                                <ModalResponderDuvida duvida={duvida} handleUpdate={handleUpdate}/>
                                                 <ModalDeleteDuvida
                                                     id={duvida.id}
                                                     title={duvida.titulo}
@@ -184,12 +184,12 @@ function GestaoAdmin() {
                                             </div>
                                         ) : column.key === "status" ? (
                                             <div className="flex items-center justify-center gap-2">
-                                              <input
-                                                type="checkbox"
-                                                checked={duvida.postado}
-                                                onChange={() => togglePublicacao(duvida)}
-                                              />
-                                              <span className="text-sm">Postado</span>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={duvida.postado}
+                                                    onChange={() => togglePublicacao(duvida)}
+                                                />
+                                                <span className="text-sm">Postado</span>
                                             </div>
                                         ) : column.key === "titulo" ? (
                                             duvida.visualizacoes.includes(localStorage.getItem("email")) ?
@@ -199,26 +199,26 @@ function GestaoAdmin() {
                                 ))}
                             </tr>
                             {expandedId === duvida.id && (
-                                <tr key={`msg-${duvida.id}`} className="bg-gray-100">
-                                    <td colSpan={columns.length} className="p-4 text-left text-gray-800">
-                                        <strong>Mensagem:</strong> {duvida.mensagem}
-                                        <br />
-                                        <strong>Autor:</strong> {duvida.autor}
-                                        <br />
-                                        <strong>E-mail:</strong> {duvida.email}
-                                        <br />
-                                        <strong>Resposta:</strong> {duvida.resposta || "Ainda não respondida."}
-                                        <br />
-                                        <strong>Data de envio:</strong> {new Date(duvida.data_de_envio).toLocaleDateString('pt-BR')}
-                                        <br />
-                                        <strong>Hora de envio:</strong> {new Date(duvida.data_de_envio).toLocaleTimeString('pt-BR', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </td>
-                                </tr>
+                              <tr className="bg-gray-100">
+                                <td colSpan={columns.length} className="p-4 text-left text-gray-800">
+                                  <strong>Mensagem:</strong> {duvida.mensagem}
+                                  <br />
+                                  <strong>Autor:</strong> {duvida.autor}
+                                  <br />
+                                  <strong>E-mail:</strong> {duvida.email}
+                                  <br />
+                                  <strong>Resposta:</strong> {duvida.resposta || "Ainda não respondida."}
+                                  <br />
+                                  <strong>Data de envio:</strong> {new Date(duvida.data_de_envio).toLocaleDateString('pt-BR')}
+                                  <br />
+                                  <strong>Hora de envio:</strong> {new Date(duvida.data_de_envio).toLocaleTimeString('pt-BR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </td>
+                              </tr>
                             )}
-                        </>
+                        </React.Fragment>
                     ))}
                     </tbody>
                 </Table>

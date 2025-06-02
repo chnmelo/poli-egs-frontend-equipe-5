@@ -1,6 +1,7 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExclamationTriangleIcon} from '@heroicons/react/20/solid';
 import { SetStateAction, useState } from 'react';
+import axios from 'axios';
 
 interface ModalProps {
     title?: string;
@@ -9,20 +10,15 @@ interface ModalProps {
 }
 
 function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateAction<boolean>): void; (arg0: boolean): void; }, handleUpdate: () => void) {
-    // Capturando o token do localStorage
     const token = localStorage.getItem('authToken');
 
-
-    // Verificando se o token existe
     if (!token) {
         console.error('Token não encontrado. Usuário não está autenticado.');
         return;
     }
-    /* nao implementado ainda
-    // Fazendo a requisição de deletar projeto com o token no cabeçalho de autorização
-    axios.delete(`${import.meta.env.VITE_url_backend}/duvidas_delete/${id}/?id_token=${localStorage.getItem('authToken')}`, {
+    axios.delete(`${import.meta.env.VITE_url_backend}/duvidas/${id}/?id_token=${localStorage.getItem('authToken')}`, {
         headers: {
-            Authorization: `Bearer ${token}`, // Usando o token obtido
+            Authorization: `Bearer ${token}`,
         },
     })
         .then(() => {
@@ -32,7 +28,6 @@ function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateA
         .catch(error => {
             console.error('Erro ao deletar duvida:', error);
         });
-     */
 }
 
 export default function ModalDeleteDuvida({ title, id, handleUpdate }: ModalProps) {

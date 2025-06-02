@@ -8,7 +8,24 @@ import { useState } from "react";
 import { DuvidaInt } from "../pages/Admin/Gestao";
 import axios from "axios";
 
-export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) {
+export interface DuvidaInt {
+    id: string;
+    titulo: string;
+    mensagem: string;
+    autor: string;
+    email: string;
+    postado: boolean;
+    visualizacoes: string[];
+    resposta?: string;
+}
+
+export default function ModalResponderDuvida({
+    duvida,
+    handleUpdate
+}: {
+    duvida: DuvidaInt;
+    handleUpdate: () => void;
+}) {
     const [open, setOpen] = useState(false);
     const handleShow = () => setOpen(true);
 
@@ -17,46 +34,42 @@ export default function ModalResponderDuvida({ duvida }: { duvida: DuvidaInt }) 
         titulo: duvida.titulo || "",
         mensagem: duvida.mensagem || "",
         autor: duvida.autor || "",
-        email: duvida.email|| "",
-        visualizacoes: duvida.visualizacoes|| "Pendente",
-        resposta: duvida.resposta|| "",
+        email: duvida.email || "",
+        postado: duvida.postado ?? false,
+        visualizacoes: duvida.visualizacoes || [],
+        resposta: duvida.resposta || "",
         data_de_envio: duvida.data_de_envio || "",
         data_de_postagem: duvida.data_de_postagem || "",
     });
 
     const handleUpdateDuvida = () => {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            console.error('Token não encontrado. Usuário não está autenticado.');
-            return;
-        }
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.error('Token não encontrado. Usuário não está autenticado.');
+        return;
+    }
 
-        const UpdatedDuvidaWithDefaults = {
-            id: duvida.id || "",
-            titulo: duvida.titulo || "",
-            mensagem: duvida.mensagem || "",
-            autor: duvida.autor || "",
-            email: duvida.email|| "",
-            visualizacoes: UpdatedDuvida.visualizacoes|| "Pendente",
-            resposta: UpdatedDuvida.resposta|| "",
-            data_de_envio: duvida.data_de_envio || "",
-            data_de_postagem: UpdateDuvida.data_de_postagem || "",
-        };
-
-        axios.put(`${import.meta.env.VITE_url_backend}/duvidas_add/${duvida.id}?id_token=${token}`, UpdatedDuvidaWithDefaults, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then(() => {
-                window.location.reload();
-                setOpen(false);
-            })
-            .catch(error => {
-                console.error('Erro ao atualizar duvida:', error.response ? error.response.data : error.message);
-            });
+    const dadosParaAtualizar = {
+        resposta: UpdatedDuvida.resposta || "",
+        data_de_postagem: new Date().toISOString(),
+        visualizacoes: UpdatedDuvida.visualizacoes || duvida.visualizacoes || [],
     };
+
+    axios.put(`${import.meta.env.VITE_url_backend}/duvidas/${duvida.id}/?id_token=${token}`,
+        dadosParaAtualizar,
+        {
+         headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`,},
+        }
+    )
+    .then(() => {
+        handleUpdate();
+        setOpen(false);
+    })
+    .catch(error => {
+        console.error('Erro ao responder dúvida:', error.response ? error.response.data : error.message);
+        console.error('Erro completo:', error);
+    });
+};
 
     return (
         <>
