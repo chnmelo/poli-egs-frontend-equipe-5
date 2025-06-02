@@ -89,6 +89,23 @@ export default function ModalUpdate({ project }: { project: ProjectInt }){
       console.error('Erro completo:', error.response);
     });
 };
+  const semesterGenerator = (): string[] => {
+   const current = new Date();
+   const currentYear = current.getFullYear();
+   const currentMonth = current.getMonth();
+
+   const semesters: string[] = [];
+
+   for (let year = 2023; year <= currentYear; year++) {
+    semesters.push(`${year}.1`);
+    if (year < currentYear || currentMonth >= 6) {
+      semesters.push(`${year}.2`);
+    }
+  }
+
+   return semesters.reverse();
+};
+  const ableSemesters= semesterGenerator();
 
     return(
         <>
@@ -133,8 +150,18 @@ export default function ModalUpdate({ project }: { project: ProjectInt }){
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Semestre</h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Ex: 2024.1" value={UpdatedProject.semestre} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProject({...UpdatedProject, semestre:e.target.value}))}/>
-                </div>
+                  <select
+                    name="semestre"
+                    id="semestre"
+                    value={UpdatedProject.semestre}
+                    className="focus:outline-none border-b-2 w-[15vw]"
+                     onChange={(e) => setUpdatedProject({ ...UpdatedProject, semestre: e.target.value })}
+>
+                      <option value="">Selecione um semestre</option>
+                        {ableSemesters.map((semestre) => (<option key={semestre} value={semestre}>
+                        {semestre}
+                      </option>))}
+                  </select>                </div>
                 <div>
                   <h3 className="text-lg font-semibold">Tecnologias Utilizadas</h3>
                   <input type="text" name="titulo" id="titulo" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" value={UpdatedProject.tecnologias_utilizadas} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProject({...UpdatedProject, tecnologias_utilizadas:e.target.value}))}/>

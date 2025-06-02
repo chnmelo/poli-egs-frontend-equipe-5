@@ -75,6 +75,23 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
       console.error('Erro completo:', error);
     });
   };
+  const semesterGenerator = (): string[] => {
+   const current = new Date();
+   const currentYear = current.getFullYear();
+   const currentMonth = current.getMonth();
+
+   const semesters: string[] = [];
+
+   for (let year = 2023; year <= currentYear; year++) {
+    semesters.push(`${year}.1`);
+    if (year < currentYear || currentMonth >= 6) {
+      semesters.push(`${year}.2`);
+    }
+  }
+
+   return semesters.reverse();
+};
+  const ableSemesters= semesterGenerator();
 
   return(
       <>
@@ -122,8 +139,18 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
                   <input type="text" name="titulo" id="titulo" placeholder="Ex: Esse artigo fala sobre..." value={UpdatedArticle.resumo} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, resumo:e.target.value}))}/>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Data de publicação</h3>
-                  <input type="date" name="titulo" id="titulo" placeholder="Ex: 2024.1" value={UpdatedArticle.data} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, data:e.target.value}))}/>
+                  <h3 className="text-lg font-semibold">Semestre</h3>
+                  <select
+                    name="semestre"
+                    id="semestre"
+                    value={UpdatedArticle.data}
+                    className="focus:outline-none border-b-2 w-[15vw]"
+                     onChange={(e) => setUpdatedArticle({ ...UpdatedArticle, data: e.target.value })}>
+                      <option value="">Selecione um semestre</option>
+                        {ableSemesters.map((semestre) => (<option key={semestre} value={semestre}>
+                        {semestre}
+                      </option>))}
+                  </select>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Equipe</h3>

@@ -221,7 +221,22 @@ function Userprojects() {
         project.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
         project.tema?.toLowerCase().includes(input);
   }) : [];
+  const semesterGenerator = (): string[] => {
+    const current = new Date();
+    const currentYear = current.getFullYear();
+    const currentMonth = current.getMonth();
 
+    const semesters: string[] = [];
+
+    for (let year = 2023; year <= currentYear; year++) {
+      semesters.push(`${year}.1`);
+      if (year < currentYear || currentMonth >= 6) {
+        semesters.push(`${year}.2`);
+      }
+    }
+
+    return semesters.reverse();
+    };
   return (
     <>
       <HeaderUser />
@@ -330,8 +345,16 @@ function Userprojects() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
-                  <input type="text" name="semestre" id="semestre" placeholder="Ex: 2024.1" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('semestre', e.target.value)}/>
-                </div>
+                    <select
+                      name="semestre"
+                      id="semestre"
+                      value={NewProject.semestre}
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => setNewProject({ ...NewProject, semestre: e.target.value })}>
+                      <option value="">Selecione um semestre</option>
+                      {semesterGenerator().map((semestre) => (
+                          <option key={semestre} value={semestre}>{semestre}</option>))}
+                    </select>                </div>
                 <div>
                   <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
                   <input type="text" name="tecnologias" id="tecnologias" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('tecnologias_utilizadas', e.target.value)}/>
