@@ -7,6 +7,8 @@ import ModalUpdateProduto from "../../components/ModalUpdateProduto";
 import { FaFileUpload } from "react-icons/fa";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export interface ProdutoInt {
@@ -111,6 +113,7 @@ function Userprodutos () {
     })
     .then(response => {
       handlePdfUpload(response.data.produto.id);
+      toast.success("Produto cadastrado com sucesso!");
     })
     .catch(error => console.error('Erro ao adicionar produto:', error));
   };
@@ -159,6 +162,17 @@ function Userprodutos () {
   return (
     <>
       <HeaderUser />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+    />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-start text-dark-color">Produtos</h1>
