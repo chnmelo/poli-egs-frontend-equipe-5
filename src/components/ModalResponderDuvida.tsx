@@ -42,6 +42,10 @@ export default function ModalResponderDuvida({
         data_de_postagem: duvida.data_de_postagem || "",
     });
 
+    const respondido = (resposta: string | undefined) => {
+        return resposta && resposta.trim() !== "" && resposta !== "Não respondido";
+    };
+
     const handleUpdateDuvida = () => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -69,16 +73,20 @@ export default function ModalResponderDuvida({
         console.error('Erro ao responder dúvida:', error.response ? error.response.data : error.message);
         console.error('Erro completo:', error);
     });
+
 };
 
     return (
         <>
             <button
-                onClick={handleShow}
-                className="bg-primary-color text-white px-5 py-2 rounded-md shadow-md font-semibold transition duration-300 flex items-center justify-center gap-2 min-w-[120px]"
-            >
-                Responder
-            </button>
+            onClick={handleShow}
+                className={`${
+                respondido(duvida.resposta) ?
+                 "bg-green-600 hover:bg-green-700": "bg-primary-color hover:bg-neutral-400" }
+                 text-white px-5 py-2 rounded-md shadow-md font-semibold transition duration-300 flex items-center justify-center gap-2 min-w-[120px]`}
+                >
+                {respondido(duvida.resposta) ? "Respondido" : "Responder"}
+                </button>
             <Dialog open={open} onClose={setOpen} className="relative z-10">
                 <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
                 <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -94,65 +102,20 @@ export default function ModalResponderDuvida({
                                 </div>
                             </div>
                                 <form onSubmit={(e) => e.preventDefault()}>
-                                    <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh] gap-x-4">
-                                        {[
-                                            { label: "Título", key: "titulo", placeholder: "" },
-                                            { label: "Mensagem", key: "mensagem", placeholder: "" },
-                                            { label: "Autor", key: "autor", placeholder: "" },
-                                            { label: "E-mail", key: "email", placeholder: "" },
-                                        ].map(({ label, key, placeholder, type = "text" }) => (
-                                            <div key={key}>
-                                                <h3 className="text-lg font-semibold">{label}</h3>
-                                                <input
-                                                    type={type}
-                                                    name={key}
-                                                    id={key}
-                                                    placeholder={placeholder}
-                                                    value={UpdatedDuvida[key as keyof typeof UpdatedDuvida] as string}
-                                                    className="focus:outline-none border-b-2 w-full"
-                                                    onChange={(e) => setUpdatedDuvida({
-                                                        ...UpdatedDuvida,
-                                                        [key]: e.target.value
-                                                    })}
-                                                />
-                                            </div>
-                                        ))}
-                                        <div>
-                                            <h3 className="text-lg font-semibold">Data de Envio</h3>
-                                            <input
-                                                type="text"
-                                                readOnly
-                                                value={new Date(duvida.data_de_envio).toLocaleDateString('pt-BR')}
-                                                className="focus:outline-none border-b-2 w-full bg-transparent text-gray-700"
-                                            />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold">Hora de Envio</h3>
-                                            <input
-                                                type="text"
-                                                readOnly
-                                                value={new Date(duvida.data_de_envio).toLocaleTimeString('pt-BR', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: false
-                                                })}
-                                                className="focus:outline-none border-b-2 w-full bg-transparent text-gray-700"
-                                            />
-                                        </div>
-                                        <div className="col-span-2">
-                                            <h3 className="text-lg font-semibold">Resposta</h3>
-                                            <textarea
-                                                name="resposta"
-                                                id="resposta"
-                                                placeholder="Digite a resposta..."
-                                                value={UpdatedDuvida.resposta}
-                                                className="focus:outline-none border-b-2 w-full"
-                                                onChange={(e) => setUpdatedDuvida({
-                                                    ...UpdatedDuvida,
-                                                    resposta: e.target.value
-                                                })}
-                                            />
-                                        </div>
+                                    <div className="col-span-2 px-4 py-3">
+                                        <textarea
+                                        name="resposta"
+                                        id="resposta"
+                                        placeholder={duvida.resposta === "Não respondido" || duvida.resposta === "" ? "Digite sua resposta..." : ""}
+                                        value={UpdatedDuvida.resposta === "Não respondido" ? "" : UpdatedDuvida.resposta}
+                                        className="focus:outline-none border-b-2 w-full text-sm text-gray-800 placeholder-gray-400"
+                                        onChange={(e) =>
+                                            setUpdatedDuvida({
+                                                ...UpdatedDuvida,
+                                                resposta: e.target.value
+                                            })
+                                        }
+                                    />
                                     </div>
                                 </form>
                             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
