@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx'
 import Logout from './components/Logout.tsx'
 import Sobre from './pages/Sobre.tsx'
 import FAQ from './pages/FAQ.tsx'
+import Respostas from './pages/Respostas.tsx'
 import LoginTest from './pages/LoginTest.tsx'
 import Register from './pages/Register';
 import Userprojects from './pages/User/User-projects.tsx';
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           {/* <Route path='/login' element={<Login />} />  */}
           <Route path='/sobre' element={<Sobre />} />
           <Route path='/faq' element={<FAQ />} />
+          <Route path='/respostas' element={<Respostas />} />
           <Route path='/user-projects' element={<Userprojects />} />
           <Route path='/user-articles' element={<Userarticles />} />
           <Route path='/user-produtos' element={<Userprodutos />} />
