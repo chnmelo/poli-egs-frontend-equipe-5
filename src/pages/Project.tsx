@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import iconImage from '../images/avatar.png';
 import Header from '../components/Header';
 import backgroundImage from '../images/mainpage.jpg';
+import ModalIntegrante from '../components/ModalIntegrantesProjeto';
 
 function Project() {
   const { slug } = useParams();
@@ -28,7 +29,31 @@ function Project() {
       setImg(response.data["url"]);
     });
   
-  }, [slug]);  
+  }, [slug]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [integranteSelecionado, setIntegranteSelecionado] = useState(null);
+
+  const handleClickIntegrante = (pessoa) => {
+  let integrante;
+
+  if (typeof pessoa === 'string') {
+    integrante = {
+      nome: pessoa,
+      minibio: "Mini bio não disponível.",
+      email: "contato@exemplo.com",
+    };
+  } else {
+    integrante = {
+      nome: pessoa.Nome || "Nome não informado",
+      minibio: pessoa.Minibio || "Mini bio não disponível.",
+      email: pessoa.Contato || "contato@exemplo.com",
+    };
+  }
+
+  setIntegranteSelecionado(integrante);
+  setModalOpen(true);
+  };
 
   return (
     <>
@@ -90,10 +115,23 @@ function Project() {
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
               <ul className="px-4 py-2 text-gray-700">
-                {Data.equipe?.map((pessoa, index) => (
-                  <li key={index}>{pessoa}</li>
-                ))}
-              </ul>
+				  {Data.equipe?.map((pessoa, index) => {
+				    // Se for objeto com Nome, use o nome
+				    const nome = typeof pessoa === 'object' && pessoa !== null ? pessoa.Nome : pessoa;
+
+				    if (!nome) return null; // ignora vazios ou malformados
+
+				    return (
+				      <li
+				        key={index}
+				        onClick={() => handleClickIntegrante(pessoa)}
+				        className="cursor-pointer text-blue-600 hover:underline"
+				      >
+				        {nome}
+				      </li>
+				    );
+				  })}
+				</ul>
             </section>
 
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
@@ -167,6 +205,11 @@ function Project() {
           </div>
         </section>
       </main>
+      <ModalIntegrante
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        integrante={integranteSelecionado}
+      />
       <Footer />
     </>
   );
