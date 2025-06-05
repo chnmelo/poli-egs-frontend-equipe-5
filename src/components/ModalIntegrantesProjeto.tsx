@@ -27,7 +27,6 @@ const ModalIntegrantesProjeto: React.FC<IntegranteProps> = ({ isOpen, onClose, i
           ✕
         </button>
 
-        {/* Foto de perfil */}
         {integrante.Foto && (
           <img
             src={integrante.Foto}
@@ -36,17 +35,14 @@ const ModalIntegrantesProjeto: React.FC<IntegranteProps> = ({ isOpen, onClose, i
           />
         )}
 
-        {/* Nome */}
         {integrante.Nome && (
           <h2 className="text-2xl font-bold text-center mb-2">{integrante.Nome}</h2>
         )}
 
-        {/* Mini bio */}
         {integrante.Minibio && (
           <p className="text-center text-gray-700 mb-4">{integrante.Minibio}</p>
         )}
 
-        {/* Links clicáveis */}
         <div className="flex flex-col gap-2 text-center">
           {integrante.Lattes && (
             <a

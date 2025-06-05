@@ -57,7 +57,7 @@ function Project() {
 
   setIntegranteSelecionado(integrante);
   setModalOpen(true);
-};
+  };
 
   return (
     <>
@@ -119,14 +119,14 @@ function Project() {
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
               {Data.equipe?.map((pessoa, index) => (
-  <li
-    key={index}
-    className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
-    onClick={() => handleClickIntegrante(pessoa)}
-  >
-    {typeof pessoa === 'string' ? pessoa : pessoa.Nome}
-  </li>
-))}
+			  <li
+			    key={index}
+			    className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
+			    onClick={() => handleClickIntegrante(pessoa)}
+			  >
+			    {typeof pessoa === 'string' ? pessoa : pessoa.Nome}
+			  </li>
+			))}
             </section>
 
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
@@ -201,10 +201,10 @@ function Project() {
         </section>
       </main>
       <ModalIntegrantesProjeto
-  isOpen={modalOpen}
-  onClose={() => setModalOpen(false)}
-  integrante={integranteSelecionado}
-/>
+		  isOpen={modalOpen}
+		  onClose={() => setModalOpen(false)}
+		  integrante={integranteSelecionado}
+		/>
       <Footer />
     </>
   );
