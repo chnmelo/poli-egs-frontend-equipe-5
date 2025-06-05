@@ -201,10 +201,10 @@ function Project() {
         </section>
       </main>
       <ModalIntegrantesProjeto
-		  isOpen={modalOpen}
-		  onClose={() => setModalOpen(false)}
-		  integrante={integranteSelecionado}
-		/>
+	    isOpen={modalOpen}
+	    onClose={() => setModalOpen(false)}
+	    integrante={integranteSelecionado}
+	  />
       <Footer />
     </>
   );
