@@ -146,7 +146,7 @@ function ProdutosAdmin () {
     axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
       setProduto(response.data);
     }).catch(error => {
-      console.error('Erro ao atualizar produto', error);
+      toast.error('Erro ao atualizar produto', error.response.data.detail || '');
     });
   };
 

@@ -45,6 +45,8 @@ function Userprojects() {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [changedTitle, setChangedTitle] = useState(true)
+
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
   
   if (userIsAdmin) {
@@ -179,7 +181,8 @@ function Userprojects() {
       })
       .catch(error => {
         console.error('Erro ao adicionar projeto:', error);
-        alert(`Erro ao cadastrar projeto: ${error.response?.data?.message || 'Verifique sua conexão'}`);
+        setChangedTitle(false)
+        toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || 'Verifique sua conexão'}`);
       });
   };
   
@@ -329,7 +332,10 @@ function Userprojects() {
               <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
                 <div>
                   <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('titulo', e.target.value)}/>
+                  <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => {
+                    setChangedTitle(true)
+                    handleChangeProject('titulo', e.target.value)
+                    }}/>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
@@ -406,12 +412,12 @@ function Userprojects() {
               <button
                 type="button"
                 className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                  formValid 
+                  formValid && changedTitle 
                     ? "bg-primary-color hover:bg-blue-700" 
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
                 onClick={handlePost}
-                disabled={!formValid}
+                disabled={!formValid || !changedTitle}
               >
                 Enviar
               </button>

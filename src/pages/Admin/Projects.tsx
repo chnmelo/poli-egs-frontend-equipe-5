@@ -191,7 +191,7 @@ function ProjectsAdmin() {
       })
       .catch(error => {
         console.error('Erro ao adicionar projeto:', error);
-        alert(`Erro ao cadastrar projeto: ${error.response?.data?.message || 'Verifique sua conexão'}`);
+        toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || 'Verifique sua conexão'}`);
       });
   };
   
