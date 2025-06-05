@@ -1,65 +1,96 @@
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import avatarIcon from '../images/avatar.png';
+import React from 'react';
 
-const ModalIntegrantesProjeto = ({ open, onClose, integrante }) => {
-  if (!integrante) return null;
+interface IntegranteProps {
+  isOpen: boolean;
+  onClose: () => void;
+  integrante: {
+    Nome?: string;
+    Minibio?: string;
+    Foto?: string;
+    Lattes?: string;
+    LinkedIn?: string;
+    GitHub?: string;
+    Contato?: string;
+  } | null;
+}
 
-  const { nome, minibio, email, lattes, linkedin, github, outras_redes } = integrante;
+const ModalIntegrantesProjeto: React.FC<IntegranteProps> = ({ isOpen, onClose, integrante }) => {
+  if (!isOpen || !integrante) return null;
 
   return (
-    <Transition appear show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-xl w-full max-w-md relative shadow-xl">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl font-bold"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30" />
-        </Transition.Child>
+          ✕
+        </button>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
+        {/* Foto de perfil */}
+        {integrante.Foto && (
+          <img
+            src={integrante.Foto}
+            alt={`Foto de ${integrante.Nome}`}
+            className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
+          />
+        )}
+
+        {/* Nome */}
+        {integrante.Nome && (
+          <h2 className="text-2xl font-bold text-center mb-2">{integrante.Nome}</h2>
+        )}
+
+        {/* Mini bio */}
+        {integrante.Minibio && (
+          <p className="text-center text-gray-700 mb-4">{integrante.Minibio}</p>
+        )}
+
+        {/* Links clicáveis */}
+        <div className="flex flex-col gap-2 text-center">
+          {integrante.Lattes && (
+            <a
+              href={integrante.Lattes}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all relative">
-                <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-
-                <div className="flex flex-col items-center text-center">
-                  <img src={avatarIcon} alt="Avatar" className="w-24 h-24 rounded-full mb-4" />
-                  <Dialog.Title as="h3" className="text-lg font-bold text-gray-900">
-                    {nome}
-                  </Dialog.Title>
-                  <p className="text-gray-700 mt-2 mb-4">{minibio}</p>
-                  <p className="text-sm text-gray-600">Contato: <a className="text-blue-600 underline" href={`mailto:${email}`}>{email}</a></p>
-
-                  <div className="mt-4 flex flex-wrap justify-center gap-3">
-                    {lattes && <a href={lattes} target="_blank" rel="noopener noreferrer" className="text-blue-600">Lattes</a>}
-                    {linkedin && <a href={linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600">LinkedIn</a>}
-                    {github && <a href={github} target="_blank" rel="noopener noreferrer" className="text-blue-600">GitHub</a>}
-                    {outras_redes && <a href={outras_redes} target="_blank" rel="noopener noreferrer" className="text-blue-600">Rede Social</a>}
-                  </div>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
+              Currículo Lattes
+            </a>
+          )}
+          {integrante.LinkedIn && (
+            <a
+              href={integrante.LinkedIn}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Perfil no LinkedIn
+            </a>
+          )}
+          {integrante.GitHub && (
+            <a
+              href={integrante.GitHub}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              GitHub
+            </a>
+          )}
+          {integrante.Contato && (
+            <a
+              href={integrante.Contato.includes('@') ? `mailto:${integrante.Contato}` : integrante.Contato}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Contato
+            </a>
+          )}
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </div>
   );
 };
 
