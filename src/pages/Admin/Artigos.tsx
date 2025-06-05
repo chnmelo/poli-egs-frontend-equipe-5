@@ -58,6 +58,8 @@ function ArticlesAdmin () {
     setFile(target.files[0]);
   }
 
+  const [changedTitle, setChangedTitle] = useState(true);
+
   const handleApprove = (artigo) => {
     const token = localStorage.getItem('authToken');
     axios.put(`${import.meta.env.VITE_url_backend}/artigo_revisado/${artigo.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
@@ -144,7 +146,9 @@ function ArticlesAdmin () {
       handlePdfUpload(response.data.artigo.id);
       toast.success("Artigo cadastrado com sucesso!");
     })
-    .catch(error => toast.error('Erro ao adicionar artigo:', error.response.data.detail || ''));
+    .catch(error => {
+      setChangedTitle(false)
+      toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
   };
 
   const handleUpdate = () => {
@@ -345,7 +349,9 @@ function ArticlesAdmin () {
                       id="titulo"
                       placeholder="Título"
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewArticle({ ...NewArticle, titulo: e.target.value })}
+                      onChange={(e) => {
+                        setChangedTitle(true)
+                        setNewArticle({ ...NewArticle, titulo: e.target.value })}}
                     />
                   </div>
                   <div>
@@ -443,8 +449,13 @@ function ArticlesAdmin () {
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="button"
-                  className="inline-flex w-full justify-center rounded-md bg-primary-color px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-neutral-400 sm:ml-3 sm:w-auto"
+                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
+                  changedTitle
+                    ? "bg-primary-color hover:bg-blue-700" 
+                    : "bg-gray-400 cursor-not-allowed"
+                  }`}
                   onClick={() => handlePost(setOpen)}
+                  disabled={!changedTitle}
                 >
                   Enviar
                 </button>

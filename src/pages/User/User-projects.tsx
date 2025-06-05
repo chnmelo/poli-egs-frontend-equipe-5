@@ -45,7 +45,7 @@ function Userprojects() {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const [changedTitle, setChangedTitle] = useState(true)
+  const [changedTitle, setChangedTitle] = useState(true);
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
   
