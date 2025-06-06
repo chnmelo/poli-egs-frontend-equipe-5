@@ -33,7 +33,7 @@ function ProjectsAdmin() {
   const [NewProject, setNewProject] = useState({
     titulo: "",
     descricao: "",
-    equipe: [] as string[], // Agora é um array de strings
+    equipe: [] as string [], // Agora é um array de strings
     cliente: "",
     pitch: "",
     tema: "",
@@ -52,6 +52,9 @@ function ProjectsAdmin() {
   const [changedTitle, setChangedTitle] = useState(true);
 
   const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
+
+  const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
+
 
   const adicionarIntegrante = (novo: string) => {
     if (novo.trim() !== "" && !equipeTemp.includes(novo)) {
@@ -432,10 +435,10 @@ function ProjectsAdmin() {
                 <div>
                   <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
 					<ModalCadastrarIntegrante
-					  equipeTemp={equipeTemp}
-					  setEquipeTemp={setEquipeTemp}
-					  adicionarIntegrante={adicionarIntegrante}
-					/>
+                        integrantes={integrantes}
+                        setIntegrantes={setIntegrantes}
+                        onClose={() => {}}
+				    />
 					</div>
                 <div>
                   <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
