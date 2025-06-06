@@ -101,6 +101,11 @@ function Userprojects() {
   };
   
   const handleLogoUpload = (id: string) => {
+    if (!selectedFile) {
+      window.location.reload();
+      setOpen(false);
+      return
+    }
     const token = localStorage.getItem('authToken')
     const formData = new FormData();
     formData.append('file', selectedFile);
@@ -110,7 +115,7 @@ function Userprojects() {
         }
     })
     .then(response => {
-      window.location.reload();
+      window.location.reload()
       setOpen(false);
     })
     .catch(error => console.log('Erro ao fazer upload da logo:', error))
@@ -172,8 +177,7 @@ function Userprojects() {
     })
     .then(response => {
 
-        window.location.reload();
-        setOpen(false);
+        handleLogoUpload(response.data.projeto.id)
         toast.success("Projeto cadastrado com sucesso!");
 
       })
