@@ -11,6 +11,7 @@ import { FaFileUpload } from "react-icons/fa";
 import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
@@ -48,8 +49,18 @@ function ProjectsAdmin() {
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [changedTitle, setChangedTitle] = useState(true);
+
+  const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
+
+  const adicionarIntegrante = (novo: string) => {
+    if (novo.trim() !== "" && !equipeTemp.includes(novo)) {
+      setEquipeTemp((prev) => [...prev, novo]);
+    }
+  };
+
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
-  
+
   if (!userIsAdmin) {
     // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-projects" />;
@@ -72,7 +83,7 @@ function ProjectsAdmin() {
 
     return requiredFields.every(field => {
       const value = projectData[field];
-    
+
       if (typeof value === 'string') {
         return value.trim() !== '';
       } else if (Array.isArray(value)) {
@@ -85,13 +96,13 @@ function ProjectsAdmin() {
   const validateForm = () => {
     return validateFormWithData(NewProject);
   };
-    
+
   // Função para atualizar o NewProject e verificar a validação
   const handleChangeProject = (field, value) => {
     // Primeira atualização do estado
     const updatedProject = {...NewProject, [field]: value};
     setNewProject(updatedProject);
-  
+
     // Validação imediata com o estado atualizado
     const isValid = validateFormWithData(updatedProject);
     setFormValid(isValid);
@@ -132,33 +143,55 @@ function ProjectsAdmin() {
         .catch(error => console.error('Erro ao reprovar projeto:', error));
   }
 
+  const handleLogoUpload = (id: string) => {
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    if (!selectedFile) {
+      window.location.reload();
+      setOpen(false);
+      return
+    }
+    formData.append('file', selectedFile);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload();
+      setOpen(false);
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
+
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
-    
+
     if (!token) {
       alert('Token de autenticação não encontrado.');
       return;
     }
-    
+
     // Verificar novamente se todos os campos obrigatórios estão preenchidos
     if (!validateForm()) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-  
+
     // Função auxiliar para converter string em array
     const stringToArray = (value) => {
-      return typeof value === 'string' && value.trim() 
-        ? value.split(',').map(item => item.trim()) 
-        : [];
-    };
+        if (Array.isArray(value))
+            return value;
+        if (typeof value === 'string')
+            return value.split(',').map(s => s.trim()).filter(Boolean);
+        return [];
+	};
 
-    // Conversão usando a função auxiliar
     const tecnologiasArray = stringToArray(NewProject.tecnologias_utilizadas);
     const equipeArray = stringToArray(NewProject.equipe);
     const palavrasChaveArray = stringToArray(NewProject.palavras_chave);
-    const userCurtidasEmailArray = stringToArray(NewProject.user_curtidas_email); // Corrigido
-  
+	const userCurtidasEmailArray = stringToArray(NewProject.user_curtidas_email);
+
     // Atualiza os dados do projeto com os arrays processados
     const NewProjectWithDefaults = {
       id: NewProject.id || "default-id",
@@ -177,7 +210,7 @@ function ProjectsAdmin() {
       curtidas: NewProject.curtidas || 0,
       user_curtidas_email: userCurtidasEmailArray,
     };
-  
+
     axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -185,16 +218,16 @@ function ProjectsAdmin() {
       },
     })
       .then(response => {
-        window.location.reload();
-        setOpen(false);
+        handleLogoUpload(response.data.projeto.id)
         toast.success("Projeto cadastrado com sucesso!");
       })
       .catch(error => {
         console.error('Erro ao adicionar projeto:', error);
-        alert(`Erro ao cadastrar projeto: ${error.response?.data?.message || 'Verifique sua conexão'}`);
+        setChangedTitle(false)
+        toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || 'Verifique sua conexão'}`);
       });
   };
-  
+
   useEffect(() => {
     if (open) {
       // Quando o modal é aberto, verifica a validade do formulário
@@ -226,6 +259,8 @@ function ProjectsAdmin() {
       .then(response => setProject(response.data.projetos))
       .catch(error => console.error('Erro ao carregar projetos:', error));
   }, []);
+
+  useEffect(() => { setNewProject((prev) => ({ ...prev, equipe: equipeTemp })); }, [equipeTemp]);
 
   const filteredProject = Array.isArray(Project) ? Project.filter((project) => {
     const input = Input.toLowerCase();
@@ -269,23 +304,23 @@ function ProjectsAdmin() {
           <h1 className="text-2xl font-bold text-start text-dark-color ">Projetos</h1>
           <button type="submit" onClick={() => setOpen(true)} className="rounded-md bg-primary-color h-full w-[15vw] text-white">Novo projeto</button>
         </section>
-        <input 
-          type="search" 
-          name="searchbar" 
-          id="searchbar" 
+        <input
+          type="search"
+          name="searchbar"
+          id="searchbar"
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
           placeholder="Pesquise por título, tema, palavra-chave"
           value={Input}
           onChange={(e) => setInput(e.target.value)}
         />
-      </div>  
+      </div>
       <div className="px-[13vw] pt-10">
         <Table className="h-auto w-full">
           <thead>
             {columns.map((column) => (
               <th key={column.key} className={column.key === "titulo" ? "text-left" : "text-right "}>{column.label}</th>
             ))}
-          </thead>    
+          </thead>
           <tbody>
             {filteredProject.map((project) => (
               <tr key={project.id} className="border border-light-color">
@@ -321,7 +356,7 @@ function ProjectsAdmin() {
                       >
                         Aprovar
                       </button>
-                    
+
                     ) : column.key === "botao2" &&
                       (project.revisado === "Pendente") ? (
                       <button
@@ -357,7 +392,7 @@ function ProjectsAdmin() {
                         <div> </div>
                     ) : column.key === "curtir" ? (
                         <ModalLikes projectId={project.id} />
-                    
+
                     ) : (
                         project.titulo
                     )}
@@ -390,12 +425,18 @@ function ProjectsAdmin() {
               <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
                 <div>
                   <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('titulo', e.target.value)}/>
+                  <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => {
+                    setChangedTitle(true)
+                    handleChangeProject('titulo', e.target.value)}}/>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
-                  <input type="text" name="equipe" id="equipe" placeholder="Pessoa1,Pessoa2,Pessoa3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('equipe', e.target.value)}/>
-                </div>
+					<ModalCadastrarIntegrante
+					  equipeTemp={equipeTemp}
+					  setEquipeTemp={setEquipeTemp}
+					  adicionarIntegrante={adicionarIntegrante}
+					/>
+					</div>
                 <div>
                   <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
                   <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('cliente', e.target.value)}/>
@@ -448,9 +489,9 @@ function ProjectsAdmin() {
                     className={`absolute flex items-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
                       !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
                     } hover:opacity-60 select-none whitespace-nowrap`}
-                    style={{ 
-                      textOverflow: 'ellipsis', 
-                      overflow: 'hidden', 
+                    style={{
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
                       whiteSpace: 'nowrap'
                     }}
                   >
@@ -468,12 +509,12 @@ function ProjectsAdmin() {
               <button
                 type="button"
                 className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                  formValid 
-                    ? "bg-primary-color hover:bg-blue-700" 
+                  formValid && changedTitle
+                    ? "bg-primary-color hover:bg-blue-700"
                     : "bg-gray-400 cursor-not-allowed"
                 }`}
                 onClick={handlePost}
-                disabled={!formValid}
+                disabled={!formValid || !changedTitle}
               >
                 Enviar
               </button>
@@ -489,7 +530,7 @@ function ProjectsAdmin() {
           </DialogPanel>
         </div>
       </div>
-      </Dialog>    
+      </Dialog>
     </>
   )
 }
