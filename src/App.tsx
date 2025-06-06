@@ -104,7 +104,7 @@ function App() {
 
     .catch(error => {
       console.log(error);
-      toast.error("❌ Erro ao enviar mensagem.");
+      toast.error(error.response.data.detail);
     });
   }
 
