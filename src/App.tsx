@@ -168,7 +168,7 @@ function App() {
           ].map((theme, index) => (
             <button
               key={index}
-              onClick={() => handleButtonClick(theme.key_words)}
+              onClick={() => handleButtonClick({title: theme.title, key_words: theme.key_words})}
               className="relative group overflow-hidden rounded-xl shadow-lg transform hover:scale-105 transition-transform"
             >
               <img
