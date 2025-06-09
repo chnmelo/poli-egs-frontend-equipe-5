@@ -1,92 +1,129 @@
-import React from 'react';
+import React from "react";
+import { Dialog } from "@headlessui/react";
+import {
+  X,
+  Linkedin,
+  Github,
+  BookOpenText,
+  UsersRound,
+} from "lucide-react";
 
-interface IntegranteProps {
-  isOpen: boolean;
-  onClose: () => void;
-  integrante: {
-    Nome?: string;
-    Minibio?: string;
-    Foto?: string;
-    Lattes?: string;
-    LinkedIn?: string;
-    GitHub?: string;
-    Contato?: string;
-  } | null;
+interface Integrante {
+  Nome: string;
+  Minibio: string;
+  Email: string;
+  Lattes?: string;
+  GitHub?: string;
+  LinkedIn?: string;
+  RedeSocial?: string;
+  Foto?: string;
 }
 
-const ModalIntegrantesProjeto: React.FC<IntegranteProps> = ({ isOpen, onClose, integrante }) => {
-  if (!isOpen || !integrante) return null;
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  integrante: Integrante | null;
+}
+
+const ModalIntegrantesProjeto: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  integrante,
+}) => {
+  if (!integrante) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-xl w-full max-w-md relative shadow-xl">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl font-bold"
-        >
-          ✕
-        </button>
+    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-        {integrante.Foto && (
-          <img
-            src={integrante.Foto}
-            alt={`Foto de ${integrante.Nome}`}
-            className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
-          />
-        )}
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          {/* Botão Fechar */}
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+          >
+            <X size={24} />
+          </button>
 
-        {integrante.Nome && (
-          <h2 className="text-2xl font-bold text-center mb-2">{integrante.Nome}</h2>
-        )}
+          {/* Foto */}
+          {integrante.Foto && (
+            <div className="flex justify-center -mt-14 mb-4">
+              <img
+                src={integrante.Foto}
+                alt={`Foto de ${integrante.Nome}`}
+                className="w-24 h-24 rounded-full border-4 border-white shadow-md"
+              />
+            </div>
+          )}
 
-        {integrante.Minibio && (
-          <p className="text-center text-gray-700 mb-4">{integrante.Minibio}</p>
-        )}
+          {/* Nome */}
+          <Dialog.Title className="text-center text-2xl font-semibold">
+            {integrante.Nome}
+          </Dialog.Title>
 
-        <div className="flex flex-col gap-2 text-center">
-          {integrante.Lattes && (
-            <a
-              href={integrante.Lattes}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Currículo Lattes
-            </a>
-          )}
-          {integrante.LinkedIn && (
-            <a
-              href={integrante.LinkedIn}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Perfil no LinkedIn
-            </a>
-          )}
-          {integrante.GitHub && (
-            <a
-              href={integrante.GitHub}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              GitHub
-            </a>
-          )}
-          {integrante.Contato && (
-            <a
-              href={integrante.Contato.includes('@') ? `mailto:${integrante.Contato}` : integrante.Contato}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Contato
-            </a>
-          )}
-        </div>
+          {/* Minibio */}
+          <div className="mt-2 text-center">
+            <p className="font-medium text-gray-700">Minibio</p>
+            <p className="text-gray-600">{integrante.Minibio}</p>
+          </div>
+
+          {/* Contato */}
+          <div className="mt-2 text-center">
+            <p className="font-medium text-gray-700">E-mail/Contato</p>
+            <p className="text-gray-600">{integrante.Email}</p>
+          </div>
+
+          {/* Links com ícones */}
+          <div className="mt-6 grid grid-cols-2 gap-4 px-4">
+            {integrante.Lattes && (
+              <a
+                href={integrante.Lattes}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-blue-600 hover:underline"
+              >
+                <BookOpenText size={20} />
+                Lattes
+              </a>
+            )}
+            {integrante.GitHub && (
+              <a
+                href={integrante.GitHub}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-blue-600 hover:underline"
+              >
+                <Github size={20} />
+                GitHub
+              </a>
+            )}
+            {integrante.LinkedIn && (
+              <a
+                href={integrante.LinkedIn}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-blue-600 hover:underline"
+              >
+                <Linkedin size={20} />
+                LinkedIn
+              </a>
+            )}
+            {integrante.RedeSocial && (
+              <a
+                href={integrante.RedeSocial}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-blue-600 hover:underline"
+              >
+                <UsersRound size={20} />
+                Rede Social
+              </a>
+            )}
+          </div>
+        </Dialog.Panel>
       </div>
-    </div>
+    </Dialog>
   );
 };
 

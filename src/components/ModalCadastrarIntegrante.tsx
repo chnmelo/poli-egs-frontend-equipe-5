@@ -12,13 +12,15 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
   const [github, setGithub] = useState("");
   const [lattes, setLattes] = useState("");
   const [email, setEmail] = useState("");
+  const [redeSocial, setRedeSocial] = useState("");
 
   const isFormValid =
     nomeCompleto.trim() &&
     minibio.trim() &&
     linkedin.trim() &&
     lattes.trim() &&
-    email.trim();
+    email.trim() &&
+    redeSocial.trim();
 
   const handleAdd = () => {
     if (!isFormValid) return;
@@ -31,6 +33,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
       github,
       lattes,
       email,
+      redeSocial,
     };
 
     setIntegrantes([...integrantes, novoIntegrante]);
@@ -42,6 +45,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
     setGithub("");
     setLattes("");
     setEmail("");
+    setRedeSocial("");
     setOpen(false);
     if(onClose) onClose();
   };
@@ -154,6 +158,19 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
                   placeholder="URL do Lattes"
                   value={lattes}
                   onChange={(e) => setLattes(e.target.value)}
+                  className="focus:outline-none border-b-2 w-full"
+                />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold">
+                  Rede Social <span className="text-red-500">*</span>
+                </h3>
+                <input
+                  type="url"
+                  placeholder="URL da Rede Social"
+                  value={redeSocial}
+                  onChange={(e) => setRedeSocial(e.target.value)}
                   className="focus:outline-none border-b-2 w-full"
                 />
               </div>

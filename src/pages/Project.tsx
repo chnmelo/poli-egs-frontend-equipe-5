@@ -26,7 +26,8 @@ const handleClickIntegrante = (pessoa: any) => {
       Lattes: pessoa.lattes || pessoa.Lattes || "",
       LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
       GitHub: pessoa.github || pessoa.GitHub || "",
-      Contato: pessoa.contato || pessoa.Contato || "",
+      Email: pessoa.email || pessoa.Email || "",
+      RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
     };
     setIntegranteSelecionado(integranteFormatado);
   }
