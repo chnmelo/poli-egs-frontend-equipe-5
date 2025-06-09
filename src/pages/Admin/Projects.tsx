@@ -34,7 +34,7 @@ function ProjectsAdmin() {
   const [NewProject, setNewProject] = useState({
     titulo: "",
     descricao: "",
-    equipe: [], // Agora é um array de strings
+    equipe: [],
     cliente: "",
     pitch: "",
     tema: "",
@@ -48,6 +48,7 @@ function ProjectsAdmin() {
     curtidas: 0,
     user_curtidas_email: [] as string[],
   });
+
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [changedTitle, setChangedTitle] = useState(true);
@@ -56,23 +57,22 @@ function ProjectsAdmin() {
 
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
 
-
-
-function adicionarIntegrante(novoIntegrante: Integrante) {
-  setIntegrantes(prev => {
-    const novoArray = [...prev, novoIntegrante];
-    return novoArray;
-  });
-}
-useEffect(() => {
-  console.log('Integrantes atualizados:', integrantes);
-}, [integrantes]);
-  const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
-
-  if (!userIsAdmin) {
-    // Se não for admin, redireciona para a página de usuário
-    return <Navigate to="/user-projects" />;
+  function adicionarIntegrante(novoIntegrante: Integrante) {
+    setIntegrantes(prev => {
+      const novoArray = [...prev, novoIntegrante];
+      return novoArray;
+    });
   }
+
+  useEffect(() => {
+    console.log('Integrantes atualizados:', integrantes);
+  }, [integrantes]);
+    const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
+
+    if (!userIsAdmin) {
+      // Se não for admin, redireciona para a página de usuário
+      return <Navigate to="/user-projects" />;
+    }
 
   const validateFormWithData = (projectData) => {
     const requiredFields = [
@@ -88,14 +88,14 @@ useEffect(() => {
       'palavras_chave'
     ];
 
-    return requiredFields.every(field => {
-      const value = projectData[field];
+  return requiredFields.every(field => {
+    const value = projectData[field];
 
-      if (typeof value === 'string') {
-        return value.trim() !== '';
-      } else if (Array.isArray(value)) {
-        return value.length > 0;
-      }
+    if (typeof value === 'string') {
+      return value.trim() !== '';
+    } else if (Array.isArray(value)) {
+      return value.length > 0;
+    }
       return false;
     });
   };
@@ -104,13 +104,10 @@ useEffect(() => {
     return validateFormWithData(NewProject);
   };
 
-  // Função para atualizar o NewProject e verificar a validação
   const handleChangeProject = (field, value) => {
-    // Primeira atualização do estado
     const updatedProject = {...NewProject, [field]: value};
     setNewProject(updatedProject);
 
-    // Validação imediata com o estado atualizado
     const isValid = validateFormWithData(updatedProject);
     setFormValid(isValid);
   };
@@ -185,7 +182,6 @@ useEffect(() => {
       return;
     }
 
-    // Função auxiliar para converter string em array
     const stringToArray = (value) => {
         if (Array.isArray(value))
             return value;
@@ -267,9 +263,9 @@ useEffect(() => {
       .catch(error => console.error('Erro ao carregar projetos:', error));
   }, []);
 
-useEffect(() => {
-  setNewProject(prev => ({ ...prev, equipe: integrantes }));
-}, [integrantes]);
+  useEffect(() => {
+    setNewProject(prev => ({ ...prev, equipe: integrantes }));
+  }, [integrantes]);
 
 
 
@@ -328,17 +324,17 @@ useEffect(() => {
       <div className="px-[13vw] pt-10">
         <Table className="h-auto w-full">
           <thead>
-  <tr>
-    {columns.map((column) => (
-      <th
-        key={column.key}
-        className={column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}
-      >
-        {column.label}
-      </th>
-    ))}
-  </tr>
-</thead>
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}
+                >
+                  {column.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
           <tbody>
             {filteredProject.map((project) => (
               <tr key={project.id} className="border border-light-color">
@@ -447,31 +443,30 @@ useEffect(() => {
                     setChangedTitle(true)
                     handleChangeProject('titulo', e.target.value)}}/>
                 </div>
+
                 <div>
-  <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
+                  <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
 
-  <div className="mb-2">
-    {integrantes.length > 0 ? (
-
-integrantes.map((int, idx) => (
-  <span key={idx} className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 mr-2">
-    {int.nomeCompleto}
-  </span>
-))
-    ) : (
-      <p className="text-gray-500">Nenhum integrante adicionado</p>
-    )}
-  </div>
-
-  <ModalCadastrarIntegrante
-    integrantes={integrantes}
-    setIntegrantes={setIntegrantes}
-    onClose={() => {}}
-  />
-
-                  <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
+                  <div className="mb-2">
+                    {integrantes.length > 0 ? (
+                    integrantes.map((int, idx) => (
+                      <span key={idx} className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 mr-2">
+                        {int.nomeCompleto}
+                      </span>
+                    ))
+                    ) : (
+                      <p className="text-gray-500">Nenhum integrante adicionado</p>
+                    )}
+                  </div>
+                  <ModalCadastrarIntegrante
+                    integrantes={integrantes}
+                    setIntegrantes={setIntegrantes}
+                    onClose={() => {}}
+                  />
+                    <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
                   <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('cliente', e.target.value)}/>
                 </div>
+
                 <div>
                   <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
                   <input type="text" name="tema" id="tema" placeholder="Ex: Engenharia de Software" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('tema', e.target.value)}/>

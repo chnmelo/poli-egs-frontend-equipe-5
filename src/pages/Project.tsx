@@ -14,8 +14,9 @@ function Project() {
   const [images, setImg] = useState();
   const [comentarios, setComentarios] = useState([]);
   const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
-const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
-const handleClickIntegrante = (pessoa: any) => {
+  const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
+  const handleClickIntegrante = (pessoa: any) => {
+
   if (typeof pessoa === 'string') {
     setIntegranteSelecionado({ Nome: pessoa });
   } else {
@@ -30,14 +31,14 @@ const handleClickIntegrante = (pessoa: any) => {
       RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
     };
     setIntegranteSelecionado(integranteFormatado);
-  }
-  setModalIntegranteAberto(true);
-};
-useEffect(() => {
-  axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
-    const projeto = response.data;
+    }
+    setModalIntegranteAberto(true);
+    };
 
-    // Normaliza o nome dos integrantes para usar 'nomeCompleto'
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
+      const projeto = response.data;
+
     const equipeFormatada = (projeto.equipe || []).map((pessoa) => {
       if (typeof pessoa === 'string') return { nomeCompleto: pessoa };
       if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
@@ -48,15 +49,12 @@ useEffect(() => {
     setComentarios(projeto.comentarios || []);
   });
 
-    // Requisição para obter a imagem do logo do projeto
-    axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
-      setImg(response.data["url"]);
+  axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
+    setImg(response.data["url"]);
     });
-  
-  }, [slug]);
+ }, [slug]);
 
   const [modalOpen, setModalOpen] = useState(false);
-
 
   return (
     <>
@@ -112,23 +110,23 @@ useEffect(() => {
         {/* Informações do projeto */}
         <div className="w-full flex justify-center">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
               <div className="flex items-center bg-blue-600 text-white rounded-t-lg px-4 py-2 transition-colors hover:bg-blue-700">
                 <UserGroupIcon className="h-5 w-5 mr-2" />
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
-{Array.isArray(Data.equipe) &&
-  Data.equipe.map((pessoa, index) => (
-    <li
-      key={index}
-      className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
-      onClick={() => handleClickIntegrante(pessoa)}
-    >
-      {pessoa.nomeCompleto || "Nome não disponível"}
-    </li>
-  ))}
-
-            </section>
+                {Array.isArray(Data.equipe) &&
+                  Data.equipe.map((pessoa, index) => (
+                    <li
+                      key={index}
+                      className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
+                      onClick={() => handleClickIntegrante(pessoa)}
+                    >
+                      {pessoa.nomeCompleto || "Nome não disponível"}
+                    </li>
+                  ))}
+			</section>
 
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
               <div className="flex items-center bg-blue-600 text-white rounded-t-lg px-4 py-2 transition-colors hover:bg-blue-700">
@@ -201,11 +199,11 @@ useEffect(() => {
           </div>
         </section>
       </main>
-<ModalIntegrantesProjeto
-  isOpen={modalIntegranteAberto}
-  onClose={() => setModalIntegranteAberto(false)}
-  integrante={integranteSelecionado}
-/>
+         <ModalIntegrantesProjeto
+           isOpen={modalIntegranteAberto}
+           onClose={() => setModalIntegranteAberto(false)}
+           integrante={integranteSelecionado}
+         />
       <Footer />
     </>
   );
