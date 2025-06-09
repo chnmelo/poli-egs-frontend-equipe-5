@@ -2,58 +2,71 @@ import { Button, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headl
 import { PencilSquareIcon } from '@heroicons/react/20/solid';
 import axios from "axios";
 import { ProjectInt } from "../pages/Projects";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ModalCadastrarIntegrante from "../components/ModalCadastrarIntegrante";
 
-
-export default function ModalUpdate({ project }: { project: ProjectInt }){
-
+export default function ModalUpdate({ project }: { project: ProjectInt }) {
   const [open, setOpen] = useState(false);
   const handleShow = () => setOpen(true);
 
   const [UpdatedProject, setUpdatedProject] = useState({
     titulo: project.titulo || "",
     descricao: project.descricao || "",
-    equipe: project.equipe.join(", ") || [], // Converte o array para string separada por vírgulas
+    equipe: Array.isArray(project.equipe) ? project.equipe.join(", ") : "",
     cliente: project.cliente || "",
     pitch: project.pitch || "",
     tema: project.tema || "",
     semestre: project.semestre || "",
     video_tecnico: project.video_tecnico || "",
-    tecnologias_utilizadas: project.tecnologias_utilizadas.join(", ") || [],
-    palavras_chave: project.palavras_chave.join(", ") || [],
+    tecnologias_utilizadas: Array.isArray(project.tecnologias_utilizadas) ? project.tecnologias_utilizadas.join(", ") : "",
+    palavras_chave: Array.isArray(project.palavras_chave) ? project.palavras_chave.join(", ") : "",
     id: project.id || "",
     link_repositorio: project.link_repositorio || "",
     revisado: project.revisado || "",
     curtidas: project.curtidas || 0,
     user_curtidas_email: project.user_curtidas_email || [],
   });
-  
+
+  const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
+
+  useEffect(() => {
+  if (open) {
+    // Preenche o estado integrantes a partir do project.equipe
+    if (Array.isArray(project.equipe) && project.equipe.length > 0) {
+      const integrantesFromProject = project.equipe.map(nome => ({ nomeCompleto: nome }));
+      setIntegrantes(integrantesFromProject);
+    } else {
+      setIntegrantes([]);
+    }
+  }
+}, [open, project.equipe]);
+
+  useEffect(() => {
+    if (integrantes.length > 0) {
+      const nomes = integrantes.map(i => i.nomeCompleto);
+      setUpdatedProject(prev => ({ ...prev, equipe: nomes.join(", ") }));
+    } else {
+      setUpdatedProject(prev => ({ ...prev, equipe: "" }));
+    }
+  }, [integrantes]);
+
+  function stringToArray(str: string): string[] {
+    return typeof str === 'string' && str.trim()
+      ? str.split(',').map(item => item.trim()).filter(item => item.length > 0)
+      : [];
+  }
+
   const handleUpdateProject = () => {
-    // Capturando o token do localStorage
     const token = localStorage.getItem('authToken');
-    
-
-
     if (!token) {
       console.error('Token não encontrado. Usuário não está autenticado.');
       return;
     }
 
-    // Separando os campos de tecnologias, equipe e palavras-chave por vírgulas e transformando-os em arrays
-    const tecnologiasArray = typeof UpdatedProject.tecnologias_utilizadas === 'string' && UpdatedProject.tecnologias_utilizadas.trim() 
-      ? UpdatedProject.tecnologias_utilizadas.split(',').map(item => item.trim()) 
-      : [];
+    const tecnologiasArray = stringToArray(UpdatedProject.tecnologias_utilizadas);
+    const palavrasChaveArray = stringToArray(UpdatedProject.palavras_chave);
+    const equipeArray = stringToArray(UpdatedProject.equipe);
 
-    const equipeArray = typeof UpdatedProject.equipe === 'string' && UpdatedProject.equipe.trim()
-      ? UpdatedProject.equipe.split(',').map(item => item.trim())
-      : [];
-
-    const palavrasChaveArray = typeof UpdatedProject.palavras_chave === 'string' && UpdatedProject.palavras_chave.trim()
-      ? UpdatedProject.palavras_chave.split(',').map(item => item.trim())
-      : [];
-
-
-    // Valores padrão para os campos não preenchidos
     const UpdatedProjectWithDefaults = {
       id: project.id,
       titulo: UpdatedProject.titulo || "Título não informado",
@@ -72,40 +85,39 @@ export default function ModalUpdate({ project }: { project: ProjectInt }){
       user_curtidas_email: project.user_curtidas_email,
     };
 
-    // Fazendo a requisição de update do projeto com o token no cabeçalho de autorização
     axios.put(`${import.meta.env.VITE_url_backend}/projetos/${project.id}?id_token=${token}`, UpdatedProjectWithDefaults, {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`, // Usando o token no cabeçalho
+        Authorization: `Bearer ${token}`,
       },
     })
-    .then(() => {
+      .then(() => {
+        window.location.reload();
+        setOpen(false);
+      })
+      .catch(error => {
+        console.error('Erro ao atualizar projeto:', error.response ? error.response.data : error.message);
+      });
+  };
 
-      window.location.reload();
-      setOpen(false);
-    })
-    .catch(error => {
-      console.error('Erro ao atualizar projeto:', error.response ? error.response.data : error.message);
-      console.error('Erro completo:', error.response);
-    });
-};
   const semesterGenerator = (): string[] => {
-   const current = new Date();
-   const currentYear = current.getFullYear();
-   const currentMonth = current.getMonth();
+    const current = new Date();
+    const currentYear = current.getFullYear();
+    const currentMonth = current.getMonth();
 
-   const semesters: string[] = [];
+    const semesters: string[] = [];
 
-   for (let year = 2023; year <= currentYear; year++) {
-    semesters.push(`${year}.1`);
-    if (year < currentYear || currentMonth >= 6) {
-      semesters.push(`${year}.2`);
+    for (let year = 2023; year <= currentYear; year++) {
+      semesters.push(`${year}.1`);
+      if (year < currentYear || currentMonth >= 6) {
+        semesters.push(`${year}.2`);
+      }
     }
-  }
 
-   return semesters.reverse();
-};
-  const ableSemesters= semesterGenerator();
+    return semesters.reverse();
+  };
+
+  const ableSemesters = semesterGenerator();
 
     return(
         <>
@@ -132,13 +144,29 @@ export default function ModalUpdate({ project }: { project: ProjectInt }){
             </div>
             <form action="POST">
               <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
+                <div className="col-span-2 mt-2">
+                  <h3 className="text-lg font-semibold flex items-center gap-1">
+                    Equipe <span className="text-red-500">*</span>
+                  </h3>
+                </div>
+
+                <div className="col-span-2 flex items-center gap-4 mt-1">
+                  <ModalCadastrarIntegrante integrantes={integrantes} setIntegrantes={setIntegrantes} onClose={() => { }} />
+                  <div className="flex flex-wrap gap-2 max-w-[80%]">
+                    {integrantes.length > 0 ? (
+                      integrantes.map((int, idx) => (
+                        <span key={idx} className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm">
+                          {int.nomeCompleto}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-gray-500">Nenhum integrante adicionado</p>
+                    )}
+                  </div>
+                </div>
                 <div>
                   <h3 className="text-lg font-semibold">Titulo</h3>
                   <input type="text" name="titulo" id="titulo" placeholder="Titulo" value={UpdatedProject.titulo} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProject({...UpdatedProject, titulo:e.target.value}))}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Equipe</h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Pessoa1,Pessoa2,Pessoa3" value={UpdatedProject.equipe} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedProject({...UpdatedProject, equipe:e.target.value}))}/>
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">Cliente</h3>
