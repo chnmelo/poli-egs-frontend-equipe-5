@@ -30,10 +30,11 @@ function ProjectsAdmin() {
   const [Project, setProject] = useState([]);
   const [open, setOpen] = useState(false);
   const [formValid, setFormValid] = useState(false);
+
   const [NewProject, setNewProject] = useState({
     titulo: "",
     descricao: "",
-    equipe: [] as string [], // Agora é um array de strings
+    equipe: [], // Agora é um array de strings
     cliente: "",
     pitch: "",
     tema: "",
@@ -56,12 +57,16 @@ function ProjectsAdmin() {
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
 
 
-  const adicionarIntegrante = (novo: string) => {
-    if (novo.trim() !== "" && !equipeTemp.includes(novo)) {
-      setEquipeTemp((prev) => [...prev, novo]);
-    }
-  };
 
+function adicionarIntegrante(novoIntegrante: Integrante) {
+  setIntegrantes(prev => {
+    const novoArray = [...prev, novoIntegrante];
+    return novoArray;
+  });
+}
+useEffect(() => {
+  console.log('Integrantes atualizados:', integrantes);
+}, [integrantes]);
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
 
   if (!userIsAdmin) {
@@ -263,7 +268,12 @@ function ProjectsAdmin() {
       .catch(error => console.error('Erro ao carregar projetos:', error));
   }, []);
 
-  useEffect(() => { setNewProject((prev) => ({ ...prev, equipe: equipeTemp })); }, [equipeTemp]);
+
+	useEffect(() => {
+  const nomesIntegrantes = integrantes.map(integrante => integrante.nome);
+  setNewProject(prev => ({ ...prev, equipe: nomesIntegrantes }));
+}, [integrantes]);
+
 
   const filteredProject = Array.isArray(Project) ? Project.filter((project) => {
     const input = Input.toLowerCase();
@@ -320,10 +330,17 @@ function ProjectsAdmin() {
       <div className="px-[13vw] pt-10">
         <Table className="h-auto w-full">
           <thead>
-            {columns.map((column) => (
-              <th key={column.key} className={column.key === "titulo" ? "text-left" : "text-right "}>{column.label}</th>
-            ))}
-          </thead>
+  <tr>
+    {columns.map((column) => (
+      <th
+        key={column.key}
+        className={column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}
+      >
+        {column.label}
+      </th>
+    ))}
+  </tr>
+</thead>
           <tbody>
             {filteredProject.map((project) => (
               <tr key={project.id} className="border border-light-color">
@@ -433,14 +450,27 @@ function ProjectsAdmin() {
                     handleChangeProject('titulo', e.target.value)}}/>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
-					<ModalCadastrarIntegrante
-                        integrantes={integrantes}
-                        setIntegrantes={setIntegrantes}
-                        onClose={() => {}}
-				    />
-					</div>
-                <div>
+  <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
+
+  <div className="mb-2">
+    {integrantes.length > 0 ? (
+
+integrantes.map((int, idx) => (
+  <span key={idx} className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 mr-2">
+    {int.nomeCompleto}
+  </span>
+))
+    ) : (
+      <p className="text-gray-500">Nenhum integrante adicionado</p>
+    )}
+  </div>
+
+  <ModalCadastrarIntegrante
+    integrantes={integrantes}
+    setIntegrantes={setIntegrantes}
+    onClose={() => {}}
+  />
+
                   <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
                   <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('cliente', e.target.value)}/>
                 </div>

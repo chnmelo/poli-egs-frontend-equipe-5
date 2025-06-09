@@ -13,7 +13,17 @@ function Project() {
   const [Data, setData] = useState({});
   const [images, setImg] = useState();
   const [comentarios, setComentarios] = useState([]);
-
+  const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
+const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
+const handleClickIntegrante = (pessoa: any) => {
+  // Se for apenas uma string (nome simples), você pode criar um objeto mínimo
+  if (typeof pessoa === 'string') {
+    setIntegranteSelecionado({ Nome: pessoa });
+  } else {
+    setIntegranteSelecionado(pessoa);
+  }
+  setModalIntegranteAberto(true);
+};
   useEffect(() => {
     // Requisição para obter os dados do projeto
     axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
@@ -32,32 +42,7 @@ function Project() {
   }, [slug]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [integranteSelecionado, setIntegranteSelecionado] = useState(null);
 
-  const handleClickIntegrante = (pessoa) => {
-  let integrante;
-
-  if (typeof pessoa === 'string') {
-    integrante = {
-      Nome: pessoa,
-      Minibio: "Mini bio não disponível.",
-      Contato: "contato@exemplo.com",
-    };
-  } else {
-    integrante = {
-      Nome: pessoa.Nome || "Nome não informado",
-      Minibio: pessoa.Minibio || "Mini bio não disponível.",
-      Contato: pessoa.Contato || "",
-      Lattes: pessoa.Lattes || "",
-      LinkedIn: pessoa.LinkedIn || "",
-      GitHub: pessoa.GitHub || "",
-      Foto: pessoa.Foto || "",
-    };
-  }
-
-  setIntegranteSelecionado(integrante);
-  setModalOpen(true);
-  };
 
   return (
     <>
@@ -118,15 +103,19 @@ function Project() {
                 <UserGroupIcon className="h-5 w-5 mr-2" />
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
-              {Data.equipe?.map((pessoa, index) => (
-			  <li
-			    key={index}
-			    className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
-			    onClick={() => handleClickIntegrante(pessoa)}
-			  >
-			    {typeof pessoa === 'string' ? pessoa : pessoa.Nome}
-			  </li>
-			))}
+              {Array.isArray(Data.equipe) &&
+  Data.equipe
+    .filter((pessoa) => pessoa !== null && pessoa !== undefined)
+    .map((pessoa, index) => (
+      <li
+        key={index}
+        className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
+        onClick={() => handleClickIntegrante(pessoa)}
+      >
+        {typeof pessoa === 'string' ? pessoa : pessoa.Nome || "Nome não disponível"}
+      </li>
+))}
+
             </section>
 
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
@@ -200,11 +189,11 @@ function Project() {
           </div>
         </section>
       </main>
-      <ModalIntegrantesProjeto
-	    isOpen={modalOpen}
-	    onClose={() => setModalOpen(false)}
-	    integrante={integranteSelecionado}
-	  />
+<ModalIntegrantesProjeto
+  isOpen={modalIntegranteAberto}
+  onClose={() => setModalIntegranteAberto(false)}
+  integrante={integranteSelecionado}
+/>
       <Footer />
     </>
   );
