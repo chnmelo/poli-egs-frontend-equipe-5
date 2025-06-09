@@ -436,101 +436,168 @@ function ProjectsAdmin() {
               </div>
             </div>
             <form action="POST">
-              <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
-                <div>
-                  <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
-                  <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => {
+            <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-2">
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="titulo"
+                  id="titulo"
+                  placeholder="Titulo"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => {
                     setChangedTitle(true)
-                    handleChangeProject('titulo', e.target.value)}}/>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
-
-                  <div className="mb-2">
-                    {integrantes.length > 0 ? (
+                    handleChangeProject('titulo', e.target.value)
+                  }}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="cliente"
+                  id="cliente"
+                  placeholder="Ex: POLI/UPE"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('cliente', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="tema"
+                  id="tema"
+                  placeholder="Ex: Engenharia de Software"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('tema', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
+                <select
+                  name="semestre"
+                  id="semestre"
+                  value={NewProject.semestre}
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => setNewProject({ ...NewProject, semestre: e.target.value })}
+                >
+                  <option value="">Selecione um semestre</option>
+                  {semesterGenerator().map((semestre) => (
+                    <option key={semestre} value={semestre}>{semestre}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="tecnologias"
+                  id="tecnologias"
+                  placeholder="Tecnologia1,Tecnologia2,Tecnologia3"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('tecnologias_utilizadas', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Link do Pitch <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="pitch"
+                  id="pitch"
+                  placeholder="Pitch"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('pitch', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Link do Vídeo Técnico <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="video"
+                  id="video"
+                  placeholder="Vídeo Técnico"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('video_tecnico', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Repositório <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="repositorio"
+                  id="repositorio"
+                  placeholder="Repositório"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('link_repositorio', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Palavras Chave <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="palavras"
+                  id="palavras"
+                  placeholder="Palavra1,Palavra2,Palavra3"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('palavras_chave', e.target.value)}
+                />
+              </div>
+              <div className="mb-10">
+                <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
+                <input
+                  type="text"
+                  name="descricao"
+                  id="descricao"
+                  placeholder="Descrição"
+                  className="focus:outline-none border-b-2 w-[15vw]"
+                  onChange={(e) => handleChangeProject('descricao', e.target.value)}
+                />
+              </div>
+              <div className="mb-auto">
+                <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
+                <div className="mb-2">
+                  {integrantes.length > 0 ? (
                     integrantes.map((int, idx) => (
                       <span key={idx} className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 mr-2">
                         {int.nomeCompleto}
                       </span>
                     ))
-                    ) : (
-                      <p className="text-gray-500">Nenhum integrante adicionado</p>
-                    )}
-                  </div>
-                  <ModalCadastrarIntegrante
-                    integrantes={integrantes}
-                    setIntegrantes={setIntegrantes}
-                    onClose={() => {}}
-                  />
-                    <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
-                  <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('cliente', e.target.value)}/>
+                  ) : (
+                    <p className="text-gray-500">Nenhum integrante adicionado</p>
+                  )}
                 </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
-                  <input type="text" name="tema" id="tema" placeholder="Ex: Engenharia de Software" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('tema', e.target.value)}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
-                  <select
-                      name="semestre"
-                      id="semestre"
-                      value={NewProject.semestre}
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProject({ ...NewProject, semestre: e.target.value })}>
-                      <option value="">Selecione um semestre</option>
-                      {semesterGenerator().map((semestre) => (
-                          <option key={semestre} value={semestre}>{semestre}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
-                  <input type="text" name="tecnologias" id="tecnologias" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('tecnologias_utilizadas', e.target.value)}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Link do Pitch <span className="text-red-500">*</span></h3>
-                  <input type="text" name="pitch" id="pitch" placeholder="Pitch" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('pitch', e.target.value)}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Link do Vídeo Técnico <span className="text-red-500">*</span></h3>
-                  <input type="text" name="video" id="video" placeholder="Vídeo Técnico" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('video_tecnico', e.target.value)}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Repositório <span className="text-red-500">*</span></h3>
-                  <input type="text" name="repositorio" id="repositorio" placeholder="Repositório" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('link_repositorio', e.target.value)}/>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">Palavras Chave <span className="text-red-500">*</span></h3>
-                  <input type="text" name="palavras" id="palavras" placeholder="Palavra1,Palavra2,Palavra3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('palavras_chave', e.target.value)}/>
-                </div>
-                <div className="mb-10">
-                  <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
-                  <input type="text" name="descricao" id="descricao" placeholder="Descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('descricao', e.target.value)}/>
-                </div>
-                <div className="w-[15vw] relative">
-                  <input type="file" className="hidden" name="logo" id="logo" onChange={(e: any) => setSelectedFile(e.target.files[0])}/>
-                  <label
-                    htmlFor="logo"
-                    className={`absolute flex items-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
-                      !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
-                    } hover:opacity-60 select-none whitespace-nowrap`}
-                    style={{
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {selectedFile ? (
-                      <span>Modificar Logo</span>
-                    ) : (
-                      <span>Atualizar Logo</span>
-                    )}
-                    <FaFileUpload className="ml-2" />
-                  </label>
-                </div>
+                <ModalCadastrarIntegrante
+                  integrantes={integrantes}
+                  setIntegrantes={setIntegrantes}
+                  onClose={() => {}}
+                />
               </div>
-            </form>
+              <div className="w-[15vw] relative mb-auto">
+                <input
+                  type="file"
+                  className="hidden"
+                  name="logo"
+                  id="logo"
+                  onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                />
+                <label
+                  htmlFor="logo"
+                  className={`absolute flex items-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
+                    !selectedFile ? 'bg-green-500' : 'bg-[#D8DBE2]'
+                  } hover:opacity-60 select-none whitespace-nowrap`}
+                  style={{
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {selectedFile ? <span>Modificar Logo</span> : <span>Atualizar Logo</span>}
+                  <FaFileUpload className="ml-2" />
+                </label>
+              </div>
+            </div>
+          </form>
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
