@@ -82,7 +82,6 @@ useEffect(() => {
       'pitch',
       'link_repositorio',
       'descricao',
-      'equipe',
       'tema',
       'tecnologias_utilizadas',
       'video_tecnico',
@@ -209,7 +208,7 @@ useEffect(() => {
       descricao: NewProject.descricao,
       cliente: NewProject.cliente,
       semestre: NewProject.semestre,
-      equipe: equipeArray,
+      equipe: NewProject.equipe,
       link_repositorio: NewProject.link_repositorio,
       tecnologias_utilizadas: tecnologiasArray,
       video_tecnico: NewProject.video_tecnico,
@@ -268,11 +267,10 @@ useEffect(() => {
       .catch(error => console.error('Erro ao carregar projetos:', error));
   }, []);
 
-
-	useEffect(() => {
-  const nomesIntegrantes = integrantes.map(integrante => integrante.nome);
-  setNewProject(prev => ({ ...prev, equipe: nomesIntegrantes }));
+useEffect(() => {
+  setNewProject(prev => ({ ...prev, equipe: integrantes }));
 }, [integrantes]);
+
 
 
   const filteredProject = Array.isArray(Project) ? Project.filter((project) => {

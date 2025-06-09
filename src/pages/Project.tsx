@@ -16,24 +16,37 @@ function Project() {
   const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
 const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
 const handleClickIntegrante = (pessoa: any) => {
-  // Se for apenas uma string (nome simples), você pode criar um objeto mínimo
   if (typeof pessoa === 'string') {
     setIntegranteSelecionado({ Nome: pessoa });
   } else {
-    setIntegranteSelecionado(pessoa);
+    const integranteFormatado = {
+      Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
+      Minibio: pessoa.minibio || pessoa.Minibio || "",
+      Foto: pessoa.foto || pessoa.Foto || "",
+      Lattes: pessoa.lattes || pessoa.Lattes || "",
+      LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
+      GitHub: pessoa.github || pessoa.GitHub || "",
+      Contato: pessoa.contato || pessoa.Contato || "",
+    };
+    setIntegranteSelecionado(integranteFormatado);
   }
   setModalIntegranteAberto(true);
 };
-  useEffect(() => {
-    // Requisição para obter os dados do projeto
-    axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
-      console.log("Resposta completa da API:", response);
-      console.log("Dados retornados:", response.data);
-      const projeto = response.data;
-      setData(projeto);
-      setComentarios(projeto.comentarios || []);  // Atualizando os comentários
+useEffect(() => {
+  axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
+    const projeto = response.data;
+
+    // Normaliza o nome dos integrantes para usar 'nomeCompleto'
+    const equipeFormatada = (projeto.equipe || []).map((pessoa) => {
+      if (typeof pessoa === 'string') return { nomeCompleto: pessoa };
+      if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
+      return pessoa;
     });
-  
+
+    setData({ ...projeto, equipe: equipeFormatada });
+    setComentarios(projeto.comentarios || []);
+  });
+
     // Requisição para obter a imagem do logo do projeto
     axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
       setImg(response.data["url"]);
@@ -103,18 +116,16 @@ const handleClickIntegrante = (pessoa: any) => {
                 <UserGroupIcon className="h-5 w-5 mr-2" />
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
-              {Array.isArray(Data.equipe) &&
-  Data.equipe
-    .filter((pessoa) => pessoa !== null && pessoa !== undefined)
-    .map((pessoa, index) => (
-      <li
-        key={index}
-        className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
-        onClick={() => handleClickIntegrante(pessoa)}
-      >
-        {typeof pessoa === 'string' ? pessoa : pessoa.Nome || "Nome não disponível"}
-      </li>
-))}
+{Array.isArray(Data.equipe) &&
+  Data.equipe.map((pessoa, index) => (
+    <li
+      key={index}
+      className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
+      onClick={() => handleClickIntegrante(pessoa)}
+    >
+      {pessoa.nomeCompleto || "Nome não disponível"}
+    </li>
+  ))}
 
             </section>
 
