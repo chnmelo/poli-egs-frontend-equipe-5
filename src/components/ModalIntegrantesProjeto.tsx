@@ -70,7 +70,7 @@ const ModalIntegrantesProjeto: React.FC<ModalProps> = ({
 
           {/* Contato */}
           <div className="mt-2 text-center">
-            <p className="font-medium text-gray-700">E-mail/Contato</p>
+            <p className="font-medium text-gray-700">Contato</p>
             <p className="text-gray-600">{integrante.Email}</p>
           </div>
 
