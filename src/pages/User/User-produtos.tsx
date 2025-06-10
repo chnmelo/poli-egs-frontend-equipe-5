@@ -40,7 +40,7 @@ function Userprodutos () {
   const [NewProduto, setNewProduto] = useState({
     titulo: '',
     descricao: '',
-    equipe: '',
+    equipe: [] as string[],
     tipo: '',
     semestre: '',
     id: '',
@@ -66,7 +66,12 @@ function Userprodutos () {
 
     return requiredFields.every(field => {
       const value = produtoData[field];
-      return typeof value === 'string' ? value.trim() !== '' : false;
+      if (typeof value === 'string') {
+        return value.trim() !== '';
+      } else if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
     });
   };
 
@@ -76,12 +81,9 @@ function Userprodutos () {
 
     // Função para atualizar o NewProject e verificar a validação
   const handleChangeProduto = (field, value) => {
-    // Primeira atualização do estado
-    const updatedProduto = {...NewProduto, [field]: value};
+    const updatedProduto = {...NewProduto, [field]: value};    // Primeira atualização do estado
     setNewProduto(updatedProduto);
-  
-    // Validação imediata com o estado atualizado
-    const isValid = validateFormWithData(updatedProduto);
+    const isValid = validateFormWithData(updatedProduto);    // Validação imediata com o estado atualizado
     setFormValid(isValid);
   };
 
