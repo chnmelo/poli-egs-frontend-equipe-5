@@ -119,7 +119,6 @@ function Userprojects() {
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
   const handleLogoUpload = (id: string) => {
-
     if (!selectedFile) {
       window.location.reload();
       setOpen(false);
@@ -136,28 +135,9 @@ function Userprojects() {
     .then(response => {
       window.location.reload()
       setOpen(false);
-      return;
-    }
-    formData.append("file", selectedFile);
-    axios
-      .post(
-        `${
-          import.meta.env.VITE_url_backend
-        }/upload_logo_projeto/${id}/?id_token=${token}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then((response) => {
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch((error) => console.log("Erro ao fazer upload da logo:", error));
-  };
-
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
   const handlePost = () => {
     const token = localStorage.getItem("authToken");
 
