@@ -17,10 +17,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
   const isFormValid =
     nomeCompleto.trim() &&
     minibio.trim() &&
-    linkedin.trim() &&
-    lattes.trim() &&
-    email.trim() &&
-    redeSocial.trim();
+    email.trim();
 
   const handleAdd = () => {
     if (!isFormValid) return;
@@ -127,7 +124,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
 
               <div>
                 <h3 className="text-lg font-semibold">
-                  LinkedIn <span className="text-red-500">*</span>
+                  LinkedIn (opcional)
                 </h3>
                 <input
                   type="url"
@@ -151,7 +148,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
 
               <div>
                 <h3 className="text-lg font-semibold">
-                  Lattes <span className="text-red-500">*</span>
+                  Lattes (opcional)
                 </h3>
                 <input
                   type="url"
@@ -164,7 +161,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
 
               <div>
                 <h3 className="text-lg font-semibold">
-                  Rede Social <span className="text-red-500">*</span>
+                  Rede Social (opcional)
                 </h3>
                 <input
                   type="url"
