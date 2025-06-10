@@ -15,27 +15,50 @@ function Project() {
   const [comentarios, setComentarios] = useState([]);
   const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
   const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
-  const handleClickIntegrante = (pessoa: any) => {
+  const [fotosIntegrantes, setFotosIntegrantes] = useState([])
 
-  if (typeof pessoa === 'string') {
-    setIntegranteSelecionado({ Nome: pessoa });
-  } else {
-    const integranteFormatado = {
-      Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
-      Minibio: pessoa.minibio || pessoa.Minibio || "",
-      Foto: pessoa.foto || pessoa.Foto || "",
-      Lattes: pessoa.lattes || pessoa.Lattes || "",
-      LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
-      GitHub: pessoa.github || pessoa.GitHub || "",
-      Email: pessoa.email || pessoa.Email || "",
-      RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
-    };
-    setIntegranteSelecionado(integranteFormatado);
-    }
-    setModalIntegranteAberto(true);
-    };
+
+  const handleClickIntegrante = (pessoa: any, index) => {
+
+    if (typeof pessoa === 'string') {
+      setIntegranteSelecionado({ Nome: pessoa });
+    } else {
+      const integranteFormatado = {
+        Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
+        Minibio: pessoa.minibio || pessoa.Minibio || "",
+        Foto: viewFotoIntegrante(index) || iconImage,
+        Lattes: pessoa.lattes || pessoa.Lattes || "",
+        LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
+        GitHub: pessoa.github || pessoa.GitHub || "",
+        Email: pessoa.email || pessoa.Email || "",
+        RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
+      };
+      setIntegranteSelecionado(integranteFormatado);
+      }
+      setModalIntegranteAberto(true);
+  };
+  
+  const viewFotoIntegrante = (index): any => {
+    var fotoIntegrante = null;
+    fotosIntegrantes.forEach(foto =>{
+      if (foto.includes('foto_'+index+'.png')){
+        console.log(foto)
+        fotoIntegrante = foto
+      }
+    })
+    return fotoIntegrante
+  }
+
+  const getFotosIntegrantes = () => {
+    axios.get(`${import.meta.env.VITE_url_backend}/view_fotos_integrantes/${slug}`)
+    .then((response) => {
+      setFotosIntegrantes(response.data.urls)
+    })
+  }
+
 
   useEffect(() => {
+    getFotosIntegrantes()
     axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
       const projeto = response.data;
 
@@ -50,7 +73,7 @@ function Project() {
   });
 
   axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
-    setImg(response.data["url"]);
+    setImg(response.data.url);
     });
  }, [slug]);
 
@@ -121,7 +144,7 @@ function Project() {
                     <li
                       key={index}
                       className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
-                      onClick={() => handleClickIntegrante(pessoa)}
+                      onClick={() => handleClickIntegrante(pessoa,index)}
                     >
                       {pessoa.nomeCompleto || "Nome não disponível"}
                     </li>
