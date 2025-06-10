@@ -58,19 +58,6 @@ function ProjectsAdmin() {
   const [changedTitle, setChangedTitle] = useState(true);
 
   const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
-
-  const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
-
-  function adicionarIntegrante(novoIntegrante: Integrante) {
-    setIntegrantes((prev) => {
-      const novoArray = [...prev, novoIntegrante];
-      return novoArray;
-    });
-  }
-
-  useEffect(() => {
-    console.log("Integrantes atualizados:", integrantes);
-  }, [integrantes]);
   
   const userIsAdmin = localStorage.getItem("isAdmin") === "true"; // Verificando se o usuário é admin no localStorage
   
@@ -85,6 +72,7 @@ function ProjectsAdmin() {
       "cliente",
       "semestre",
       "pitch",
+      'equipe',
       "link_repositorio",
       "descricao",
       "tema",
@@ -126,23 +114,17 @@ function ProjectsAdmin() {
 
   const handleApprove = (project) => {
     const token = localStorage.getItem("authToken");
-    axios
-      .put(
-        `${import.meta.env.VITE_url_backend}/projeto_revisado/${
-          project.id
-        }/?novo_revisado=Aprovado&id_token=${token}`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        window.location.reload();
-      })
-      .catch((error) => console.error("Erro ao aprovar projeto:", error));
+    axios.put(`${import.meta.env.VITE_url_backend}/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then((response) => {
+      window.location.reload();
+    })
+    .catch((error) => console.error("Erro ao aprovar projeto:", error));
   };
 
   const handleReprove = (project) => {
@@ -167,38 +149,9 @@ function ProjectsAdmin() {
   };
 
   const handleLogoUpload = (id: string) => {
-    const token = localStorage.getItem("authToken");
-    const formData = new FormData();
-    if (!selectedFile) {
-      window.location.reload();
-      setOpen(false);
-      return;
-    }
-    formData.append("file", selectedFile);
-    axios
-      .post(
-        `${
-          import.meta.env.VITE_url_backend
-        }/upload_logo_projeto/${id}/?id_token=${token}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then((response) => {
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch((error) => console.log("Erro ao fazer upload da logo:", error));
-  };
-
-  const handleLogoUpload = (id: string) => {
     const token = localStorage.getItem('authToken')
     const formData = new FormData();
     if (!selectedFile) {
-      window.location.reload();
       setOpen(false);
       return
     }
@@ -208,9 +161,28 @@ function ProjectsAdmin() {
           'Content-Type': 'multipart/form-data'
         }
     })
-    .then(response => {
-      window.location.reload();
-      setOpen(false);
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
+
+  const handleFotosUpload = (id: string, equipe) => {
+
+    if (equipe.map(integrante => {if (integrante.foto) integrante.foto}).length == 0 ) return;
+
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+
+    equipe.forEach((integrante, index) => {
+      if (integrante.foto instanceof File) {
+        formData.append('files', integrante.foto);
+        formData.append('file_indexes', index);
+      }
+    })
+
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/${id}/?id_token=${token}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
     })
     .catch(error => console.log('Erro ao fazer upload da logo:', error))
   }
@@ -255,7 +227,7 @@ function ProjectsAdmin() {
       descricao: NewProject.descricao,
       cliente: NewProject.cliente,
       semestre: NewProject.semestre,
-      equipe: NewProject.equipe,
+      equipe: NewProject.equipe.map(({foto,...resto}) => resto),
       link_repositorio: NewProject.link_repositorio,
       tecnologias_utilizadas: tecnologiasArray,
       video_tecnico: NewProject.video_tecnico,
@@ -265,28 +237,32 @@ function ProjectsAdmin() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios
-      .post(
-        `${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`,
-        NewProjectWithDefaults,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        handleLogoUpload(response.data.projeto.id);
-        toast.success("Projeto cadastrado com sucesso!");
-      })
-      .catch((error) => {
-        console.error("Erro ao adicionar projeto:", error);
-        setChangedTitle(false);
-        toast.error(
-          `Erro ao cadastrar projeto: ${
-            error.response?.data?.detail || "Verifique sua conexão"}`);
-      });
+    axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+    })
+    .then((response) => {
+      handleFotosUpload(response.data.projeto.id, NewProject.equipe);
+      return response.data.projeto.id;
+    })
+    .then((response) => {
+      handleLogoUpload(response);
+      toast.success("Projeto cadastrado com sucesso!");
+      return;
+    })
+    .then(response => {
+      setProject([...Project, NewProjectWithDefaults])
+      setOpen(false);
+    })
+    .catch((error) => {
+      console.error("Erro ao adicionar projeto:", error);
+      setChangedTitle(false);
+      toast.error(
+        `Erro ao cadastrar projeto: ${
+          error.response?.data?.detail || "Verifique sua conexão"}`);
+    });
   };
 
   useEffect(() => {
@@ -322,9 +298,6 @@ function ProjectsAdmin() {
       .catch((error) => console.error("Erro ao carregar projetos:", error));
   }, []);
 
-  useEffect(() => {
-    setNewProject((prev) => ({ ...prev, equipe: integrantes }));
-  }, [integrantes]);
 
   const filteredProject = Array.isArray(Project)
     ? Project.filter((project) => {
@@ -520,14 +493,14 @@ function ProjectsAdmin() {
                   </div>
                   <div className="col-span-2 flex items-center gap-4 mt-2">
                     <ModalCadastrarIntegrante
-                      integrantes={integrantes}
-                      setIntegrantes={setIntegrantes}
+                      integrantes={NewProject.equipe}
+                      setIntegrantes={(e) => handleChangeProject('equipe',e)}
                       onClose={() => {}}
                     />
 
                     <div className="flex flex-wrap gap-2 max-w-[80%]">
-                      {integrantes.length > 0 ? (
-                        integrantes.map((int, idx) => (
+                      {NewProject.equipe.length > 0 ? (
+                        NewProject.equipe.map((int, idx) => (
                           <span
                             key={idx}
                             className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
@@ -598,12 +571,7 @@ function ProjectsAdmin() {
                       id="semestre"
                       value={NewProject.semestre}
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        setNewProject({
-                          ...NewProject,
-                          semestre: e.target.value,
-                        })
-                      }
+                      onChange={(e) => handleChangeProject('semestre',e.target.value)}
                     >
                       <option value="">Selecione um semestre</option>
                       {semesterGenerator().map((semestre) => (
@@ -755,8 +723,7 @@ function ProjectsAdmin() {
                   data-autofocus
                   onClick={() => {
                     setOpen(false);
-                    setIntegrantes([]);
-				  }}
+				          }}
                   className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 >
                   Cancelar
