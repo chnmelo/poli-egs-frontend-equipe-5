@@ -71,8 +71,9 @@ function ProjectsAdmin() {
   useEffect(() => {
     console.log("Integrantes atualizados:", integrantes);
   }, [integrantes]);
+  
   const userIsAdmin = localStorage.getItem("isAdmin") === "true"; // Verificando se o usuário é admin no localStorage
-
+  
   if (!userIsAdmin) {
     // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-projects" />;
@@ -193,6 +194,27 @@ function ProjectsAdmin() {
       .catch((error) => console.log("Erro ao fazer upload da logo:", error));
   };
 
+  const handleLogoUpload = (id: string) => {
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    if (!selectedFile) {
+      window.location.reload();
+      setOpen(false);
+      return
+    }
+    formData.append('file', selectedFile);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload();
+      setOpen(false);
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
+
   const handlePost = () => {
     const token = localStorage.getItem("authToken");
 
@@ -263,9 +285,7 @@ function ProjectsAdmin() {
         setChangedTitle(false);
         toast.error(
           `Erro ao cadastrar projeto: ${
-            error.response?.data?.detail || "Verifique sua conexão"
-          }`
-        );
+            error.response?.data?.detail || "Verifique sua conexão"}`);
       });
   };
 
@@ -744,8 +764,6 @@ function ProjectsAdmin() {
               </div>
             </DialogPanel>
           </div>
-        </div>
-      </Dialog>
     </>
   );
 }

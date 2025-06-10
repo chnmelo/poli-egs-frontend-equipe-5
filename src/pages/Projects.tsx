@@ -15,12 +15,24 @@ function Projects() {
   const searchQuery = searchParams.get("search") || "";
   const [input, setInput] = useState(searchQuery || slug || "");
   const [inputMembers, setInputMembers] = useState('');
-  const [themes, setThemes] = useState('');
+  const [themes, setThemes] = useState(null);
   const [semester, setSemester] = useState('');
   const [cards, setCards] = useState([]);
-  const [selectedThemes, setSelectedThemes] = useState([]);
+  //const [selectedThemes, setSelectedThemes] = useState([]);
   const [selectedSemesters, setSelectedSemesters] = useState([]);
   const [images, setImages] = useState({});
+
+  const themeFilters = [
+      { title: 'Inteligência Artificial', key_words: "Inteligência Artificial, IA, machine learning, aprendizado de máquina, redes neurais, algoritmo inteligente" },
+      { title: 'Ciência de Dados', key_words: "Ciência de dados, Data Science, Análise de dados, Mineração de dados" },
+      { title: 'Finanças', key_words: "Finanças, Financeiro, Economia, Investimentos, Fintech" },
+      { title: 'Dívida Técnica', key_words: "Dívida Técnica, Código legado, Refatoração, Débito técnico, Manutenção de código" },
+      { title: 'Gestão', key_words: "Gestão, Gerenciamento, Planejamento, Administração, Liderança, Indicadores Chave de Desempenho" },
+      { title: 'LGPD', key_words: "LGPD, Lei Geral de Proteção de Dados, Dados Pessoais, Proteção de Dados, Vazamento de dados, Segurança da Informação, Anonimização" },
+      { title: 'Saúde', key_words: "Saúde, Sistema de Saúde, Paciente, Exame, Diagnóstico, Atendimento médico, Hospital, Hospitalar" },
+      { title: 'Educação', key_words: "Educação, Ensino, Professor, Aprendizagem, EAD, Pedagógico, Educacional, Alfabetização" }
+  ]
+  
 
   useEffect(() => {
     setInput(searchQuery);
@@ -33,9 +45,9 @@ function Projects() {
         setCards(data);
 
         // Extrai temas únicos
-        const themes = data.map((project) => project.tema);
-        const uniqueThemes = [...new Set(themes)];
-        setSelectedThemes(uniqueThemes);
+        //const themes = data.map((project) => project.tema);
+        //const uniqueThemes = [...new Set(themes)];
+        //setSelectedThemes(uniqueThemes);
 
         // Extrai semestres únicos
         const semesters = data.map((project) => project.semestre);
@@ -50,7 +62,7 @@ function Projects() {
   const resetFilters = () => {
     setInput('');
     setInputMembers('');
-    setThemes('');
+    setThemes(null);
     setSemester('');
   };
 
@@ -79,7 +91,7 @@ function Projects() {
   ? cards.filter((project) => {
       const searchInput = input.toLowerCase();
       const searchMembers = inputMembers.toLowerCase();
-      const searchThemes = themes.toLowerCase().split(/, | e /);
+      const searchThemes = themes?.key_words?.toLowerCase().split(/, | e /) || themeFilters.map(theme => theme.key_words.toLowerCase().split(/, | e /)).flat();
       const searchSemester = semester.toLowerCase();
       const projectThemes = project.tema?.toLowerCase().split(/, | e /)
 
@@ -95,7 +107,7 @@ function Projects() {
           palavrasChave.includes(searchInput) || // Usando palavras_chave como string
           project.tema?.toLowerCase().includes(searchInput)) &&
         (project.equipe ? project.equipe.toString().toLowerCase().includes(searchMembers) : '') &&
-        (themes == '' ? true : checker(searchThemes, projectThemes)) &&
+        (themes == null ? true : checker(searchThemes, projectThemes)) &&
         project.semestre?.toLowerCase().includes(searchSemester)
       );
     })
@@ -156,16 +168,17 @@ function Projects() {
               {/* Área do Projeto */}
               <div className="mb-4">
                 <label className="block text-gray-700 font-semibold mb-2">Área do projeto:</label>
-                <Listbox value={themes} onChange={setThemes}>
+                <Listbox value={themeFilters.map(theme => theme.title)} onChange={setThemes}>
                   <div className="relative">
                     <Listbox.Button className="relative w-full h-12 pl-3 pr-10 text-left bg-white rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <span className="block truncate">{themes || 'Selecione uma área'}</span>
+                      <span className="block truncate">{themes?.title || 'Selecione uma área'}</span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                         <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                       </span>
                     </Listbox.Button>
                     <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg">
-                      {selectedThemes.map((theme, index) => (
+                      {themeFilters.map((theme, index) => (
+                        
                         <Listbox.Option
                           key={index}
                           value={theme}
@@ -182,7 +195,7 @@ function Projects() {
                                   selected ? 'font-medium' : 'font-normal'
                                 }`}
                               >
-                                {theme}
+                                {theme.title}
                               </span>
                               {selected ? (
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-white">

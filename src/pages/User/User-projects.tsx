@@ -119,10 +119,22 @@ function Userprojects() {
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
   const handleLogoUpload = (id: string) => {
-    const token = localStorage.getItem("authToken");
-    const formData = new FormData();
+
     if (!selectedFile) {
       window.location.reload();
+      setOpen(false);
+      return
+    }
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload()
       setOpen(false);
       return;
     }
@@ -209,16 +221,14 @@ function Userprojects() {
       )
       .then((response) => {
         handleLogoUpload(response.data.projeto.id);
+
         toast.success("Projeto cadastrado com sucesso!");
       })
-      .catch((error) => {
-        console.error("Erro ao adicionar projeto:", error);
-        setChangedTitle(false);
-        toast.error(
-          `Erro ao cadastrar projeto: ${
-            error.response?.data?.detail || "Verifique sua conexão"
-          }`
-        );
+
+      .catch(error => {
+        console.error('Erro ao adicionar projeto:', error);
+        setChangedTitle(false)
+        toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || 'Verifique sua conexão'}`);
       });
   };
 
@@ -643,6 +653,7 @@ function Userprojects() {
               </div>
             </DialogPanel>
           </div>
+
         </div>
       </Dialog>
     </>
