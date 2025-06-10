@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
-
 const columns = [
   { key: "titulo", label: "Titulo" },
   { key: "editar", label: "Editar" },
@@ -23,12 +22,10 @@ const columns = [
 ];
 
 function ProdutosAdmin () {
-
   const [Input, setInput] = useState<string>("");
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
+  const [file, setFile] = useState<File | undefined>();  
+  const [changedTitle, setChangedTitle] = useState(true);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {setInput(event.target.value);};
   const [Produto, setProduto] = useState([]);
   const [open, setOpen] = useState(false)
   const [formValid, setFormValid] = useState(false);
@@ -44,7 +41,6 @@ function ProdutosAdmin () {
   })
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
-
   if (!userIsAdmin) {
     // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-produtos" />;
@@ -89,15 +85,12 @@ function ProdutosAdmin () {
     });
   };
 
-  const [file, setFile] = useState<File | undefined>();
   async function uploadPdf(e: React.FormEvent<HTMLInputElement>) {
     const target = e.target as HTMLInputElement & {
       files: FileList;
     };
     setFile(target.files[0]);
   }
-
-  const [changedTitle, setChangedTitle] = useState(true);
 
   const handleApprove = (produto) => {
     const token = localStorage.getItem('authToken');
@@ -107,7 +100,7 @@ function ProdutosAdmin () {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {        window.location.reload();
+      .then(response => {window.location.reload();
       })
         .catch(error => console.error('Erro ao aprovar produto:', error));
   }
@@ -177,7 +170,6 @@ function ProdutosAdmin () {
       arquivo: NewProduto.arquivo || '#',
       status: NewProduto.status || "Pendente",
     };
-
 
     axios.post(`${import.meta.env.VITE_url_backend}/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
       headers: {
