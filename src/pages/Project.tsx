@@ -6,29 +6,55 @@ import Footer from '../components/Footer';
 import iconImage from '../images/avatar.png';
 import Header from '../components/Header';
 import backgroundImage from '../images/mainpage.jpg';
+import ModalIntegrantesProjeto from '../components/ModalIntegrantesProjeto';
 
 function Project() {
   const { slug } = useParams();
   const [Data, setData] = useState({});
   const [images, setImg] = useState();
   const [comentarios, setComentarios] = useState([]);
+  const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
+  const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
+  const handleClickIntegrante = (pessoa: any) => {
+
+  if (typeof pessoa === 'string') {
+    setIntegranteSelecionado({ Nome: pessoa });
+  } else {
+    const integranteFormatado = {
+      Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
+      Minibio: pessoa.minibio || pessoa.Minibio || "",
+      Foto: pessoa.foto || pessoa.Foto || "",
+      Lattes: pessoa.lattes || pessoa.Lattes || "",
+      LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
+      GitHub: pessoa.github || pessoa.GitHub || "",
+      Email: pessoa.email || pessoa.Email || "",
+      RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
+    };
+    setIntegranteSelecionado(integranteFormatado);
+    }
+    setModalIntegranteAberto(true);
+    };
 
   useEffect(() => {
-    // Requisição para obter os dados do projeto
     axios.get(`${import.meta.env.VITE_url_backend}/projetos/${slug}`).then((response) => {
-      console.log("Resposta completa da API:", response);
-      console.log("Dados retornados:", response.data);
       const projeto = response.data;
-      setData(projeto);
-      setComentarios(projeto.comentarios || []);  // Atualizando os comentários
+
+    const equipeFormatada = (projeto.equipe || []).map((pessoa) => {
+      if (typeof pessoa === 'string') return { nomeCompleto: pessoa };
+      if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
+      return pessoa;
     });
-  
-    // Requisição para obter a imagem do logo do projeto
-    axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
-      setImg(response.data["url"]);
+
+    setData({ ...projeto, equipe: equipeFormatada });
+    setComentarios(projeto.comentarios || []);
+  });
+
+  axios.get(`${import.meta.env.VITE_url_backend}/view_logo_projeto/${slug}`).then((response) => {
+    setImg(response.data["url"]);
     });
-  
-  }, [slug]);  
+ }, [slug]);
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
@@ -84,17 +110,23 @@ function Project() {
         {/* Informações do projeto */}
         <div className="w-full flex justify-center">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
               <div className="flex items-center bg-blue-600 text-white rounded-t-lg px-4 py-2 transition-colors hover:bg-blue-700">
                 <UserGroupIcon className="h-5 w-5 mr-2" />
                 <h2 className="text-base font-semibold">Equipe</h2>
               </div>
-              <ul className="px-4 py-2 text-gray-700">
-                {Data.equipe?.map((pessoa, index) => (
-                  <li key={index}>{pessoa}</li>
-                ))}
-              </ul>
-            </section>
+                {Array.isArray(Data.equipe) &&
+                  Data.equipe.map((pessoa, index) => (
+                    <li
+                      key={index}
+                      className="cursor-pointer text-blue-600 hover:underline list-disc ml-6"
+                      onClick={() => handleClickIntegrante(pessoa)}
+                    >
+                      {pessoa.nomeCompleto || "Nome não disponível"}
+                    </li>
+                  ))}
+			</section>
 
             <section className="flex flex-col border border-light-color rounded-lg shadow-md pb-4">
               <div className="flex items-center bg-blue-600 text-white rounded-t-lg px-4 py-2 transition-colors hover:bg-blue-700">
@@ -167,6 +199,11 @@ function Project() {
           </div>
         </section>
       </main>
+         <ModalIntegrantesProjeto
+           isOpen={modalIntegranteAberto}
+           onClose={() => setModalIntegranteAberto(false)}
+           integrante={integranteSelecionado}
+         />
       <Footer />
     </>
   );
