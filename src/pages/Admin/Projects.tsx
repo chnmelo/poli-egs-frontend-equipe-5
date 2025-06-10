@@ -493,14 +493,11 @@ function ProjectsAdmin() {
               </div>
               <form action="POST">
                 <div className="grid grid-cols-2 gap-y-[2vh] gap-x-8 pt-4 px-6">
-                  {/* Título Equipe ocupa 2 colunas */}
                   <div className="col-span-2">
                     <h3 className="text-lg font-semibold whitespace-nowrap pl-[2px]">
                       Equipe <span className="text-red-500">*</span>
                     </h3>
                   </div>
-
-                  {/* Botão modal + lista integrantes, também ocupando 2 colunas, alinhado ao grid */}
                   <div className="col-span-2 flex items-center gap-4 mt-2">
                     <ModalCadastrarIntegrante
                       integrantes={integrantes}
@@ -525,8 +522,6 @@ function ProjectsAdmin() {
                       )}
                     </div>
                   </div>
-
-                  {/* Os demais campos seguem aqui, cada um ocupando 1 coluna */}
                   <div>
                     <h3 className="text-lg font-semibold">
                       Título <span className="text-red-500">*</span>
@@ -543,7 +538,6 @@ function ProjectsAdmin() {
                       }}
                     />
                   </div>
-
                   <div>
                     <h3 className="text-lg font-semibold">
                       Organização Parceira{" "}
@@ -560,7 +554,6 @@ function ProjectsAdmin() {
                       }
                     />
                   </div>
-
                   <div>
                     <h3 className="text-lg font-semibold">
                       Tema <span className="text-red-500">*</span>

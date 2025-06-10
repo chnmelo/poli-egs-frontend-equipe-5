@@ -1,12 +1,6 @@
 import React from "react";
 import { Dialog } from "@headlessui/react";
-import {
-  X,
-  Linkedin,
-  Github,
-  BookOpenText,
-  UsersRound,
-} from "lucide-react";
+import { X, Linkedin, Github, BookOpenText, UsersRound } from "lucide-react";
 
 interface Integrante {
   Nome: string;
@@ -64,11 +58,13 @@ const ModalIntegrantesProjeto: React.FC<ModalProps> = ({
             <p className="text-gray-600">{integrante.Minibio}</p>
           </div>
 
+          {/* Contato */}
           <div className="mt-2 text-center">
             <p className="font-medium text-gray-700">Contato</p>
             <p className="text-gray-600">{integrante.Email}</p>
           </div>
 
+          {/* Links com ícones */}
           <div className="mt-6 grid grid-cols-2 gap-4 px-4">
             {integrante.Lattes && (
               <a
