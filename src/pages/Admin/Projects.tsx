@@ -761,11 +761,13 @@ function ProjectsAdmin() {
                 >
                   Cancelar
                 </button>
-              </div>
-            </DialogPanel>
-          </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+      </Dialog>
     </>
-  );
+  )
 }
 
 export default ProjectsAdmin;
