@@ -396,7 +396,7 @@ function ProjectsAdmin() {
                     }`}
                   >
                     {column.key === "editar" ? (
-                      <ModalUpdate project={project} />
+                      <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
                     ) : column.key === "excluir" ? (
                       <ModalDelete
                         title={project.titulo}

@@ -28,10 +28,11 @@ const semesterGenerator = (): string[] => {
   return semesters.reverse();
 };
 
-export default function ModalUpdate({ project }: { project: ProjectInt }) {
+export default function ModalUpdate({ project, handleFotosUpload }/*: { project: ProjectInt }*/) {
   const [open, setOpen] = useState(false);
   const handleShow = () => setOpen(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [editIntegrante, setEditIntegrante] = useState(null)
 
   const [UpdatedProject, setUpdatedProject] = useState({
     titulo: project.titulo || "",
@@ -58,19 +59,11 @@ export default function ModalUpdate({ project }: { project: ProjectInt }) {
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
   const ableSemesters = semesterGenerator();
 
-  function adicionarIntegrante(novoIntegrante: Integrante) {
-    setIntegrantes((prev) => [...prev, novoIntegrante]);
-  }
-
   useEffect(() => {
     if (project.equipe && project.equipe.length > 0) {
       setIntegrantes(project.equipe as Integrante[]);
     }
-  }, [project.equipe]);
-
-  useEffect(() => {
-    console.log("Integrantes atualizados:", integrantes);
-  }, [integrantes]);
+  }, []);
 
   const userIsAdmin = localStorage.getItem("isAdmin") === "true";
 
@@ -95,38 +88,36 @@ export default function ModalUpdate({ project }: { project: ProjectInt }) {
 
       const updatedProjectToSend = {
         ...UpdatedProject,
-        equipe: integrantes,
+        equipe: integrantes.map(({foto,...resto}) => resto ),
         tecnologias_utilizadas: stringToArray(
           UpdatedProject.tecnologias_utilizadas
         ),
         palavras_chave: stringToArray(UpdatedProject.palavras_chave),
       };
 
-      await axios.put(
-        `${import.meta.env.VITE_url_backend}/projetos/${
-          project.id
-        }/?id_token=${token}`,
-        updatedProjectToSend
-      );
+      axios.put(`${import.meta.env.VITE_url_backend}/projetos/${project.id}/?id_token=${token}`, updatedProjectToSend)
+      .then(response => {
+        handleFotosUpload(project.id,integrantes)
+      })
+      .then(response => {
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append("file", selectedFile);
 
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-
-        await axios.post(
-          `${import.meta.env.VITE_url_backend}/upload_logo_projeto/${
-            project.id
-          }/?id_token=${token}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-      }
-
-      window.location.reload();
+          axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${project.id}/?id_token=${token}`, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+        }
+      })
+      .then(() => {
+        setOpen(false);
+        project.equipe = updatedProjectToSend
+        console.log('FOI')
+      })
+      
     } catch (error) {
       console.error("Erro ao atualizar projeto:", error);
     }
@@ -165,11 +156,11 @@ export default function ModalUpdate({ project }: { project: ProjectInt }) {
 
                   <div className="col-span-2 flex items-center gap-4 mt-2">
                     <ModalCadastrarIntegrante
+                      integrante={editIntegrante}
                       integrantes={integrantes}
                       setIntegrantes={setIntegrantes}
-                      onClose={() => {}}
-                    />
-
+                      onClose={() => {setEditIntegrante(null)}}
+                  />
                     <div className="flex flex-wrap gap-2 max-w-[80%]">
                       {integrantes.length > 0 ? (
                         integrantes.map((int, idx) => (
@@ -177,7 +168,26 @@ export default function ModalUpdate({ project }: { project: ProjectInt }) {
                             key={idx}
                             className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
                           >
+                            <button 
+                            className="cursor-pointer text-blue-600 hover:underline text:bold list-disc"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setEditIntegrante(int)
+                              console.log(int)
+
+                            }}>
                             {int.nomeCompleto}
+                            </button>
+
+                            <button 
+                            className="cursor-pointer text-red-600 hover:underline text:bold list-disc ml-3"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setIntegrantes(integrantes.filter(i => i !== int))
+                            }}>
+                              X
+                            </button>
+                            
                           </span>
                         ))
                       ) : (
@@ -381,8 +391,8 @@ export default function ModalUpdate({ project }: { project: ProjectInt }) {
                   data-autofocus
                   onClick={() => {
                     setOpen(false);
-                    setIntegrantes([]);
-				  }}
+                    setIntegrantes(project.equipe);
+				          }}
                   className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 >
                   Cancelar

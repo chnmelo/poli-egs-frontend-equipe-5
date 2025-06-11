@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogTitle, DialogPanel, DialogBackdrop } from "@headlessui/react";
 import { FaFileUpload } from "react-icons/fa";
 
-export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, onClose }) {
+export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, onClose, integrante }) {
   const [open, setOpen] = useState(false);
 
   const [nomeCompleto, setNomeCompleto] = useState("");
@@ -19,6 +19,29 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
     minibio.trim() &&
     email.trim();
 
+  useEffect(() => {
+    if (integrante) {
+      setNomeCompleto(integrante.nomeCompleto);
+      setFoto(null);
+      setMinibio(integrante.minibio);
+      setLinkedin(integrante.linkedin);
+      setGithub(integrante.github);
+      setLattes(integrante.lattes);
+      setEmail(integrante.email);
+      setRedeSocial(integrante.redeSocial);
+      setOpen(true)
+    } else {
+      setNomeCompleto("");
+      setFoto(null);
+      setMinibio("");
+      setLinkedin("");
+      setGithub("");
+      setLattes("");
+      setEmail("");
+      setRedeSocial("");
+    }
+  }, [integrante]);
+
   const handleAdd = () => {
     if (!isFormValid) return;
 
@@ -33,7 +56,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
       redeSocial,
     };
 
-    setIntegrantes([...integrantes, novoIntegrante]);
+    setIntegrantes([...integrantes, novoIntegrante].filter(i => i != integrante));
 
     setNomeCompleto("");
     setFoto(null);
