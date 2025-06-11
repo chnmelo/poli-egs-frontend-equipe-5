@@ -105,7 +105,7 @@ function Userprodutos () {
   const handlePdfUpload = (id: string) => {
       const formData = new FormData();
       formData.append('file', file);
-      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_produto/${id}/`, formData, {
+      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
