@@ -156,8 +156,6 @@ function Userprodutos () {
     .then(response => {
       handlePdfUpload(response.data.produto.id)
       toast.success("Produto cadastrado com sucesso!");
-      window.location.reload();
-      setOpen(false);
       })
       .catch(error => {
       setChangedTitle(false)
