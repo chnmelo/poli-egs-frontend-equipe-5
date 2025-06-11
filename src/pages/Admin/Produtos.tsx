@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
-
 const columns = [
   { key: "titulo", label: "Titulo" },
   { key: "editar", label: "Editar" },
@@ -23,14 +22,13 @@ const columns = [
 ];
 
 function ProdutosAdmin () {
-
   const [Input, setInput] = useState<string>("");
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
+  const [file, setFile] = useState<File | undefined>();  
+  const [changedTitle, setChangedTitle] = useState(true);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {setInput(event.target.value);};
   const [Produto, setProduto] = useState([]);
   const [open, setOpen] = useState(false)
+  const [formValid, setFormValid] = useState(false);
   const [NewProduto, setNewProduto] = useState({
     titulo: '',
     descricao: '',
@@ -43,21 +41,58 @@ function ProdutosAdmin () {
   })
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
-
   if (!userIsAdmin) {
     // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-produtos" />;
   }
 
-  const [file, setFile] = useState<File | undefined>();
+  const validateFormWithData = (produtoData) => {
+    const requiredFields = [
+      'titulo',
+      'tipo',
+      'descricao',
+      'equipe',
+      'semestre',
+      'arquivo'
+    ];
+
+    return requiredFields.every(field => {
+      const value = produtoData[field];
+      if (typeof value === 'string') {
+        return value.trim() !== '';
+      } else if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return false;
+    });
+  };
+
+  const validateForm = () => {
+    return validateFormWithData(NewProduto);
+  };
+    
+  // Função para atualizar o NewProject e verificar a validação
+  const handleChangeProduto = (field, value) => {
+    const updatedProduto = {...NewProduto, [field]: value};   // Primeira atualização do estado
+    setNewProduto(updatedProduto);
+    const isValid = validateFormWithData(updatedProduto);    // Validação imediata com o estado atualizado
+    setFormValid(isValid);
+  };
+  
+    const handleUpdate = () => {
+    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
+      setProduto(response.data);
+    }).catch(error => {
+      console.error('Erro ao atualizar produto', error.response.data.detail || '');
+    });
+  };
+
   async function uploadPdf(e: React.FormEvent<HTMLInputElement>) {
     const target = e.target as HTMLInputElement & {
       files: FileList;
     };
     setFile(target.files[0]);
   }
-
-  const [changedTitle, setChangedTitle] = useState(true);
 
   const handleApprove = (produto) => {
     const token = localStorage.getItem('authToken');
@@ -67,7 +102,7 @@ function ProdutosAdmin () {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {        window.location.reload();
+      .then(response => {window.location.reload();
       })
         .catch(error => console.error('Erro ao aprovar produto:', error));
   }
@@ -110,26 +145,33 @@ function ProdutosAdmin () {
       return;
     }
 
-    // Separando os campos de tecnologias e equipe  por vírgulas e transformando-os em arrays
-    const equipeArray = typeof NewProduto.equipe === 'string' && NewProduto.equipe.trim()
-      ? NewProduto.equipe.split(',').map(item => item.trim())
-      : [];
+     // Verificar novamente se todos os campos obrigatórios estão preenchidos
+    if (!validateForm()) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+  
+    // Função auxiliar para converter string em array
+    const stringToArray = (value) => {
+      return typeof value === 'string' && value.trim() 
+        ? value.split(',').map(item => item.trim()) 
+        : [];
+    };
 
-
-
+    // Conversão usando a função auxiliar
+    const equipeArray = stringToArray(NewProduto.equipe);
 
     // Atualiza os dados do projeto com os arrays processados
     const NewProdutoWithDefaults = {
       id: NewProduto.id || "default-id",
-      titulo: NewProduto.titulo || "Título não informado",
-      tipo: NewProduto.tipo || "Outros",
-      descricao: NewProduto.descricao || "Sem descrição",
-      equipe: equipeArray.length > 0 ? equipeArray : [],
-      semestre: NewProduto.semestre || "",
+      titulo: NewProduto.titulo,
+      tipo: NewProduto.tipo,
+      descricao: NewProduto.descricao,
+      equipe: equipeArray,
+      semestre: NewProduto.semestre,
       arquivo: NewProduto.arquivo || '#',
       status: NewProduto.status || "Pendente",
     };
-
 
     axios.post(`${import.meta.env.VITE_url_backend}/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
       headers: {
@@ -140,20 +182,35 @@ function ProdutosAdmin () {
     .then(response => {
       handlePdfUpload(response.data.produto.id)
       toast.success("Produto cadastrado com sucesso!");
-    })
-    .catch(error => {
+      window.location.reload();
+      setOpen(false);
+      })
+      .catch(error => {
       setChangedTitle(false)
       toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
   };
+  
+  useEffect(() => {
+    if (open) {
+      // Quando o modal é aberto, verifica a validade do formulário
+      setFormValid(validateForm());
+    } else {
+      // Quando o modal é fechado, reset do NewProject para o estado inicial
+      setNewProduto({
+        titulo: "",
+        descricao: "",
+        equipe: "",
+        tipo: "",
+        semestre: "",
+        id: "",
+        arquivo: '#',
+        status: "",
+      });
+    }
+  }, [open]);
 
-  const handleUpdate = () => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
-      setProduto(response.data);
-    }).catch(error => {
-      toast.error('Erro ao atualizar produto', error.response.data.detail || '');
-    });
-  };
 
+//
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(function (response) {
       setProduto(response.data)
@@ -334,7 +391,7 @@ function ProdutosAdmin () {
               <form action="POST">
                 <div className="grid grid-cols-2 justify-items-center pt-3 gap-y-[2vh]">
                   <div>
-                    <h3 className="text-lg font-semibold">Título</h3>
+                    <h3 className="text-lg font-semibold">Título <span className="text-red-500">*</span></h3>
                     <input
                       type="text"
                       name="titulo"
@@ -343,48 +400,41 @@ function ProdutosAdmin () {
                       className="focus:outline-none border-b-2 w-[15vw]"
                       onChange={(e) => {
                         setChangedTitle(true)
-                        setNewProduto({ ...NewProduto, titulo: e.target.value })}}
+                        handleChangeProduto('titulo', e.target.value)}}
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Tipo de produto</h3>
+                    <h3 className="text-lg font-semibold">Tipo de produto <span className="text-red-500">*</span></h3>
                     <select
-                        type="text"
-                        name="tipo"
-                        id="tipo"
-                        placeholder="Escolha um tipo"className="focus:outline-none border-b-2 w-[15vw]"
-                        onChange={(e) => setNewProduto({ ...NewProduto, tipo: e.target.value })}>
-                        <option value="Outros">Outros</option>
-                        <option value="Patente de Software">Patente de Software</option>
-                        <option value="Registro de Software">Registro de Software</option>
-                        <option value="Startup">Startup</option>
-                        <option value="Artigos e Relatórios Técnicos">Artigos e Relatórios Técnicos</option>
-                        <option value="Plataforma Online">Plataforma Online</option>
-                        <option value="TCC">TCC</option>
-                        <option value="Dissertação e Tese">Dissertação e Tese</option>
-
-
+                      name="tipo"
+                      id="tipo"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => handleChangeProduto('tipo', e.target.value)}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Escolha um tipo</option>
+                      <option value="Outros">Outros</option>
+                      <option value="Patente de Software">Patente de Software</option>
+                      <option value="Registro de Software">Registro de Software</option>
+                      <option value="Startup">Startup</option>
+                      <option value="Artigos e Relatórios Técnicos">Artigos e Relatórios Técnicos</option>
+                      <option value="Plataforma Online">Plataforma Online</option>
+                      <option value="TCC">TCC</option>
+                      <option value="Dissertação e Tese">Dissertação e Tese</option>
                     </select>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Descrição</h3>
-                    <input
-                      type="text"
-                      name="descricao"
-                      id="descricao"
-                      placeholder="Descrição"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProduto({ ...NewProduto, descricao: e.target.value })}
-                    />
+                    <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
+                    <input type="text" name="descricao" id="descricao" placeholder="descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProduto('descricao', e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Semestre</h3>
+                    <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
                     <select
                       name="semestre"
                       id="semestre"
                       value={NewProduto.semestre}
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProduto({ ...NewProduto, semestre: e.target.value })}>
+                      onChange={(e) => handleChangeProduto( 'semestre', e.target.value )}>
                       <option value="">Selecione um semestre</option>
                       {semesterGenerator().map((semestre) => (
                           <option key={semestre} value={semestre}>{semestre}</option>))}
@@ -413,15 +463,8 @@ function ProdutosAdmin () {
                     </label>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Equipe</h3>
-                    <input
-                      type="text"
-                      name="equipe"
-                      id="equipe"
-                      placeholder="Pessoa1,Pessoa2,Pessoa3"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => setNewProduto({ ...NewProduto, equipe: e.target.value })}
-                    />
+                    <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
+                    <input type="text" name="equipe" id="equipe" placeholder="Pessoa1,Pessoa2,Pessoa3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProduto('equipe', e.target.value)}/>
                   </div>
                 </div>
               </form>
@@ -429,12 +472,12 @@ function ProdutosAdmin () {
                 <button
                   type="button"
                   className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                  changedTitle
-                    ? "bg-primary-color hover:bg-blue-700" 
-                    : "bg-gray-400 cursor-not-allowed"
+                    changedTitle && formValid 
+                      ? "bg-primary-color hover:bg-blue-700" 
+                      : "bg-gray-400 cursor-not-allowed"
                   }`}
-                  onClick={() => handlePost(setOpen)}
-                  disabled={!changedTitle}
+                  onClick={handlePost}
+                  disabled={!formValid || !changedTitle}
                 >
                   Enviar
                 </button>
