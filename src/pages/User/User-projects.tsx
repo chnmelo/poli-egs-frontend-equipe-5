@@ -55,6 +55,8 @@ function Userprojects() {
 
   const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
 
+  const [editIntegrante,setEditIntegrante] = useState(null);
+
   const userIsAdmin = localStorage.getItem("isAdmin") === "true"; // Verificando se o usuário é admin no localStorage
 
   if (userIsAdmin) {
@@ -406,9 +408,10 @@ function Userprojects() {
                 <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
                   <div className="col-span-2 flex items-center gap-4 mt-2">
                     <ModalCadastrarIntegrante
+                      integrante={editIntegrante}
                       integrantes={NewProject.equipe}
                       setIntegrantes={(e) => handleChangeProject('equipe',e)}
-                      onClose={() => {}}
+                      onClose={() => {setEditIntegrante(null)}}
                     />
 
                     <div className="flex flex-wrap gap-2 max-w-[80%]">
@@ -418,7 +421,25 @@ function Userprojects() {
                             key={idx}
                             className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
                           >
+
+                            <button 
+                            className="cursor-pointer text-blue-600 hover:underline text:bold list-disc"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setEditIntegrante(int)
+                            }}>
                             {int.nomeCompleto}
+                            </button>
+
+                            <button 
+                            className="cursor-pointer text-red-600 hover:underline text:bold list-disc ml-3"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleChangeProject('equipe',NewProject.equipe.filter(i => i !== int))
+                            }}>
+                              X
+                            </button>
+
                           </span>
                         ))
                       ) : (

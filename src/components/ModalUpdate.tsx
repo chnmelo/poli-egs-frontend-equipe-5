@@ -168,13 +168,12 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
                             key={idx}
                             className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
                           >
+                            
                             <button 
                             className="cursor-pointer text-blue-600 hover:underline text:bold list-disc"
                             onClick={(e) => {
                               e.preventDefault()
                               setEditIntegrante(int)
-                              console.log(int)
-
                             }}>
                             {int.nomeCompleto}
                             </button>

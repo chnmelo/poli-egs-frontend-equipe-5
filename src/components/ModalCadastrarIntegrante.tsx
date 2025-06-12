@@ -22,7 +22,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
   useEffect(() => {
     if (integrante) {
       setNomeCompleto(integrante.nomeCompleto);
-      setFoto(null);
+      setFoto(integrante.foto);
       setMinibio(integrante.minibio);
       setLinkedin(integrante.linkedin);
       setGithub(integrante.github);
@@ -31,16 +31,20 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
       setRedeSocial(integrante.redeSocial);
       setOpen(true)
     } else {
-      setNomeCompleto("");
-      setFoto(null);
-      setMinibio("");
-      setLinkedin("");
-      setGithub("");
-      setLattes("");
-      setEmail("");
-      setRedeSocial("");
+      clearFields()
     }
   }, [integrante]);
+
+  const clearFields = () => {
+    setNomeCompleto("");
+    setFoto(null);
+    setMinibio("");
+    setLinkedin("");
+    setGithub("");
+    setLattes("");
+    setEmail("");
+    setRedeSocial("");
+  }
 
   const handleAdd = () => {
     if (!isFormValid) return;
@@ -55,17 +59,17 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
       email,
       redeSocial,
     };
+    
+    if (integrante){
+      let equipeTemp = integrantes
+      equipeTemp[integrantes.indexOf(integrante)] = novoIntegrante
+      setIntegrantes(equipeTemp);
+    } else {
+      setIntegrantes([...integrantes,novoIntegrante]);
+    }
+    
 
-    setIntegrantes([...integrantes, novoIntegrante].filter(i => i != integrante));
-
-    setNomeCompleto("");
-    setFoto(null);
-    setMinibio("");
-    setLinkedin("");
-    setGithub("");
-    setLattes("");
-    setEmail("");
-    setRedeSocial("");
+    clearFields()
     setOpen(false);
     if(onClose) onClose();
   };
@@ -218,7 +222,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
                   isFormValid ? "bg-primary-color hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"
                 }`}
               >
-                Adicionar
+               {integrante ? "Editar" : "Adicionar"}
               </button>
               <button
                 type="button"
