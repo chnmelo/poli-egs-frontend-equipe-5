@@ -103,18 +103,15 @@ function Userprodutos () {
   }
 
   const handlePdfUpload = (id: string) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-      })
-      .then(response => {
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .catch(error => console.log('Erro ao fazer upload do PDF:', error))
   }
 
   const handlePost = () => {
@@ -154,12 +151,13 @@ function Userprodutos () {
       },
     })
     .then(response => {
-      handlePdfUpload(response.data.produto.id)
       toast.success("Produto cadastrado com sucesso!");
-      })
-      .catch(error => {
-      setChangedTitle(false)
-      toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
+      handlePdfUpload(response.data.produto.id)
+      setOpen(false);
+    })
+    .catch(error => {
+    setChangedTitle(false)
+    toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
   };
 
     useEffect(() => {
@@ -218,6 +216,17 @@ function Userprodutos () {
   return (
     <>
       <HeaderUser />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-start text-dark-color">Produtos</h1>
