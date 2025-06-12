@@ -54,6 +54,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
     revisado: project.revisado || "",
     curtidas: project.curtidas || 0,
     user_curtidas_email: project.user_curtidas_email || [],
+    comentarios: project.comentarios || []
   });
 
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
@@ -114,7 +115,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
       })
       .then(() => {
         setOpen(false);
-        project.equipe = updatedProjectToSend
+        project = updatedProjectToSend
         console.log('FOI')
       })
       

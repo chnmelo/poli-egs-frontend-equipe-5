@@ -141,14 +141,14 @@ function Userprojects() {
     const token = localStorage.getItem('authToken')
     const formData = new FormData();
 
-    equipe.forEach((integrante, index) => {
+    equipe.forEach((integrante) => {
       if (integrante.foto instanceof File) {
         formData.append('files', integrante.foto);
-        formData.append('file_indexes', index);
+        formData.append('file_ids', integrante.id);
       }
     })
 
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/${id}/?id_token=${token}`, formData, {
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/?id_token=${token}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'

@@ -6,6 +6,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
   const [open, setOpen] = useState(false);
 
   const [nomeCompleto, setNomeCompleto] = useState("");
+  const [id, setId] = useState(null);
   const [foto, setFoto] = useState(null);
   const [minibio, setMinibio] = useState("");
   const [linkedin, setLinkedin] = useState("");
@@ -36,6 +37,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
   }, [integrante]);
 
   const clearFields = () => {
+    setId(null)
     setNomeCompleto("");
     setFoto(null);
     setMinibio("");
@@ -50,6 +52,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
     if (!isFormValid) return;
 
     const novoIntegrante = {
+      id,
       nomeCompleto,
       foto,
       minibio,
@@ -61,6 +64,7 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
     };
     
     if (integrante){
+      console.log('weodfuygvsauiofygvbwefyhbgwoisyefhvbgojgdfwi')
       let equipeTemp = integrantes
       equipeTemp[integrantes.indexOf(integrante)] = novoIntegrante
       setIntegrantes(equipeTemp);
@@ -119,7 +123,9 @@ export default function ModalCadastrarIntegrante({ integrantes, setIntegrantes, 
                   accept="image/*"
                   id="foto"
                   className="hidden"
-                  onChange={(e) => setFoto(e.target.files[0])}
+                  onChange={(e) => {
+                    setId(crypto.randomUUID())
+                    setFoto(e.target.files[0])}}
                 />
                 <label
                   htmlFor="foto"
