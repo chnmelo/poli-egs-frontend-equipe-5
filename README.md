@@ -23,7 +23,7 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 - **Detalhes do Projeto**: Visualize informações completas, incluindo descrição, vídeos, palavras-chave, profile dos integrantes da equipe, link de repositorios, etc.
 - **Curtidas e Comentários**: Interaja com os projetos por meio de curtidas e comentários.
 
-### 📑 **Aba de Artigos**
+### 📂 **Aba de Artigos**
 - Explore artigos submetidos por alunos e professores, organizados por temas e relevância.
 
 ### 📂 **Aba de Produtos**
