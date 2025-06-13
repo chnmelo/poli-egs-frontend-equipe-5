@@ -1,4 +1,4 @@
-# **ES_Front_2025.1 - Observatório de Projetos**
+# **Front_2025.1 - Observatório de Projetos**
 
 Bem-vindo ao repositório de **Front-End** do **Observatório de Projetos** versão 2.O da **POLI-UPE**! Este projeto faz parte da disciplina de Engenharia de Software do curso de Engenharia da Computação e foi projetado para oferecer uma plataforma colaborativa, onde projetos acadêmicos e artigos podem ser explorados, submetidos e gerenciados.
 
@@ -56,11 +56,11 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 
 ## 🛠 **Tecnologias Utilizadas**
 
-- **React**: Para criação de interfaces reativas e interativas.
-- **TypeScript**: Tipagem estática para maior segurança no código.
-- **Vite**: Build tool para desenvolvimento rápido e eficiente.
-- **Axios**: Comunicação com a API através de requisições HTTP.
-- **TailwindCSS**: Framework para estilização responsiva.
+- ⚛️ **React**: Para criação de interfaces reativas e interativas.
+- 🟦 **TypeScript**: Tipagem estática para maior segurança no código.
+- ⚡ **Vite**: Build tool para desenvolvimento rápido e eficiente.
+- 📡 **Axios**: Comunicação com a API através de requisições HTTP.
+- 🎨 **TailwindCSS**: Framework para estilização responsiva.
 
 ---
 
