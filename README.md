@@ -87,9 +87,9 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 ![image](https://github.com/user-attachments/assets/44568fd9-6047-4b84-8a4b-d3f7ed63f996)
 
 Equipe 2 do semestre 2025.1:
-- **PRISCILLA DE SOUZA SILVA - SCRUM, PO, TESTER E DEV FRONT-END**
-- **IAN - DEV FRONT-END E BACK-END**
+- **IAN TEIXEIRA PIMENTEL - DEV FRONT-END E BACK-END**
 - **JULIANA - DEV FRONT-END E BACK-END**
 - **ALICE - DEV FRONT-END E BACK-END**
+- **PRISCILLA DE SOUZA SILVA - SCRUM, PO, TESTER E DEV FRONT-END**
 - **SILVIO - GERENTE DE PROJETO**
 - **ARTHUR - DEV FRONT-END E BACK-END**
