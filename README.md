@@ -42,13 +42,15 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 - **Login**: Diferencia usuários comuns e administradores, oferecendo acesso personalizado.
 
 ### 📊 **Dashboard de Usuário**
-- **Submissão de Projetos e Artigos**: Submeta conteúdos para aprovação.
+- **Submissão de Projetos, Artigos e Produtos**: Submeta projetos, artigos ou produtos com as suas respetivas informações para aprovação pelo administrador.
 - **Curtidas e Comentários**: Gerencie interações nos projetos.
 
 ### 🔧 **Dashboard de Administrador**
 - **Aprovação/Reprovação**: Gerencie projetos e artigos submetidos.
-- **Edição de Conteúdo**: Edite informações de projetos ou artigos diretamente no painel.
-- **Gerenciamento de Curtidas e Comentários**: Monitore interações realizadas pelos usuários.
+- **Edição de Conteúdo**: Edite informações de projetos, artigos e produtos diretamente no painel.
+- **Exclusão**: Exclua projetos, artigos e produtos diretamente no painel
+- **Gerenciamento de Curtidas e Comentários**: Monitore interações realizadas pelos usuários para projetos.
+- **Reponder e Postar Dúvidas e Sugestões**: Responda, delete ou post publicamente na aba FAQ as dúvidas e sugestões enviadas.
 
 ---
 
@@ -84,12 +86,10 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 
 ![image](https://github.com/user-attachments/assets/44568fd9-6047-4b84-8a4b-d3f7ed63f996)
 
-Equipe 4 do semestre 2024.2:
-- **JOÃO MIGUEL DESCENDENTE DE MELO SILVA**
-- **DANIEL GUILHERME PEREIRA DE MENESES**
-- **MARCUS VINICIUS DE FRANÇA**
-- **JOSE DE ARIMATEIA GUEDES DE SENA FILHO**
-- **BRUNO CESAR PROTASIO DE LIMA FILHO**
-- **PAULO RENATO FERRAZ DE CARVALHO**
-- **VINICYUS MANOEL DE FREITAS SANTOS**
-- **NIELSO CANDIDO DE OLIVEIRA JÚNIOR**
+Equipe 2 do semestre 2025.1:
+- **PRISCILLA DE SOUZA SILVA - SCRUM, PO, TESTER E DEV FRONT-END**
+- **IAN - DEV FRONT-END E BACK-END**
+- **JULIANA - DEV FRONT-END E BACK-END**
+- **ALICE - DEV FRONT-END E BACK-END**
+- **SILVIO - GERENTE DE PROJETO**
+- **ARTHUR - DEV FRONT-END E BACK-END**
