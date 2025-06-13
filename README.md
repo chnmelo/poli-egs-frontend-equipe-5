@@ -26,7 +26,7 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 ### 📑 **Aba de Artigos**
 - Explore artigos submetidos por alunos e professores, organizados por temas e relevância.
 
-- ### 📂 **Aba de Produtos**
+### 📂 **Aba de Produtos**
 - **Campo de pesquisa**: Localize produtos por nome, tema ou palavra-chave.
 - **Detalhes do Produto**: Visualize informações completas, incluindo descrição, tipo, semestre e equipe.
 
