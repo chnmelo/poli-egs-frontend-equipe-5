@@ -7,7 +7,7 @@ Link deploy produção: https://poli-egs-frontend-equipe-2.onrender.com/
 
 ## 🌟 **Sobre o Projeto**
 
-O **Observatório de Projetos** é uma aplicação web criada para centralizar os projetos e artigos acadêmicos da **POLI-UPE**, bem como os produtos (Patente de Software, Registro de Software, Startup, Artigos e Relatórios Técnicos, Plataforma Online, TCC e Dissertação e Tese) resultantes dos projetos desenvolvidos promovendo visibilidade e acesso fácil a conteúdos acadêmicos. Através de uma **interface intuitiva e moderna**, o usuário pode buscar, curtir, comentar e submeter projetos e artigos, enquanto administradores gerenciam e moderam o conteúdo.
+O **Observatório de Projetos** é uma aplicação web criada para centralizar os projetos e artigos acadêmicos da **POLI-UPE**, bem como os produtos (Patente de Software, Registro de Software, Startup, Artigos e Relatórios Técnicos, Plataforma Online, TCC e Dissertação e Tese) resultantes dos projetos desenvolvidos, promovendo assim visibilidade e acesso fácil a conteúdos acadêmicos. Através de uma **interface intuitiva e moderna**, o usuário pode buscar, curtir, comentar e submeter projetos e artigos, enquanto administradores gerenciam e moderam o conteúdo.
 
 ---
 
