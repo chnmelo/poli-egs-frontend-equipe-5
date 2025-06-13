@@ -88,6 +88,10 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 
 ## 📑 **Documentação Desenvolvida**
 
+- **Tabela de Rastreamento de Funcionalidades**
+  ![image](https://github.com/user-attachments/assets/6062ab5d-879d-45de-9f4f-62ca36cf4b73)
+
+
 ## Equipe 2 do semestre 2025.1:##
 - **IAN TEIXEIRA PIMENTEL - DEV FRONT-END E BACK-END**
 - **JULIANA DANZI D'AMORIM FERREIRA- DEV FRONT-END E BACK-END**
