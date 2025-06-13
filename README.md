@@ -27,10 +27,10 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 - **Campo de pesquisa**: Localize produtos por nome, tema ou palavra-chave.
 - **Detalhes do Produto**: Visualize informações completas, incluindo descrição, tipo, semestre e equipe.
 
-### ❓ **Sobre**
+### ❓ **Aba Sobre**
 - Informações gerais sobre o Observatório e sua importância.
 
-### 📑 **FAQ**
+### 📑 **Aba FAQ**
 - **Perguntas Frequentes (FAQ)**: Respostas às perguntas frequentes para facilitar a navegação e o uso da plataforma.
 - **Resposta a Dúvidas/Sugestões**: Respostas às sugestões e dúvidas feitas através da seção 'Entre em Contato' na página inicial.
 
