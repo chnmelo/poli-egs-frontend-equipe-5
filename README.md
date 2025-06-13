@@ -13,17 +13,29 @@ O **Observatório de Projetos** é uma aplicação web criada para centralizar o
 
 ## 🚀 **Funcionalidades**
 
+### 📂 **Aba de Inicio**
+- **Campo de pesquisa**: Localize projetos por nome, tema ou palavra-chave.
+- **Cards clicaveis**:  Localize projetos por tema.
+- **Entre em Contato**: Envie dúvidas e sugestões ao administrador do sistema.
+
 ### 📂 **Aba de Projetos**
 - **Busca Avançada**: Localize projetos por nome, tema ou palavra-chave com filtros dinâmicos.
-- **Detalhes do Projeto**: Visualize informações completas, incluindo descrição, participantes, vídeos e palavras-chave.
+- **Detalhes do Projeto**: Visualize informações completas, incluindo descrição, vídeos, palavras-chave, profile dos integrantes da equipe, link de repositorios, etc.
 - **Curtidas e Comentários**: Interaja com os projetos por meio de curtidas e comentários.
 
 ### 📑 **Aba de Artigos**
 - Explore artigos submetidos por alunos e professores, organizados por temas e relevância.
 
-### ❓ **FAQ e Sobre**
-- **FAQ**: Respostas às perguntas frequentes para facilitar a navegação e o uso da plataforma.
-- **Sobre**: Informações gerais sobre o Observatório e sua importância.
+- ### 📂 **Aba de Produtos**
+- **Campo de pesquisa**: Localize produtos por nome, tema ou palavra-chave.
+- **Detalhes do Produto**: Visualize informações completas, incluindo descrição, tipo, semestre e equipe.
+
+### ❓ **Sobre**
+- Informações gerais sobre o Observatório e sua importância.
+
+### 📑 **FAQ**
+- **Perguntas Frequentes (FAQ)**: Respostas às perguntas frequentes para facilitar a navegação e o uso da plataforma.
+- **Resposta a Dúvidas/Sugestões**: Respostas às sugestões e dúvidas feitas através da seção 'Entre em Contato' na página inicial.
 
 ### 🧑‍💻 **Sistema de Registro e Login**
 - **Registro**: Cadastro de novos usuários com autenticação segura.
