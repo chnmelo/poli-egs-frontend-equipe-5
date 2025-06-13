@@ -93,3 +93,5 @@ Equipe 2 do semestre 2025.1:
 - **PRISCILLA DE SOUZA SILVA - SCRUM, PO, TESTER E DEV FRONT-END**
 - **SILVIO JUNIOR- GERENTE DE PROJETO**
 - **ARTHUR MACEDO - DEV FRONT-END E BACK-END**
+
+  ## 📑 **Documentação Desenvolvida**
