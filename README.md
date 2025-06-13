@@ -77,7 +77,7 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 
 ![image](https://github.com/user-attachments/assets/44568fd9-6047-4b84-8a4b-d3f7ed63f996)
 
-## 📑 **Documentação Desenvolvida**
+## 📑 **Documentação**
 
 - **Tabela de Rastreamento de Funcionalidades**
   ![image](https://github.com/user-attachments/assets/6062ab5d-879d-45de-9f4f-62ca36cf4b73)
