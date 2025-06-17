@@ -124,8 +124,16 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 #### - **Casos de Testes para o Modulo Artigos**
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Artigos.pdf)
 
-### Bugs e Task Levantadas par Futura Implementacao
-[📘 Acessar Documento]()
+### Bugs e Task Levantadas para Futura Implementacao
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Back-end%20-%20Error%20de%20token%20quando%20usu%C3%A1rio%20adm%20tenta%20aprovar%20ou%20reprovar%20artigo%20quando%20o%20usu%C3%A1rio%20esta%20logando%20a%20muito%20tempo.pdf)
+
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Refatoramento%20do%20c%C3%B3digo%20de%20back%20-%20melhoria%20do%20codigo.pdf)
+
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/%5BDatabase%5D%20os%20pdf%20ou%20imagens%20dos%20projetos%2C%20artigos%20ou%20produtos%20exclu%C3%ADdos%20pela%20interface%20do%20usu%C3%A1rio%20n%C3%A3o%20est%C3%A3o%20sendo%20exclu%C3%ADdos%20do%20banco%20de%20dados.pdf)
+
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/%5BFront%20e%20Back%5D%5BLogin%5D%20Credenciais%20de%20login%20est%C3%A3o%20sendo%20enviadas%20via%20query%20string%20(risco%20de%20seguran%C3%A7a).pdf)
+
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/%5BFront-end%5D%5BModal%20Cadastrar%20novo%20Artigo%5D%20Sistema%20n%C3%A3o%20faz%20verifica%C3%A7%C3%A3o%20de%20campos%20obrigat%C3%B3rios.pdf)
 
 
 ## Equipe 2 do semestre 2025.1:##
