@@ -114,15 +114,18 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 #### Caso de Testes Criados:
 
 #### - **Casos de Testes para o Modulo Produtos**
-[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Produtos.pdf)
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Teste%20para%20Modulo%20Projetos.pdf)
 #### - **Casos de Testes para o Modulo Gestão de Dúvidas e Sugestões**
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Gest%C3%A3o%20de%20D%C3%BAvidas%20e%20Sugest%C3%B5es.pdf)
 #### - **Casos de Testes para o Modulo Informacoes sobre Integrantes da Equipe**
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Teste%20Exibir%20Informa%C3%A7%C3%B5es%20da%20Equipe.pdf)
 #### - **Casos de Testes para o Modulo Projetos**
-[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Teste%20para%20Modulo%20Projetos.pdf)
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Produtos.pdf)
 #### - **Casos de Testes para o Modulo Artigos**
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Artigos.pdf)
+
+#### Bugs e Task Levantadas par Futura Implementacao
+[📘 Acessar Documento]()
 
 
 ## Equipe 2 do semestre 2025.1:##
