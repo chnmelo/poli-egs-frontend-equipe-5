@@ -124,7 +124,7 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 #### - **Casos de Testes para o Modulo Artigos**
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Artigos.pdf)
 
-#### Bugs e Task Levantadas par Futura Implementacao
+### Bugs e Task Levantadas par Futura Implementacao
 [📘 Acessar Documento]()
 
 
