@@ -135,7 +135,7 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 
 [📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/%5BFront-end%5D%5BModal%20Cadastrar%20novo%20Artigo%5D%20Sistema%20n%C3%A3o%20faz%20verifica%C3%A7%C3%A3o%20de%20campos%20obrigat%C3%B3rios.pdf)
 
-## Storys Trabalhas no Observatorio 2.0 no Jira##
+## Storys Trabalhas no Observatorio 2.0 no (Jira app)
 ![one](https://github.com/user-attachments/assets/c3756aa9-f72a-4fbb-8b50-ea0312f40e17)
 ![two](https://github.com/user-attachments/assets/75063b13-992d-4b04-909c-57494d849471)
 ![three](https://github.com/user-attachments/assets/29e5b8c3-5d4e-4b2f-a362-75eed44529e2)
