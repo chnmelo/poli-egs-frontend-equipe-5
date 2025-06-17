@@ -85,6 +85,45 @@ Certifique-se de ter as ferramentas abaixo instaladas:
   
   ![image](https://github.com/user-attachments/assets/6062ab5d-879d-45de-9f4f-62ca36cf4b73)
 
+### Especificacao dos Novos Modulos Desenvolvidos:
+
+#### - **Especificações Funcionais - Módulo Produtos** 
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Especifica%C3%A7%C3%A3o%20Funcional%20-%20M%C3%B3dulo_%20Produtos.pdf)
+#### - **Especificações Funcionais - Módulo Gestão de Dúvidas e Sugestões** 
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Especifica%C3%A7%C3%A3o%20Funcional%20-%20M%C3%B3dulo%20Gest%C3%A3o%20de%20D%C3%BAvidas%20e%20Sugest%C3%B5es.pdf)
+#### - **Especificações Funcionais - Módulo Cadastrar Integrantes da Equipe**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Especifica%C3%A7%C3%A3o%20Funcional%20-%20Modulo%20Cadastrar%20Integrantes%20Equipe.pdf)
+
+### Gerenciamento do Projeto:
+
+#### - **Matriz de Commits**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Matriz%20de%20Controle%20de%20Commites.pdf)
+#### - **Regras relacionada ao formato dos commites**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Regras%20relacionada%20ao%20formato%20dos%20commites.pdf)
+#### - **Exemplo de Sprint Plan**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Sprint%20Plan%20Model.pdf)
+#### - **Exemplo de documento utilizado nas reunioes com o cliente**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Exemplo%20de%20documento%20utilizado%20nas%20reunioes%20com%20cliente.pdf)
+#### - **Exemplo de documento utilizado para o gerenciamento das reunioes diarias**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Exemplo%20de%20documento%20de%20gerenciamento%20das%20reunioes%20diarias.pdf)
+#### - **Exemplo de documento utilizado na retrospectiva da sprint**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Exemplo%20de%20documento%20com%20retrospectiva%20da%20sprint.pdf)
+#### - **Exemplo de documento How To Do (onde os integrantes compartilharam conhecimentos)**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Exemplo%20de%20documento%20explicando%20Como%20Fazer%20as%20coisas.pdf)
+
+#### Caso de Testes Criados:
+
+#### - **Casos de Testes para o Modulo Produtos**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Produtos.pdf)
+#### - **Casos de Testes para o Modulo Gestão de Dúvidas e Sugestões**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Gest%C3%A3o%20de%20D%C3%BAvidas%20e%20Sugest%C3%B5es.pdf)
+#### - **Casos de Testes para o Modulo Informacoes sobre Integrantes da Equipe**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Teste%20Exibir%20Informa%C3%A7%C3%B5es%20da%20Equipe.pdf)
+#### - **Casos de Testes para o Modulo Projetos**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Teste%20para%20Modulo%20Projetos.pdf)
+#### - **Casos de Testes para o Modulo Artigos**
+[📘 Acessar Documento](https://github.com/PriscillaIA/poli-egs-fastapi-backend-equipe-2/blob/master/documenta%C3%A7%C3%A3o/Casos%20de%20Testes%20para%20Modulo%20Artigos.pdf)
+
 
 ## Equipe 2 do semestre 2025.1:##
 - **IAN TEIXEIRA PIMENTEL (DEV FRONT-END E BACK-END)**
