@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/backgroundlogin.jpg';
+import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -10,19 +11,46 @@ const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Requisitos de senha
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false,
+  });
+
+  useEffect(() => {
+    setPasswordRequirements({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[^A-Za-z0-9]/.test(password),
+    });
+  }, [password]);
+
+  const allRequirementsMet = Object.values(passwordRequirements).every(Boolean);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificando se as senhas coincidem antes de enviar a requisição
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem!");
+      setError("As senhas não coincidem!");
       return;
     }
+
+    if (!allRequirementsMet) {
+      setError("A senha não atende a todos os requisitos.");
+      return;
+    }
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@(poli\.br|ecomp\.poli\.br|upe\.br)$/;
     if (!emailRegex.test(email)) {
-    alert("Apenas e-mails dos domínios @poli.br, @ecomp.poli.br ou @upe.br são permitidos.");
-    return;
-  }
+      setError("Apenas e-mails dos domínios @poli.br, @ecomp.poli.br ou @upe.br são permitidos.");
+      return;
+    }
+
     try {
       const response = await fetch(`${import.meta.env.VITE_url_backend}/register`, {
         method: 'POST',
@@ -33,17 +61,16 @@ const Register = () => {
           username,
           email,
           password,
-          is_admin: false, // Definindo automaticamente como false
+          is_admin: false,
         }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('Registro bem-sucedido:', data);
         alert('Registro realizado com sucesso!');
         navigate('/logintest');
       } else {
-        setError("O endereço de e-mail já existe ou a senha possui menos de 6 caracteres.");
+        const data = await response.json();
+        setError(data.message || "O endereço de e-mail já existe.");
       }
     } catch (error) {
       console.error('Erro de rede:', error);
@@ -68,7 +95,7 @@ const Register = () => {
       </button>
 
       <div
-        className="p-14 rounded-lg shadow-lg w-96"
+        className="p-10 rounded-lg shadow-lg w-full max-w-md"
         style={{
           backgroundColor: 'rgba(187, 170, 170, 0.205)',
           backdropFilter: 'blur(15px)',
@@ -77,10 +104,9 @@ const Register = () => {
         <h2 className="text-3xl font-bold text-center mb-6 text-white">Registrar</h2>
 
         <form onSubmit={handleSubmit} autoComplete="off">
-          <div className="mb-4 relative">
+          <div className="mb-4">
             <input
               type="text"
-              id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Nome de usuário"
@@ -89,10 +115,9 @@ const Register = () => {
             />
           </div>
 
-          <div className="mb-4 relative">
+          <div className="mb-4">
             <input
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
@@ -102,10 +127,9 @@ const Register = () => {
             />
           </div>
 
-          <div className="mb-6 relative">
+          <div className="mb-4">
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Senha"
@@ -113,34 +137,48 @@ const Register = () => {
               autoComplete="new-password"
               required
             />
+            {password && <PasswordStrengthMeter password_value={password} />}
           </div>
 
-          <div className="mb-6 relative">
+          <div className="mb-4">
             <input
               type="password"
-              id="confirm-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirmar Senha"
-              className="w-full py-3 px-4 rounded-xl bg-white bg-opacity-10 text-white border-transparent focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 hover:border hover:border-white/30"
+              className={`w-full py-3 px-4 rounded-xl bg-white bg-opacity-10 text-white border-transparent focus:outline-none focus:ring-2 transition duration-300 hover:border hover:border-white/30 ${
+                confirmPassword && (password !== confirmPassword ? 'focus:ring-red-500' : 'focus:ring-green-500')
+              }`}
               autoComplete="new-password"
               required
             />
+            {confirmPassword && password !== confirmPassword && (
+              <p className="text-red-500 text-xs mt-1">As senhas não coincidem.</p>
+            )}
           </div>
+
+          <div className="mb-4 text-white text-sm">
+            <p className={passwordRequirements.length ? 'text-green-400' : ''}>✓ Pelo menos 8 caracteres</p>
+            <p className={passwordRequirements.uppercase ? 'text-green-400' : ''}>✓ Uma letra maiúscula</p>
+            <p className={passwordRequirements.lowercase ? 'text-green-400' : ''}>✓ Uma letra minúscula</p>
+            <p className={passwordRequirements.number ? 'text-green-400' : ''}>✓ Um número</p>
+            <p className={passwordRequirements.specialChar ? 'text-green-400' : ''}>✓ Um caractere especial</p>
+          </div>
+
+          {error && <p className="mb-4 text-center text-red-500">{error}</p>}
 
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-300"
+            disabled={!allRequirementsMet || password !== confirmPassword}
+            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed"
           >
             Registrar
           </button>
 
-          {error && <p className="mt-2 text-center text-red-600">{error}</p>}
-
           <div className="mt-4 text-center">
             <p className="text-white">
               Já tem uma conta?{' '}
-              <a href="logintest" className="text-blue-300 underline">
+              <a href="/logintest" className="text-blue-300 underline">
                 Faça login
               </a>
             </p>
@@ -152,3 +190,4 @@ const Register = () => {
 };
 
 export default Register;
+
