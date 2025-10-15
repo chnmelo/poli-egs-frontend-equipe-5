@@ -45,8 +45,10 @@ function Header() {
             <NavLink
               key={index}
               to={item === 'Início' ? '/' : `/${item.toLowerCase()}`}
-              className="text-lg font-medium hover:text-gray-300 transition duration-200"
-              activeClassName="underline"
+              className={({ isActive }) =>
+                "text-lg font-medium hover:text-gray-300 transition duration-200 " +
+                (isActive ? "underline" : "")
+              }
             >
               {item}
             </NavLink>
@@ -76,8 +78,10 @@ function Header() {
               <li key={index}>
                 <NavLink
                   to={`/${item.toLowerCase()}`}
-                  className="block text-lg font-medium text-light-color hover:text-gray-300 transition duration-200"
-                  activeClassName="underline"
+                  className={({ isActive }) =>
+                    "block text-lg font-medium text-light-color hover:text-gray-300 transition duration-200 " +
+                    (isActive ? "underline" : "")
+                  }
                   onClick={() => setIsOpen(false)}
                 >
                   {item}
