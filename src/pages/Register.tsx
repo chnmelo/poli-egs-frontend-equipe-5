@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/backgroundlogin.jpg';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -127,9 +130,9 @@ const Register = () => {
             />
           </div>
 
-          <div className="mb-4">
+          <div className="relative mb-4">
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Senha"
@@ -137,12 +140,19 @@ const Register = () => {
               autoComplete="new-password"
               required
             />
-            {password && <PasswordStrengthMeter password_value={password} />}
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <span className="text-white cursor-pointer">{showPassword ? <FaEyeSlash /> : <FaEye />}</span>
+            </div>
+            
           </div>
+          {password && <PasswordStrengthMeter password_value={password} />}
 
-          <div className="mb-4">
+          <div className="relative mb-4">
             <input
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirmar Senha"
@@ -152,6 +162,12 @@ const Register = () => {
               autoComplete="new-password"
               required
             />
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <span className="text-white cursor-pointer">{showConfirmPassword ? <FaEyeSlash /> : <FaEye />}</span>
+            </div>
             {confirmPassword && password !== confirmPassword && (
               <p className="text-red-500 text-xs mt-1">As senhas não coincidem.</p>
             )}
