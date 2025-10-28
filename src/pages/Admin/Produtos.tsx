@@ -1,9 +1,10 @@
 import { Table } from "react-bootstrap";
 import HeaderAdmin from "../../components/HeaderAdmin";
-import { SetStateAction, useEffect, useState } from "react";
+import Breadcrumbs, { BreadcrumbItem } from '../../components/Breadcrumbs';
+import { SetStateAction, useEffect, useState, useMemo } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
-import ModalDeleteProduto from "../../components/ModalDeleteProduto";
-import ModalUpdateProduto from "../../components/ModalUpdateProduto";
+import ModalDeleteArticle from "../../components/ModalDeleteArticle";
+import ModalUpdateArticle from "../../components/ModalUpdateArticle";
 import { FaFileUpload } from "react-icons/fa";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
@@ -16,77 +17,41 @@ const columns = [
   { key: "titulo", label: "Titulo" },
   { key: "editar", label: "Editar" },
   { key: "excluir", label: "Excluir" },
-  { key: "status", label: "Status" },
+  { key: "revisar", label: "Status" },
   { key: "botao", label: "" },
   { key: "botao2", label: "" },
 ];
 
-function ProdutosAdmin () {
+function ArticlesAdmin () {
+
   const [Input, setInput] = useState<string>("");
-  const [file, setFile] = useState<File | undefined>();  
-  const [changedTitle, setChangedTitle] = useState(true);
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {setInput(event.target.value);};
-  const [Produto, setProduto] = useState([]);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value);
+  };
+
+  const [Article, setArticle] = useState([]);
   const [open, setOpen] = useState(false)
-  const [formValid, setFormValid] = useState(false);
-  const [NewProduto, setNewProduto] = useState({
+  const [NewArticle, setNewArticle] = useState({
     titulo: '',
     descricao: '',
     equipe: [] as string[],
-    tipo: '',
-    semestre: '',
+    tema: '',
+    data: '',
+    palavras_chave: [] as string[],
     id: '',
     arquivo: '#',
-    status: "",
+    revisado: "",
+    resumo: '',
   })
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
+  
   if (!userIsAdmin) {
     // Se não for admin, redireciona para a página de usuário
-    return <Navigate to="/user-produtos" />;
+    return <Navigate to="/user-articles" />;
   }
 
-  const validateFormWithData = (produtoData) => {
-    const requiredFields = [
-      'titulo',
-      'tipo',
-      'descricao',
-      'equipe',
-      'semestre',
-      'arquivo'
-    ];
-
-    return requiredFields.every(field => {
-      const value = produtoData[field];
-      if (typeof value === 'string') {
-        return value.trim() !== '';
-      } else if (Array.isArray(value)) {
-        return value.length > 0;
-      }
-      return false;
-    });
-  };
-
-  const validateForm = () => {
-    return validateFormWithData(NewProduto);
-  };
-    
-  // Função para atualizar o NewProject e verificar a validação
-  const handleChangeProduto = (field, value) => {
-    const updatedProduto = {...NewProduto, [field]: value};   // Primeira atualização do estado
-    setNewProduto(updatedProduto);
-    const isValid = validateFormWithData(updatedProduto);    // Validação imediata com o estado atualizado
-    setFormValid(isValid);
-  };
-  
-    const handleUpdate = () => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
-      setProduto(response.data);
-    }).catch(error => {
-      console.error('Erro ao atualizar produto', error.response.data.detail || '');
-    });
-  };
-
+  const [file, setFile] = useState<File | undefined>();
   async function uploadPdf(e: React.FormEvent<HTMLInputElement>) {
     const target = e.target as HTMLInputElement & {
       files: FileList;
@@ -94,22 +59,30 @@ function ProdutosAdmin () {
     setFile(target.files[0]);
   }
 
-  const handleApprove = (produto) => {
+  const [changedTitle, setChangedTitle] = useState(true);
+  const baseBreadcrumbs: BreadcrumbItem[] = useMemo(() => [
+    { label: 'Dashboard', href: '/admin-projects' },
+    { label: 'Gerenciar Artigos' }
+  ], []);
+
+  const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>(baseBreadcrumbs);
+
+  const handleApprove = (artigo) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/produto_revisado/${produto.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
+    axios.put(`${import.meta.env.VITE_url_backend}/artigo_revisado/${artigo.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {window.location.reload();
+      .then(response => {        window.location.reload();
       })
-        .catch(error => console.error('Erro ao aprovar produto:', error));
+        .catch(error => console.error('Erro ao aprovar projeto:', error));
   }
 
-  const handleReprove = (produto) => {
+  const handleReprove = (artigo) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/produto_revisado/${produto.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
+    axios.put(`${import.meta.env.VITE_url_backend}/artigo_revisado/${artigo.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -119,113 +92,97 @@ function ProdutosAdmin () {
 
         window.location.reload();
       })
-        .catch(error => console.error('Erro ao reprovar produto:', error));
+        .catch(error => console.error('Erro ao reprovar projeto:', error));
   }
 
   const handlePdfUpload = (id: string) => {
-      const formData = new FormData();
-      formData.append('file', file);
-      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-      })
-      .then(response => {
-        window.location.reload();
-        setOpen(false);
-      })
-      .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+    const formData = new FormData();
+    formData.append('file', file);
+    axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then(response => {
+      window.location.reload();
+      setOpen(false);
+    })
+    .catch(error => console.log('Erro ao fazer upload do PDF:', error))
   }
 
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
-
+    
     if (!token) {
       alert('Token de autenticação não encontrado.');
       return;
     }
-
-     // Verificar novamente se todos os campos obrigatórios estão preenchidos
-    if (!validateForm()) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
   
-    // Função auxiliar para converter string em array
-    const stringToArray = (value) => {
-      return typeof value === 'string' && value.trim() 
-        ? value.split(',').map(item => item.trim()) 
-        : [];
-    };
+    // Separando os campos de tecnologias, equipe e palavras-chave por vírgulas e transformando-os em arrays
+    const equipeArray = typeof NewArticle.equipe === 'string' && NewArticle.equipe.trim()
+      ? NewArticle.equipe.split(',').map(item => item.trim())
+      : [];
 
-    // Conversão usando a função auxiliar
-    const equipeArray = stringToArray(NewProduto.equipe);
+    const palavrasChaveArray = typeof NewArticle.palavras_chave === 'string' && NewArticle.palavras_chave.trim()
+      ? NewArticle.palavras_chave.split(',').map(item => item.trim())
+      : [];
 
+  
     // Atualiza os dados do projeto com os arrays processados
-    const NewProdutoWithDefaults = {
-      id: NewProduto.id || "default-id",
-      titulo: NewProduto.titulo,
-      tipo: NewProduto.tipo,
-      descricao: NewProduto.descricao,
-      equipe: equipeArray,
-      semestre: NewProduto.semestre,
-      arquivo: NewProduto.arquivo || '#',
-      status: NewProduto.status || "Pendente",
+    const NewArticleWithDefaults = {
+      id: NewArticle.id || "default-id",
+      titulo: NewArticle.titulo || "Título não informado",
+      tema: NewArticle.tema || "Tema não informado",
+      palavras_chave: palavrasChaveArray.length > 0 ? palavrasChaveArray : [],
+      descricao: NewArticle.descricao || "Sem descrição",
+      equipe: equipeArray.length > 0 ? equipeArray : [],
+      data: NewArticle.data || "",
+      arquivo: NewArticle.arquivo || '#',
+      revisado: NewArticle.revisado || "Pendente",
+      resumo: NewArticle.resumo || "Resumo ausente",
     };
+  
 
-    axios.post(`${import.meta.env.VITE_url_backend}/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
+    axios.post(`${import.meta.env.VITE_url_backend}/artigos_add?id_token=${token}`, NewArticleWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
     .then(response => {
-      handlePdfUpload(response.data.produto.id)
-      toast.success("Produto cadastrado com sucesso!");
+      handlePdfUpload(response.data.artigo.id);
+      toast.success("Artigo cadastrado com sucesso!");
     })
-      .catch(error => {
+    .catch(error => {
       setChangedTitle(false)
       toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
   };
+
+  const handleUpdate = () => {
+    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`).then(response => {
+      setArticle(response.data);
+    }).catch(error => {
+      console.error('Erro ao atualizar artigo', error);
+    });
+  }; 
   
   useEffect(() => {
-    if (open) {
-      // Quando o modal é aberto, verifica a validade do formulário
-      setFormValid(validateForm());
-    } else {
-      // Quando o modal é fechado, reset do NewProject para o estado inicial
-      setNewProduto({
-        titulo: "",
-        descricao: "",
-        equipe: "",
-        tipo: "",
-        semestre: "",
-        id: "",
-        arquivo: '#',
-        status: "",
-      });
-    }
-  }, [open]);
-
-
-//
-  useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(function (response) {
-      setProduto(response.data)
+    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`).then(function (response) {
+      setArticle(response.data)
 
 
 
     })
   }, []);
 
-  const filteredProduto = Array.isArray(Produto.produtos) ? Produto.produtos.filter((produto) => {
+  const filteredArticle = Array.isArray(Article.artigos) ? Article.artigos.filter((article) => {   
     const input = Input.toLowerCase();
     return (
-      produto.titulo?.toLowerCase().includes(input) ||
-      produto.tipo?.toLowerCase().includes(input)
+      article.titulo?.toLowerCase().includes(input) ||
+      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
+      article.tema?.toLowerCase().includes(input)
     );
   }) : [];
-
   const semesterGenerator = (): string[] => {
     const current = new Date();
     const currentYear = current.getFullYear();
@@ -246,6 +203,9 @@ function ProdutosAdmin () {
   return (
     <>
       <HeaderAdmin />
+      <div className="px-[13vw] pt-6">
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       <ToastContainer
         position="top-center"
         autoClose={3000}
@@ -259,13 +219,16 @@ function ProdutosAdmin () {
     />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-start text-dark-color">Produtos</h1>
+          <h1 className="text-2xl font-bold text-start text-dark-color">Artigos</h1>
           <button
             type="submit"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              setBreadcrumbItems([...baseBreadcrumbs, { label: 'Cadastrar novo artigo' }]);
+            }}
             className="rounded-md bg-primary-color h-full w-[15vw] text-white"
           >
-            Novo produto
+            Novo artigo
           </button>
         </section>
         <input
@@ -273,7 +236,7 @@ function ProdutosAdmin () {
           name="searchbar"
           id="searchbar"
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2]"
-          placeholder="Pesquise por título, tipo de produto"
+          placeholder="Pesquise por título, área de pesquisa, palavra-chave"
           value={Input}
           onChange={handleInputChange}
         />
@@ -291,8 +254,8 @@ function ProdutosAdmin () {
             ))}
           </thead>
           <tbody>
-            {filteredProduto.map((produto) => (
-              <tr key={produto.id} className="border border-light-color">
+            {filteredArticle.map((article) => (
+              <tr key={article.id} className="border border-light-color">
                 {columns.map((column) => (
                   <td
                     key={column.key}
@@ -301,63 +264,66 @@ function ProdutosAdmin () {
                     }`}
                   >
                     {column.key === "editar" ? (
-                      <ModalUpdateProduto produto={produto} />
+                      <ModalUpdateArticle article={article} onOpen={(title?: string) => setBreadcrumbItems([...baseBreadcrumbs, { label: `Editar ${title ?? ''}`}])} onClose={() => setBreadcrumbItems(baseBreadcrumbs)} />
 
                     ) : column.key === "excluir" ? (
-                      <ModalDeleteProduto
-                        title={produto.titulo}
-                        id={produto.id}
+                      <ModalDeleteArticle
+                        title={article.titulo}
+                        id={article.id}
                         handleUpdate={handleUpdate}
                       />
 
-                    ) : column.key === "status" ? (
-                      produto.status
+                    ) : column.key === "comentar" ? (
+                      <ModalComment projectId={article.id} />
+
+                    ) : column.key === "revisar" ? (
+                      article.revisado
 
                     ) : column.key === "botao" &&
-                      (produto.status === "Pendente") ? (
+                      (article.revisado === "Pendente") ? (
                       <button
                         type="button"
                         className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                        onClick={() => handleApprove(produto)}
+                        onClick={() => handleApprove(article)}
                       >
                         Aprovar
                       </button>
-
+                    
                     ) : column.key === "botao2" &&
-                      (produto.status === "Pendente") ? (
+                      (article.revisado === "Pendente") ? (
                       <button
                         type="button"
                         className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                        onClick={() => handleReprove(produto)}
+                        onClick={() => handleReprove(article)}
                       >
                         Reprovar
                       </button>
                     ) : column.key === "botao" &&
-                      (produto.status === "Reprovado") ? (
+                      (article.revisado === "Reprovado") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                          onClick={() => handleApprove(produto)}
+                          onClick={() => handleApprove(article)}
                         >
                           Aprovar
                         </button>
                     ) : column.key === "botao2" &&
-                      (produto.status === "Aprovado") ? (
+                      (article.revisado === "Aprovado") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                          onClick={() => handleReprove(produto)}
+                          onClick={() => handleReprove(article)}
                         >
                           Reprovar
                         </button>
                     ) : column.key === "botao2" &&
-                        (produto.status === "Reprovado" ) ? (
+                        (article.revisado === "Reprovado" ) ? (
                         <div> </div>
                     ) : column.key === "botao" &&
-                        (produto.status === "Aprovado" ) ? (
+                        (article.revisado === "Aprovado" ) ? (
                         <div> </div>
                     ) : (
-                        produto.titulo
+                        article.titulo
                     )}
                   </td>
                 ))}
@@ -381,7 +347,7 @@ function ProdutosAdmin () {
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <DialogTitle as="h2" className="text-lg font-semibold leading-6 text-gray-900">
-                      Cadastrar novo produto
+                      Cadastrar novo artigo
                     </DialogTitle>
                   </div>
                 </div>
@@ -389,7 +355,7 @@ function ProdutosAdmin () {
               <form action="POST">
                 <div className="grid grid-cols-2 justify-items-center pt-3 gap-y-[2vh]">
                   <div>
-                    <h3 className="text-lg font-semibold">Título <span className="text-red-500">*</span></h3>
+                    <h3 className="text-lg font-semibold">Título</h3>
                     <input
                       type="text"
                       name="titulo"
@@ -398,41 +364,61 @@ function ProdutosAdmin () {
                       className="focus:outline-none border-b-2 w-[15vw]"
                       onChange={(e) => {
                         setChangedTitle(true)
-                        handleChangeProduto('titulo', e.target.value)}}
+                        setNewArticle({ ...NewArticle, titulo: e.target.value })}}
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Tipo de produto <span className="text-red-500">*</span></h3>
-                    <select
-                      name="tipo"
-                      id="tipo"
+                    <h3 className="text-lg font-semibold">Área de pesquisa</h3>
+                    <input
+                      type="text"
+                      name="tema"
+                      id="tema"
+                      placeholder="Ex: Inteligência Artificial"
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => handleChangeProduto('tipo', e.target.value)}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Escolha um tipo</option>
-                      <option value="Outros">Outros</option>
-                      <option value="Patente de Software">Patente de Software</option>
-                      <option value="Registro de Software">Registro de Software</option>
-                      <option value="Startup">Startup</option>
-                      <option value="Artigos e Relatórios Técnicos">Artigos e Relatórios Técnicos</option>
-                      <option value="Plataforma Online">Plataforma Online</option>
-                      <option value="TCC">TCC</option>
-                      <option value="Dissertação e Tese">Dissertação e Tese</option>
-                    </select>
+                      onChange={(e) => setNewArticle({ ...NewArticle, tema: e.target.value })}
+                    />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
-                    <input type="text" name="descricao" id="descricao" placeholder="descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProduto('descricao', e.target.value)}/>
+                    <h3 className="text-lg font-semibold">Palavras-chave</h3>
+                    <input
+                      type="text"
+                      name="palavras"
+                      id="palavras"
+                      placeholder="Ex: Palavra1,Palavra2"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => setNewArticle({ ...NewArticle, palavras_chave: e.target.value })}
+                    />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
+                    <h3 className="text-lg font-semibold">Descrição</h3>
+                    <input
+                      type="text"
+                      name="descricao"
+                      id="descricao"
+                      placeholder="Descrição"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => setNewArticle({ ...NewArticle, descricao: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Resumo</h3>
+                    <input
+                        type="text"
+                        name="resumo"
+                        id="resumo"
+                        placeholder="Resumo"
+                        className="focus:outline-none border-b-2 w-[15vw]"
+                        onChange={(e) => setNewArticle({ ...NewArticle, resumo: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Semestre</h3>
                     <select
                       name="semestre"
                       id="semestre"
-                      value={NewProduto.semestre}
+                      value={NewArticle.data}
                       className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => handleChangeProduto( 'semestre', e.target.value )}>
+                      onChange={(e) => setNewArticle({ ...NewArticle, data: e.target.value })}>
                       <option value="">Selecione um semestre</option>
                       {semesterGenerator().map((semestre) => (
                           <option key={semestre} value={semestre}>{semestre}</option>))}
@@ -461,8 +447,15 @@ function ProdutosAdmin () {
                     </label>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">Equipe <span className="text-red-500">*</span></h3>
-                    <input type="text" name="equipe" id="equipe" placeholder="Pessoa1,Pessoa2,Pessoa3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProduto('equipe', e.target.value)}/>
+                    <h3 className="text-lg font-semibold">Equipe</h3>
+                    <input
+                      type="text"
+                      name="equipe"
+                      id="equipe"
+                      placeholder="Pessoa1,Pessoa2,Pessoa3"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => setNewArticle({ ...NewArticle, equipe: e.target.value })}
+                    />
                   </div>
                 </div>
               </form>
@@ -470,12 +463,12 @@ function ProdutosAdmin () {
                 <button
                   type="button"
                   className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                    changedTitle && formValid 
-                      ? "bg-primary-color hover:bg-blue-700" 
-                      : "bg-gray-400 cursor-not-allowed"
+                  changedTitle
+                    ? "bg-primary-color hover:bg-blue-700" 
+                    : "bg-gray-400 cursor-not-allowed"
                   }`}
-                  onClick={handlePost}
-                  disabled={!formValid || !changedTitle}
+                  onClick={() => handlePost(setOpen)}
+                  disabled={!changedTitle}
                 >
                   Enviar
                 </button>
@@ -497,4 +490,4 @@ function ProdutosAdmin () {
   )
 }
 
-export default ProdutosAdmin
+export default ArticlesAdmin
