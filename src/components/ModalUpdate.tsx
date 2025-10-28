@@ -28,9 +28,12 @@ const semesterGenerator = (): string[] => {
   return semesters.reverse();
 };
 
-export default function ModalUpdate({ project, handleFotosUpload }/*: { project: ProjectInt }*/) {
+export default function ModalUpdate({ project, handleFotosUpload, onOpen, onClose }/*: { project: ProjectInt }*/) {
   const [open, setOpen] = useState(false);
-  const handleShow = () => setOpen(true);
+  const handleShow = () => {
+    setOpen(true);
+    if (onOpen) onOpen(project.titulo);
+  };
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [editIntegrante, setEditIntegrante] = useState(null)
 
@@ -116,6 +119,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
       .then(() => {
         setOpen(false);
         project = updatedProjectToSend
+        if (onClose) onClose();
         console.log('FOI')
       })
       
