@@ -21,7 +21,11 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
     }
   
     // Requisição POST para curtir o projeto
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/curtir?id_token=${token}`)
+    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/curtir`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
 
   

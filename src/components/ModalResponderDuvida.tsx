@@ -59,12 +59,11 @@ export default function ModalResponderDuvida({
         visualizacoes: UpdatedDuvida.visualizacoes || duvida.visualizacoes || [],
     };
 
-    axios.put(`${import.meta.env.VITE_url_backend}/duvidas/${duvida.id}/?id_token=${token}`,
-        dadosParaAtualizar,
-        {
-         headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`,},
-        }
-    )
+    axios.put(`${import.meta.env.VITE_url_backend}/duvidas/${duvida.id}/`, { resposta: resposta }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
     .then(() => {
         handleUpdate();
         setOpen(false);

@@ -112,8 +112,13 @@ const LoginTest = () => {
           <div className="mt-4 text-center">
             <p className="text-white">
               Não tem uma conta?{' '}
-              <a href="/register" className="text-blue-300 underline">
+              <a href="/register" className="text-blue-300 underline hover:text-blue-100">
                 Registre-se
+              </a>
+            </p>
+            <p className="mt-2">
+              <a href="/esqueci-a-senha" className="text-blue-300 underline hover:text-blue-100 text-sm">
+                Esqueci minha senha
               </a>
             </p>
           </div>

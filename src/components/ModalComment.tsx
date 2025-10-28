@@ -26,15 +26,11 @@ export default function ModalComment({ projectId }: { projectId: string }) {
     }
     fetchProjectData();
     // Requisição POST para enviar o comentário
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}&id_token=${token}`,
-        { comentario: comment },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
 
         setComment(""); // Limpa o campo de texto

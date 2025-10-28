@@ -16,10 +16,10 @@ function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateA
         console.error('Token não encontrado. Usuário não está autenticado.');
         return;
     }
-    axios.delete(`${import.meta.env.VITE_url_backend}/duvidas/${id}/?id_token=${localStorage.getItem('authToken')}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+    axios.delete(`${import.meta.env.VITE_url_backend}/duvidas/${id}/`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      }
     })
         .then(() => {
             window.location.reload();
