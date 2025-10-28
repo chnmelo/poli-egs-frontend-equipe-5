@@ -1,6 +1,7 @@
 import { Table } from "react-bootstrap";
 import HeaderAdmin from "../../components/HeaderAdmin";
-import { SetStateAction, useEffect, useState } from "react";
+import Breadcrumbs, { BreadcrumbItem } from '../../components/Breadcrumbs';
+import { SetStateAction, useEffect, useState, useMemo } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import ModalDeleteArticle from "../../components/ModalDeleteArticle";
 import ModalUpdateArticle from "../../components/ModalUpdateArticle";
@@ -59,6 +60,12 @@ function ArticlesAdmin () {
   }
 
   const [changedTitle, setChangedTitle] = useState(true);
+  const baseBreadcrumbs: BreadcrumbItem[] = useMemo(() => [
+    { label: 'Dashboard', href: '/admin-projects' },
+    { label: 'Gerenciar Artigos' }
+  ], []);
+
+  const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>(baseBreadcrumbs);
 
   const handleApprove = (artigo) => {
     const token = localStorage.getItem('authToken');
@@ -196,6 +203,9 @@ function ArticlesAdmin () {
   return (
     <>
       <HeaderAdmin />
+      <div className="px-[13vw] pt-6">
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       <ToastContainer
         position="top-center"
         autoClose={3000}
@@ -212,7 +222,10 @@ function ArticlesAdmin () {
           <h1 className="text-2xl font-bold text-start text-dark-color">Artigos</h1>
           <button
             type="submit"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              setBreadcrumbItems([...baseBreadcrumbs, { label: 'Cadastrar novo artigo' }]);
+            }}
             className="rounded-md bg-primary-color h-full w-[15vw] text-white"
           >
             Novo artigo
@@ -251,7 +264,7 @@ function ArticlesAdmin () {
                     }`}
                   >
                     {column.key === "editar" ? (
-                      <ModalUpdateArticle article={article} />
+                      <ModalUpdateArticle article={article} onOpen={(title?: string) => setBreadcrumbItems([...baseBreadcrumbs, { label: `Editar ${title ?? ''}`}])} onClose={() => setBreadcrumbItems(baseBreadcrumbs)} />
 
                     ) : column.key === "excluir" ? (
                       <ModalDeleteArticle
