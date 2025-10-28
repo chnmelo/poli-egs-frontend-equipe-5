@@ -22,6 +22,7 @@ import Register from './pages/Register';
 import Userprojects from './pages/User/User-projects.tsx';
 import Userarticles from './pages/User/User-articles.tsx';
 import Userprodutos from './pages/User/User-produtos.tsx';
+import ForgotPassword from './pages/ForgotPassword.tsx';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path='/produtos' element={<Produtos/>} />
           <Route path='/logintest' element={<LoginTest />} />
           <Route path="/register" element={<Register />} />
+          <Route path='/esqueci-a-senha' element={<ForgotPassword />} />
           {/* <Route path='/login' element={<Login />} />  */}
           <Route path='/sobre' element={<Sobre />} />
           <Route path='/faq' element={<FAQ />} />

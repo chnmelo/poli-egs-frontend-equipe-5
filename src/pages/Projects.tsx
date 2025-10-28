@@ -74,18 +74,18 @@ function Projects() {
     setInputMembers(event.target.value);
   };
 
-  /*const handleGetImage = async (id) => {
-    try {
-      const response = await axios.get(`https://poli-egs-fastapi-1.onrender.com/view_logo_projeto/${id}`);
-      setImages((prevImages) => ({
-        ...prevImages,
-        [id]: response.data.url,
-      }));
-    } catch (error) {
-      console.log('Erro ao buscar imagem, mas continuando: ', error);
-      // Apenas ignore o erro sem interromper o fluxo
-    }
-  };*/
+    const fetchLogo = async (id: string) => {
+      try {
+        const apiUrl = import.meta.env.VITE_url_backend;
+        const response = await axios.get(`${apiUrl}/view_logo_projeto/${id}`);
+        if (response.data && response.data.url) {
+          setLogos(prevLogos => ({ ...prevLogos, [id]: response.data.url }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar logo do projeto:', error);
+      }
+    };
+
 
   const filteredCards = Array.isArray(cards)
   ? cards.filter((project) => {
