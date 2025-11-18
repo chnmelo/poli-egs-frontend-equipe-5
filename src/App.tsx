@@ -19,17 +19,17 @@ function App() {
   const [input, setInput] = useState("");
   const form = useRef<HTMLFormElement>(null);
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setInput(event.target.value);
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === 'Enter') {
       handleNavigation(input);
     }
   };
 
-  const handleNavigation = async (input) => {
+  const handleNavigation = async (input: string) => {
     try {
       // Requisição para obter os projetos
       const response = await fetch(`${import.meta.env.VITE_url_backend}/projetos`, {

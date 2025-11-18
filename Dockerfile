@@ -1,25 +1,22 @@
-# --- Estágio 1: Construção (Build) ---
-# Dê um nome ao estágio: 'AS build'
-FROM node:18-alpine AS build
+# Stage 1: Build
+FROM node:18-alpine
 
+# Set working directory inside the container
 WORKDIR /app
 
+
+# Copy package.json and lock files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
+# Copy the rest of the application code
 COPY . .
-# Crie os arquivos estáticos de produção
-RUN npm run build
 
-# --- Estágio 2: Servidor (Serve) ---
-# Use uma imagem Nginx super leve
-FROM nginx:1.25-alpine
+# Build the application
+# RUN npm run dev
 
-# Copie os arquivos estáticos do Estágio 1 ('build') para a pasta do Nginx
-COPY --from=build /app/build /usr/share/nginx/html
-
-# O Nginx escuta na porta 80 por padrão
-EXPOSE 80
-
-# Comando para iniciar o Nginx (este é o padrão da imagem Nginx)
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port 80
+EXPOSE 3000
+CMD [ "npm", "run", "dev" ]

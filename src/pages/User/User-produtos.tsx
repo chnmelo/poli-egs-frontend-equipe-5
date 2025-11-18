@@ -20,6 +20,7 @@ export interface ProdutoInt {
   semestre?: string;
   id?: string,
   arquivo?: string,
+  produto?: string,
 }
 
 const columns = [

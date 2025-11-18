@@ -31,3 +31,15 @@
 
 
 
+.carousel .control-dots .dot {
+    background: #fff !important;         /* Fundo branco */
+    border: 1px solid #333 !important;  /* Borda escura */
+    box-shadow: none !important;
+    opacity: 1 !important;
+}
+
+/* --- Cor do "pin" ATIVO (Escuro) --- */
+.carousel .control-dots .dot.selected {
+    background: #333 !important;         /* Fundo escuro */
+    border: 1px solid #333 !important;  /* Borda escura */
+}
