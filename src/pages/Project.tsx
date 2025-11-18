@@ -7,6 +7,8 @@ import iconImage from '../images/avatar.png';
 import Header from '../components/Header';
 import backgroundImage from '../images/mainpage.jpg';
 import ModalIntegrantesProjeto from '../components/ModalIntegrantesProjeto';
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 function Project() {
   const { slug } = useParams();
@@ -16,6 +18,7 @@ function Project() {
   const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
   const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
   const [fotoIntegrante, setFotoIntegrante] = useState([])
+  const [images_project, setImages_project] = useState([])
 
 
   const handleClickIntegrante = async (pessoa: any) => {
@@ -62,7 +65,7 @@ function Project() {
       if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
       return pessoa;
     });
-
+    setImages_project(projeto.imagens || []);
     setData({ ...projeto, equipe: equipeFormatada });
     setComentarios(projeto.comentarios || []);
   });
@@ -91,17 +94,31 @@ function Project() {
 
       <main className="flex flex-col gap-14 px-[13vw] mb-20 pb-20">
         
-        {/* Vídeo do pitch */}
+        {/* Carousel projeto */}
         <section className="flex flex-col items-center w-full mt-12">
-          <iframe
-            width="560"
-            height="315"
-            src={"https://www.youtube.com/embed/" + Data.pitch}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
+          <Carousel 
+          className='flex flex-col md:flex-row items-center gap-4 bg-white shadow-lg rounded-lg p-4 md:p-4 max-w-4xl w-full'
+          showThumbs={false} 
+          autoPlay={false}>
+            {Data.pitch && (<div>
+              <iframe
+                width="560"
+                height="400"
+                src={"https://www.youtube.com/embed/" + Data.pitch}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              ></iframe>
+              <p className="legend">Video demonstração</p>
+            </div>)}
+            {images_project.map((image, index) => (
+              <div key={index}>
+                <img src={image} style={{height: 400, width: 560}} alt={`Project Image ${index + 1}`}/>
+                <p className="legend">Imagem {index + 1}</p>
+              </div>
+              ))}
+          </Carousel>
         </section>
 
         {/* Imagem e descrição do projeto */}
@@ -124,6 +141,19 @@ function Project() {
             </div>
           </div>
         </section>
+        
+        {/* Vídeo do pitch */}
+        {/* <section className="flex flex-col items-center w-full mt-12">
+          <iframe
+            width="560"
+            height="315"
+            src={"https://www.youtube.com/embed/" + Data.pitch}
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          ></iframe>
+        </section> */}
 
         {/* Informações do projeto */}
         <div className="w-full flex justify-center">

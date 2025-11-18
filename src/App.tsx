@@ -9,7 +9,6 @@ import SAUDE from './images/saude.png';
 import GESTAO from './images/gestao.png';
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import emailjs from '@emailjs/browser';
 import backgroundImage from './images/mainpage.jpg';
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
