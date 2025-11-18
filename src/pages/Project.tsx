@@ -98,6 +98,7 @@ function Project() {
         <section className="flex flex-col items-center w-full mt-12">
           <Carousel 
           className='flex flex-col md:flex-row items-center gap-4 bg-white shadow-lg rounded-lg p-4 md:p-4 max-w-4xl w-full'
+          
           showThumbs={false} 
           autoPlay={false}>
             {Data.pitch && (<div>
