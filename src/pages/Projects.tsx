@@ -5,7 +5,8 @@ import axios from 'axios';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
+import backgroundImage from '../images/mainpage.jpg';
+import Loading from '../components/Loading';
 
 function Projects() {
   const { slug } = useParams();
@@ -18,9 +19,9 @@ function Projects() {
   const [themes, setThemes] = useState(null);
   const [semester, setSemester] = useState('');
   const [cards, setCards] = useState([]);
-  //const [selectedThemes, setSelectedThemes] = useState([]);
   const [selectedSemesters, setSelectedSemesters] = useState([]);
   const [images, setImages] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const themeFilters = [
       { title: 'Inteligência Artificial', key_words: "Inteligência Artificial, IA, machine learning, aprendizado de máquina, redes neurais, algoritmo inteligente" },
@@ -35,27 +36,24 @@ function Projects() {
   
 
   useEffect(() => {
+    setLoading(true);
     setInput(searchQuery);
     setThemes(location.state?.themes ? location.state?.themes : null)
+    
     axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
       .then((response) => {
         const data = response.data.projetos;
-
-        // Atualiza os projetos no estado
         setCards(data);
 
-        // Extrai temas únicos
-        //const themes = data.map((project) => project.tema);
-        //const uniqueThemes = [...new Set(themes)];
-        //setSelectedThemes(uniqueThemes);
-
-        // Extrai semestres únicos
         const semesters = data.map((project) => project.semestre);
         const uniqueSemesters = [...new Set(semesters)];
         setSelectedSemesters(uniqueSemesters);
       })
       .catch((error) => {
         console.error('Erro ao buscar os projetos:', error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [searchQuery]);
   
@@ -74,19 +72,7 @@ function Projects() {
     setInputMembers(event.target.value);
   };
 
-    const fetchLogo = async (id: string) => {
-      try {
-        const apiUrl = import.meta.env.VITE_url_backend;
-        const response = await axios.get(`${apiUrl}/view_logo_projeto/${id}`);
-        if (response.data && response.data.url) {
-          setLogos(prevLogos => ({ ...prevLogos, [id]: response.data.url }));
-        }
-      } catch (error) {
-        console.error('Erro ao buscar logo do projeto:', error);
-      }
-    };
-
-
+  // Lógica de filtragem
   const filteredCards = Array.isArray(cards)
   ? cards.filter((project) => {
       const searchInput = input.toLowerCase();
@@ -95,16 +81,15 @@ function Projects() {
       const searchSemester = semester.toLowerCase();
       const projectThemes = project.tema?.toLowerCase().split(/, | e /)
 
-      // Garantindo que project.palavras_chave seja tratado como uma string
       const palavrasChave = Array.isArray(project.palavras_chave)
-        ? project.palavras_chave.join(' ').toLowerCase() // Converte o array para uma string
+        ? project.palavras_chave.join(' ').toLowerCase()
         : '';
       
       const checker = (arr, target) => target.every(e => arr.includes(e));
 
       return (
         (project.titulo?.toLowerCase().includes(searchInput) ||
-          palavrasChave.includes(searchInput) || // Usando palavras_chave como string
+          palavrasChave.includes(searchInput) ||
           project.tema?.toLowerCase().includes(searchInput)) &&
         (project.equipe ? project.equipe.toString().toLowerCase().includes(searchMembers) : '') &&
         (themes == null ? true : checker(searchThemes, projectThemes)) &&
@@ -117,7 +102,6 @@ function Projects() {
     <>
       <Header />
 
-      {/* Seção Hero */}
       <section
         className="relative bg-cover bg-center h-96"
         style={{ backgroundImage: `url(${backgroundImage})` }}
@@ -158,14 +142,12 @@ function Projects() {
         </div>
       </section>
 
-      {/* Filtros e Lista de Projetos */}
       <section className="py-16 bg-gray-100">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-8">
           {/* Filtro de Pesquisa */}
           <div className="w-full lg:w-1/4 bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-6">Filtrar Projetos</h2>
             <form>
-              {/* Área do Projeto */}
               <div className="mb-4">
                 <label className="block text-gray-700 font-semibold mb-2">Área do projeto:</label>
                 <Listbox value={themeFilters.map(theme => theme.title)} onChange={setThemes}>
@@ -211,7 +193,6 @@ function Projects() {
                 </Listbox>
               </div>
 
-              {/* Semestre */}
               <div className="mb-4">
                 <label className="block text-gray-700 font-semibold mb-2">Ano/Semestre:</label>
                 <Listbox value={semester} onChange={setSemester}>
@@ -256,7 +237,6 @@ function Projects() {
                 </Listbox>
               </div>
 
-              {/* Pesquisar por nome, palavra-chave */}
               <div className="mb-4">
                 <label className="block text-gray-700 font-semibold mb-2">
                   Pesquisar (nome, palavra-chave):
@@ -270,7 +250,6 @@ function Projects() {
                 />
               </div>
 
-              {/* Integrantes */}
               <div className="mb-6">
                 <label className="block text-gray-700 font-semibold mb-2">Integrantes:</label>
                 <input
@@ -282,10 +261,9 @@ function Projects() {
                 />
               </div>
 
-              {/* Botão de Enviar */}
               <button
-                type="button" // alterado para 'button' em vez de 'submit'
-                onClick={resetFilters} // chamando a função para resetar os filtros
+                type="button" 
+                onClick={resetFilters} 
                 className="w-full h-12 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-colors"
               >
                 Remover Filtros
@@ -293,50 +271,56 @@ function Projects() {
             </form>
           </div>
 
-          {/* Lista de Projetos */}
+          {/* Lista de Projetos com Loading */}
           <div className="w-full lg:w-3/4">
-            {filteredCards.filter(project => project.revisado === "Aprovado").length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {filteredCards
-                  .filter(project => project.revisado === "Aprovado") // Filtra apenas os projetos aprovados
-                  .map((project) => (
-                    <div
-                      key={project.id}
-                      className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col"
-                    >
-                      <img
-                        src={images[project.id] || backgroundImage}
-                        alt={project.titulo}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="p-6 flex flex-col flex-grow">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-2xl font-bold text-blue-600">{project.titulo}</h3>
-                          <div className="flex items-center text-gray-600">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-6 w-6 mr-1 mt-1 mb-1"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
+            {loading ? (
+              <Loading />
+            ) : (
+              <>
+                {filteredCards.filter(project => project.revisado === "Aprovado").length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {filteredCards
+                      .filter(project => project.revisado === "Aprovado")
+                      .map((project) => (
+                        <div
+                          key={project.id}
+                          className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col"
+                        >
+                          <img
+                            src={images[project.id] || backgroundImage}
+                            alt={project.titulo}
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="p-6 flex flex-col flex-grow">
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="text-2xl font-bold text-blue-600">{project.titulo}</h3>
+                              <div className="flex items-center text-gray-600">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-6 w-6 mr-1 mt-1 mb-1"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                                </svg>
+                                <span>{project.curtidas || 0}</span>
+                              </div>
+                            </div>
+                            <p className="text-gray-700 flex-grow">{project.descricao}</p>
+                            <button
+                              onClick={() => navigate(`/projetos/${project.id}/`)}
+                              className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
                             >
-                              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                            </svg>
-                            <span>{project.curtidas || 0}</span>
+                              Ver mais
+                            </button>
                           </div>
                         </div>
-                        <p className="text-gray-700 flex-grow">{project.descricao}</p>
-                        <button
-                          onClick={() => navigate(`/projetos/${project.id}/`)}
-                          className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                          Ver mais
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            ) : (
-              <p className="text-center text-gray-600">Nenhum projeto encontrado.</p>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-600">Nenhum projeto encontrado.</p>
+                )}
+              </>
             )}
           </div>
 
