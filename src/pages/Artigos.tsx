@@ -4,17 +4,21 @@ import Footer from '../components/Footer';
 import axios from 'axios';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import backgroundImage from '../images/mainpage.jpg';
+import Loading from '../components/Loading';
 
 function Articles() {
   const [input, setInput] = useState("");
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     axios.get(`${import.meta.env.VITE_url_backend}/artigos/`)
       .then((response) => {
         setArticles(response.data.artigos || []);
       })
-      .catch((error) => console.error('Erro ao carregar artigos:', error));
+      .catch((error) => console.error('Erro ao carregar artigos:', error))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleInputChange = (event) => {
@@ -101,65 +105,70 @@ function Articles() {
       {/* Lista de Artigos */}
       <section className="py-20 bg-gray-100">
         <div className="container mx-auto">
-          {filteredArticles.filter(article => article.revisado === "Aprovado").length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredArticles
-                .filter(article => article.revisado === "Aprovado") // Filtra apenas os artigos aprovados
-                .map((article) => (
-                  <div
-                    key={article.id}
-                    className="bg-white rounded-xl shadow-lg p-6 flex flex-col"
-                  >
-                    <h2 className="text-2xl font-bold text-blue-600 mb-4">{article.titulo}</h2>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Autor(es):</h3>
-                      <ul className="list-disc list-inside">
-                        {article.equipe?.map((autor, index) => (
-                          <li key={index}>{autor}</li>
-                        )) || <p>Autor não informado</p>}
-                      </ul>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Área de pesquisa:</h3>
-                      <p>{article.tema || "Tema não informado"}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Palavras-chave:</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {article.palavras_chave?.map((palavra, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm"
-                          >
-                            {palavra}
-                          </span>
-                        )) || <p>Não informado</p>}
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Data de publicação:</h3>
-                      <p>{article.data || "Data não disponível"}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Resumo:</h3>
-                      <p>{article.resumo || "Resumo não disponível"}</p>
-                    </div>
-                    <button
-                      className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
-                      onClick={() => handleDownload(article.id)}
-                    >
-                      <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                      Visualizar
-                    </button>
-                  </div>
-                ))}
-            </div>
+          {loading ? (
+            <Loading />
           ) : (
-            <p className="text-center text-gray-600">Nenhum artigo encontrado.</p>
+            <>
+              {filteredArticles.filter(article => article.revisado === "Aprovado").length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredArticles
+                    .filter(article => article.revisado === "Aprovado") // Filtra apenas os artigos aprovados
+                    .map((article) => (
+                      <div
+                        key={article.id}
+                        className="bg-white rounded-xl shadow-lg p-6 flex flex-col"
+                      >
+                        <h2 className="text-2xl font-bold text-blue-600 mb-4">{article.titulo}</h2>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Autor(es):</h3>
+                          <ul className="list-disc list-inside">
+                            {article.equipe?.map((autor, index) => (
+                              <li key={index}>{autor}</li>
+                            )) || <p>Autor não informado</p>}
+                          </ul>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Área de pesquisa:</h3>
+                          <p>{article.tema || "Tema não informado"}</p>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Palavras-chave:</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {article.palavras_chave?.map((palavra, index) => (
+                              <span
+                                key={index}
+                                className="bg-blue-600 text-white px-2 py-1 rounded-full text-sm"
+                              >
+                                {palavra}
+                              </span>
+                            )) || <p>Não informado</p>}
+                          </div>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Data de publicação:</h3>
+                          <p>{article.data || "Data não disponível"}</p>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Resumo:</h3>
+                          <p>{article.resumo || "Resumo não disponível"}</p>
+                        </div>
+                        <button
+                          className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                          onClick={() => handleDownload(article.id)}
+                        >
+                          <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                          Visualizar
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-600">Nenhum artigo encontrado.</p>
+              )}
+            </>
           )}
         </div>
       </section>
-
 
       <Footer />
     </>

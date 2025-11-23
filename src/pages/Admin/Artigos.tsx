@@ -9,8 +9,8 @@ import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import ModalComment from "../../components/ModalComment";
+import Loading from "../../components/Loading";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
@@ -30,6 +30,8 @@ function ArticlesAdmin () {
 
   const [Article, setArticle] = useState([]);
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(true);
+
   const [NewArticle, setNewArticle] = useState({
     titulo: '',
     descricao: '',
@@ -107,7 +109,7 @@ function ArticlesAdmin () {
     const token = localStorage.getItem('authToken');
     
     if (!token) {
-      alert('Token de autenticação não encontrado.');
+      alert('Erro ao fazer login.');
       return;
     }
   
@@ -160,12 +162,12 @@ function ArticlesAdmin () {
   }; 
   
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`).then(function (response) {
-      setArticle(response.data)
-
-
-
-    })
+    setLoading(true);
+    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`)
+      .then(function (response) {
+        setArticle(response.data)
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredArticle = Array.isArray(Article.artigos) ? Article.artigos.filter((article) => {   
@@ -176,6 +178,7 @@ function ArticlesAdmin () {
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];
+
   const semesterGenerator = (): string[] => {
     const current = new Date();
     const currentYear = current.getFullYear();
@@ -191,7 +194,7 @@ function ArticlesAdmin () {
     }
 
     return semesters.reverse();
-    };
+  };
 
   return (
     <>
@@ -229,64 +232,48 @@ function ArticlesAdmin () {
         />
       </div>
       <div className="px-[13vw] pt-10">
-        <Table className="h-auto w-full">
-          <thead>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={column.key === "titulo" ? "text-left" : "text-right"}
-              >
-                {column.label}
-              </th>
-            ))}
-          </thead>
-          <tbody>
-            {filteredArticle.map((article) => (
-              <tr key={article.id} className="border border-light-color">
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={`items-center py-3 ${
-                      column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"
-                    }`}
-                  >
-                    {column.key === "editar" ? (
-                      <ModalUpdateArticle article={article} />
+        {loading ? (
+          <Loading />
+        ) : (
+          <Table className="h-auto w-full">
+            <thead>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={column.key === "titulo" ? "text-left" : "text-right"}
+                >
+                  {column.label}
+                </th>
+              ))}
+            </thead>
+            <tbody>
+              {filteredArticle.map((article) => (
+                <tr key={article.id} className="border border-light-color">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`items-center py-3 ${
+                        column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"
+                      }`}
+                    >
+                      {column.key === "editar" ? (
+                        <ModalUpdateArticle article={article} />
 
-                    ) : column.key === "excluir" ? (
-                      <ModalDeleteArticle
-                        title={article.titulo}
-                        id={article.id}
-                        handleUpdate={handleUpdate}
-                      />
+                      ) : column.key === "excluir" ? (
+                        <ModalDeleteArticle
+                          title={article.titulo}
+                          id={article.id}
+                          handleUpdate={handleUpdate}
+                        />
 
-                    ) : column.key === "comentar" ? (
-                      <ModalComment projectId={article.id} />
+                      ) : column.key === "comentar" ? (
+                        <ModalComment projectId={article.id} />
 
-                    ) : column.key === "revisar" ? (
-                      article.revisado
+                      ) : column.key === "revisar" ? (
+                        article.revisado
 
-                    ) : column.key === "botao" &&
-                      (article.revisado === "Pendente") ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                        onClick={() => handleApprove(article)}
-                      >
-                        Aprovar
-                      </button>
-                    
-                    ) : column.key === "botao2" &&
-                      (article.revisado === "Pendente") ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                        onClick={() => handleReprove(article)}
-                      >
-                        Reprovar
-                      </button>
-                    ) : column.key === "botao" &&
-                      (article.revisado === "Reprovado") ? (
+                      ) : column.key === "botao" &&
+                        (article.revisado === "Pendente") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
@@ -294,8 +281,9 @@ function ArticlesAdmin () {
                         >
                           Aprovar
                         </button>
-                    ) : column.key === "botao2" &&
-                      (article.revisado === "Aprovado") ? (
+                      
+                      ) : column.key === "botao2" &&
+                        (article.revisado === "Pendente") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
@@ -303,21 +291,40 @@ function ArticlesAdmin () {
                         >
                           Reprovar
                         </button>
-                    ) : column.key === "botao2" &&
-                        (article.revisado === "Reprovado" ) ? (
-                        <div> </div>
-                    ) : column.key === "botao" &&
-                        (article.revisado === "Aprovado" ) ? (
-                        <div> </div>
-                    ) : (
-                        article.titulo
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                      ) : column.key === "botao" &&
+                        (article.revisado === "Reprovado") ? (
+                          <button
+                            type="button"
+                            className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
+                            onClick={() => handleApprove(article)}
+                          >
+                            Aprovar
+                          </button>
+                      ) : column.key === "botao2" &&
+                        (article.revisado === "Aprovado") ? (
+                          <button
+                            type="button"
+                            className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
+                            onClick={() => handleReprove(article)}
+                          >
+                            Reprovar
+                          </button>
+                      ) : column.key === "botao2" &&
+                          (article.revisado === "Reprovado" ) ? (
+                          <div> </div>
+                      ) : column.key === "botao" &&
+                          (article.revisado === "Aprovado" ) ? (
+                          <div> </div>
+                      ) : (
+                          article.titulo
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </div>
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
