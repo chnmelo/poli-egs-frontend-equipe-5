@@ -11,13 +11,13 @@ import ProdutosAdmin from './pages/Admin/Produtos.tsx'
 import GestaoAdmin from './pages/Admin/Gestao.tsx'
 import Articles from './pages/Artigos.tsx'
 import Produtos from './pages/Produtos.tsx';
-import Login from './pages/Admin/Login.tsx'
+// import Login from './pages/Admin/Login.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import ProtectedRoute from './components/ProtectedRoute.tsx'
 import Logout from './components/Logout.tsx'
 import Sobre from './pages/Sobre.tsx'
 import FAQ from './pages/FAQ.tsx'
-import LoginTest from './pages/LoginTest.tsx'
+import Login from './pages/Login.tsx'
 import Register from './pages/Register';
 import Userprojects from './pages/User/User-projects.tsx';
 import Userarticles from './pages/User/User-articles.tsx';
@@ -34,7 +34,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path='/projetos/:slug' element={<Project />} />
           <Route path='/artigos' element={<Articles />} />
           <Route path='/produtos' element={<Produtos/>} />
-          <Route path='/logintest' element={<LoginTest />} />
+          <Route path='/login' element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path='/esqueci-a-senha' element={<ForgotPassword />} />
           {/* <Route path='/login' element={<Login />} />  */}
