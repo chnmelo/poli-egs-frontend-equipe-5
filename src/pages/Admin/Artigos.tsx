@@ -11,9 +11,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ModalComment from "../../components/ModalComment";
 import Loading from "../../components/Loading";
+import { EyeIcon } from "@heroicons/react/20/solid";
+import ModalPreview from "../../components/ModalPreview";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
+  { key: "preview", label: "Visualizar" },
   { key: "editar", label: "Editar" },
   { key: "excluir", label: "Excluir" },
   { key: "revisar", label: "Status" },
@@ -31,6 +34,10 @@ function ArticlesAdmin () {
   const [Article, setArticle] = useState([]);
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true);
+  
+  // Estados para o Preview
+  const [previewData, setPreviewData] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const [NewArticle, setNewArticle] = useState({
     titulo: '',
@@ -45,10 +52,8 @@ function ArticlesAdmin () {
     resumo: '',
   })
 
-  const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
-  
+  const userIsAdmin = localStorage.getItem('isAdmin') === 'true';
   if (!userIsAdmin) {
-    // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-articles" />;
   }
 
@@ -84,7 +89,6 @@ function ArticlesAdmin () {
       },
     })
       .then(response => {
-
         window.location.reload();
       })
         .catch(error => console.error('Erro ao reprovar projeto:', error));
@@ -107,36 +111,32 @@ function ArticlesAdmin () {
 
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
-    
     if (!token) {
       alert('Erro ao fazer login.');
       return;
     }
-  
-    // Separando os campos de tecnologias, equipe e palavras-chave por vírgulas e transformando-os em arrays
-    const equipeArray = typeof NewArticle.equipe === 'string' && NewArticle.equipe.trim()
-      ? NewArticle.equipe.split(',').map(item => item.trim())
-      : [];
+    
+    const stringToArray = (value) => {
+      return typeof value === 'string' && value.trim() 
+        ? value.split(',').map(item => item.trim()) 
+        : [];
+    };
 
-    const palavrasChaveArray = typeof NewArticle.palavras_chave === 'string' && NewArticle.palavras_chave.trim()
-      ? NewArticle.palavras_chave.split(',').map(item => item.trim())
-      : [];
+    const equipeArray = stringToArray(NewArticle.equipe);
+    const palavrasChaveArray = stringToArray(NewArticle.palavras_chave);
 
-  
-    // Atualiza os dados do projeto com os arrays processados
     const NewArticleWithDefaults = {
       id: NewArticle.id || "default-id",
       titulo: NewArticle.titulo || "Título não informado",
       tema: NewArticle.tema || "Tema não informado",
-      palavras_chave: palavrasChaveArray.length > 0 ? palavrasChaveArray : [],
+      palavras_chave: palavrasChaveArray,
       descricao: NewArticle.descricao || "Sem descrição",
-      equipe: equipeArray.length > 0 ? equipeArray : [],
+      equipe: equipeArray,
       data: NewArticle.data || "",
       arquivo: NewArticle.arquivo || '#',
       revisado: NewArticle.revisado || "Pendente",
       resumo: NewArticle.resumo || "Resumo ausente",
     };
-  
 
     axios.post(`${import.meta.env.VITE_url_backend}/artigos_add?id_token=${token}`, NewArticleWithDefaults, {
       headers: {
@@ -155,7 +155,7 @@ function ArticlesAdmin () {
 
   const handleUpdate = () => {
     axios.get(`${import.meta.env.VITE_url_backend}/artigos/`).then(response => {
-      setArticle(response.data);
+      setArticle(response.data.artigos || []);
     }).catch(error => {
       console.error('Erro ao atualizar artigo', error);
     });
@@ -165,12 +165,12 @@ function ArticlesAdmin () {
     setLoading(true);
     axios.get(`${import.meta.env.VITE_url_backend}/artigos/`)
       .then(function (response) {
-        setArticle(response.data)
+        setArticle(response.data.artigos || [])
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredArticle = Array.isArray(Article.artigos) ? Article.artigos.filter((article) => {   
+  const filteredArticle = Array.isArray(Article) ? Article.filter((article) => {   
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
@@ -183,33 +183,20 @@ function ArticlesAdmin () {
     const current = new Date();
     const currentYear = current.getFullYear();
     const currentMonth = current.getMonth();
-
     const semesters: string[] = [];
-
     for (let year = 2023; year <= currentYear; year++) {
       semesters.push(`${year}.1`);
       if (year < currentYear || currentMonth >= 6) {
         semesters.push(`${year}.2`);
       }
     }
-
     return semesters.reverse();
   };
 
   return (
     <>
       <HeaderAdmin />
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-    />
+      <ToastContainer position="top-center" autoClose={3000} theme="colored" />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-start text-dark-color">Artigos</h1>
@@ -252,28 +239,32 @@ function ArticlesAdmin () {
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={`items-center py-3 ${
-                        column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"
-                      }`}
+                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
                     >
-                      {column.key === "editar" ? (
+                      {column.key === "preview" ? (
+                        <button
+                          className="text-dark-color hover:text-blue-600 transition-colors"
+                          onClick={() => {
+                            setPreviewData(article);
+                            setIsPreviewOpen(true);
+                          }}
+                          title="Visualizar Detalhes"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
+                      ) : column.key === "editar" ? (
                         <ModalUpdateArticle article={article} />
-
                       ) : column.key === "excluir" ? (
                         <ModalDeleteArticle
                           title={article.titulo}
                           id={article.id}
                           handleUpdate={handleUpdate}
                         />
-
                       ) : column.key === "comentar" ? (
                         <ModalComment projectId={article.id} />
-
                       ) : column.key === "revisar" ? (
                         article.revisado
-
-                      ) : column.key === "botao" &&
-                        (article.revisado === "Pendente") ? (
+                      ) : column.key === "botao" && (article.revisado === "Pendente" || article.revisado === "Reprovado") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
@@ -281,9 +272,7 @@ function ArticlesAdmin () {
                         >
                           Aprovar
                         </button>
-                      
-                      ) : column.key === "botao2" &&
-                        (article.revisado === "Pendente") ? (
+                      ) : column.key === "botao2" && (article.revisado === "Pendente" || article.revisado === "Aprovado") ? (
                         <button
                           type="button"
                           className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
@@ -291,32 +280,10 @@ function ArticlesAdmin () {
                         >
                           Reprovar
                         </button>
-                      ) : column.key === "botao" &&
-                        (article.revisado === "Reprovado") ? (
-                          <button
-                            type="button"
-                            className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                            onClick={() => handleApprove(article)}
-                          >
-                            Aprovar
-                          </button>
-                      ) : column.key === "botao2" &&
-                        (article.revisado === "Aprovado") ? (
-                          <button
-                            type="button"
-                            className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                            onClick={() => handleReprove(article)}
-                          >
-                            Reprovar
-                          </button>
-                      ) : column.key === "botao2" &&
-                          (article.revisado === "Reprovado" ) ? (
-                          <div> </div>
-                      ) : column.key === "botao" &&
-                          (article.revisado === "Aprovado" ) ? (
-                          <div> </div>
+                      ) : (column.key === "botao" || column.key === "botao2") ? (
+                        <div></div>
                       ) : (
-                          article.titulo
+                        article.titulo
                       )}
                     </td>
                   ))}
@@ -326,6 +293,15 @@ function ArticlesAdmin () {
           </Table>
         )}
       </div>
+
+      <ModalPreview 
+        isOpen={isPreviewOpen} 
+        onClose={() => setIsPreviewOpen(false)} 
+        title="Detalhes do Artigo" 
+        data={previewData} 
+        type="artigo" 
+      />
+
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition

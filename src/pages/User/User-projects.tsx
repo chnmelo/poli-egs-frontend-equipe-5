@@ -18,9 +18,11 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
 import Loading from "../../components/Loading";
+import { EyeIcon } from "@heroicons/react/20/solid";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
+  { key: "preview", label: "Visualizar" },
   { key: "curtir", label: "Curtir" },
   { key: "comentar", label: "Comentar" },
   { key: "revisar", label: "Status" },
@@ -58,8 +60,9 @@ function Userprojects() {
 
   const userIsAdmin = localStorage.getItem("isAdmin") === "true"; 
 
+  // Se for admin, redireciona para a rota correta
   if (userIsAdmin) {
-    return <Navigate to="/user-admin" />;
+    return <Navigate to="/admin-projects" />;
   }
 
   const validateFormWithData = (projectData) => {
@@ -104,7 +107,7 @@ function Userprojects() {
   const handleUpdate = () => {
     axios
       .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data))
+      .then((response) => setProject(response.data.projetos || [])) // Garante atualização correta
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
@@ -260,7 +263,7 @@ function Userprojects() {
     setLoading(true);
     axios
       .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data.projetos))
+      .then((response) => setProject(response.data.projetos || []))
       .catch((error) => console.error("Erro ao carregar projetos:", error))
       .finally(() => setLoading(false));
   }, []);
@@ -360,7 +363,17 @@ function Userprojects() {
                           : "text-right pr-3"
                       }`}
                     >
-                      {column.key === "editar" ? (
+                      {column.key === "preview" ? (
+                        <a 
+                          href={`/projetos/${project.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block text-dark-color hover:text-blue-600 transition-colors"
+                          title="Visualizar projeto"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </a>
+                      ) : column.key === "editar" ? (
                         <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
                       ) : column.key === "excluir" ? (
                         <ModalDelete
