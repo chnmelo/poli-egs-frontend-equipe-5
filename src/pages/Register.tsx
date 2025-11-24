@@ -70,7 +70,7 @@ const Register = () => {
 
       if (response.ok) {
         alert('Registro realizado com sucesso!');
-        navigate('/logintest');
+        navigate('/login');
       } else {
         const data = await response.json();
         setError(data.message || "O endereço de e-mail já existe.");
@@ -194,7 +194,7 @@ const Register = () => {
           <div className="mt-4 text-center">
             <p className="text-white">
               Já tem uma conta?{' '}
-              <a href="/logintest" className="text-blue-300 underline">
+              <a href="/login" className="text-blue-300 underline">
                 Faça login
               </a>
             </p>
