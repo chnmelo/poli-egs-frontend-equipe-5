@@ -11,6 +11,7 @@ import { ProjectInt } from "../pages/Projects";
 import { useEffect, useState } from "react";
 import ModalCadastrarIntegrante from "../components/ModalCadastrarIntegrante";
 import { Navigate } from "react-router-dom";
+import { FaFileUpload } from "react-icons/fa";
 
 const semesterGenerator = (): string[] => {
   const current = new Date();
@@ -375,6 +376,33 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
                         })
                       }
                     />
+                  </div>
+                  <div className="w-[15vw] relative mb-10">
+                    <input
+                      type="file"
+                      className="hidden"
+                      name="logo"
+                      id="logo-update"
+                      onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                    />
+                    <label
+                      htmlFor="logo-update"
+                      className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
+                        !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
+                      } hover:opacity-60 select-none whitespace-nowrap`}
+                      style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {selectedFile ? (
+                        <span>Logo selecionada!</span>
+                      ) : (
+                        <span>Atualizar logo</span>
+                      )}
+                      <FaFileUpload className="ml-2" />
+                    </label>
                   </div>
                 </div>
               </form>
