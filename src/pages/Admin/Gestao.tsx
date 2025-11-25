@@ -1,5 +1,6 @@
 import { Table } from "react-bootstrap";
-import HeaderAdmin from "../../components/HeaderAdmin";
+import Navbar from "../../components/Navbar";
+import Breadcrumbs from '../../components/Breadcrumbs';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ModalResponderDuvida from "../../components/ModalResponderDuvida.tsx";
@@ -121,7 +122,10 @@ function GestaoAdmin() {
     return (
 
         <>
-            <HeaderAdmin />
+            <Navbar userRole="admin" />
+                <div className="px-[13vw] pt-6">
+                    <Breadcrumbs items={[{ label: 'Dashboard', href: '/admin-projects' }, { label: 'Gestão de Dúvidas e Sugestões' }]} />
+                </div>
             <div className="flex flex-col px-[13vw] pt-10 gap-6">
                 <section className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-start text-dark-color">Gestão de Dúvidas e Sugestões</h1>
