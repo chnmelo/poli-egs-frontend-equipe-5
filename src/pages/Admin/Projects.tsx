@@ -1,6 +1,8 @@
 import { Table } from "react-bootstrap";
-import HeaderAdmin from "../../components/HeaderAdmin";
-import { useEffect, useState } from "react";
+import Navbar from "../../components/Navbar";
+import Breadcrumbs from '../../components/Breadcrumbs';
+import { useEffect, useState, useMemo } from "react";
+import { BreadcrumbItem } from '../../components/Breadcrumbs';
 import axios from "axios";
 import ModalDelete from "../../components/ModalDelete";
 import {
@@ -56,6 +58,13 @@ function ProjectsAdmin() {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [changedTitle, setChangedTitle] = useState(true);
+
+  const baseBreadcrumbs: BreadcrumbItem[] = useMemo(() => [
+    { label: 'Dashboard', href: '/admin-projects' },
+    { label: 'Gerenciar Projetos' }
+  ], []);
+
+  const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>(baseBreadcrumbs);
 
   const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
 
@@ -332,7 +341,10 @@ function ProjectsAdmin() {
 
   return (
     <>
-      <HeaderAdmin />
+      <Navbar userRole="admin" />
+      <div className="px-[13vw] pt-6">
+        <Breadcrumbs items={breadcrumbItems} />
+      </div>
       <ToastContainer
         position="top-center"
         autoClose={3000}
@@ -351,7 +363,7 @@ function ProjectsAdmin() {
           </h1>
           <button
             type="submit"
-            onClick={() => setOpen(true)}
+            onClick={() => { setOpen(true); setBreadcrumbItems([...baseBreadcrumbs, { label: 'Cadastrar novo projeto' }]); }}
             className="rounded-md bg-primary-color h-full w-[15vw] text-white"
           >
             Novo projeto
@@ -398,7 +410,7 @@ function ProjectsAdmin() {
                     }`}
                   >
                     {column.key === "editar" ? (
-                      <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
+                      <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} onOpen={(title?: string) => setBreadcrumbItems([...baseBreadcrumbs, { label: `Editar ${title ?? ''}`}])} onClose={() => setBreadcrumbItems(baseBreadcrumbs)} />
                     ) : column.key === "excluir" ? (
                       <ModalDelete
                         title={project.titulo}
@@ -463,7 +475,7 @@ function ProjectsAdmin() {
           </tbody>
         </Table>
       </div>
-      <Dialog open={open} onClose={setOpen} className="relative z-10">
+  <Dialog open={open} onClose={(val:any) => { setOpen(val); if (!val) setBreadcrumbItems(baseBreadcrumbs); }} className="relative z-10">
         <DialogBackdrop
           transition
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
