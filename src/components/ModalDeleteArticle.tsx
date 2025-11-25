@@ -22,11 +22,11 @@ function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateA
   }
 
   // Fazendo a requisição de deletar projeto com o token no cabeçalho de autorização
-  axios.delete(`${import.meta.env.VITE_url_backend}/artigos/${id}/?id_token=${localStorage.getItem('authToken')}`, {
-    headers: {
-      Authorization: `Bearer ${token}`, // Usando o token obtido
-    },
-  })
+  axios.delete(`${import.meta.env.VITE_url_backend}/artigos/${id}/`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      }
+    })
     .then(() => {
       window.location.reload();
       setOpen(false);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/backgroundlogin.jpg';
 
-const LoginTest = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -112,8 +112,13 @@ const LoginTest = () => {
           <div className="mt-4 text-center">
             <p className="text-white">
               Não tem uma conta?{' '}
-              <a href="/register" className="text-blue-300 underline">
+              <a href="/register" className="text-blue-300 underline hover:text-blue-100">
                 Registre-se
+              </a>
+            </p>
+            <p className="mt-2">
+              <a href="/esqueci-a-senha" className="text-blue-300 underline hover:text-blue-100 text-sm">
+                Esqueci minha senha
               </a>
             </p>
           </div>
@@ -123,4 +128,4 @@ const LoginTest = () => {
   );
 };
 
-export default LoginTest;
+export default Login;

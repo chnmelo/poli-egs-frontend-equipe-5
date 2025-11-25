@@ -74,18 +74,18 @@ function Projects() {
     setInputMembers(event.target.value);
   };
 
-  /*const handleGetImage = async (id) => {
-    try {
-      const response = await axios.get(`https://poli-egs-fastapi-1.onrender.com/view_logo_projeto/${id}`);
-      setImages((prevImages) => ({
-        ...prevImages,
-        [id]: response.data.url,
-      }));
-    } catch (error) {
-      console.log('Erro ao buscar imagem, mas continuando: ', error);
-      // Apenas ignore o erro sem interromper o fluxo
-    }
-  };*/
+    const fetchLogo = async (id: string) => {
+      try {
+        const apiUrl = import.meta.env.VITE_url_backend;
+        const response = await axios.get(`${apiUrl}/view_logo_projeto/${id}`);
+        if (response.data && response.data.url) {
+          setLogos(prevLogos => ({ ...prevLogos, [id]: response.data.url }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar logo do projeto:', error);
+      }
+    };
+
 
   const filteredCards = Array.isArray(cards)
   ? cards.filter((project) => {
@@ -102,11 +102,21 @@ function Projects() {
       
       const checker = (arr, target) => target.every(e => arr.includes(e));
 
+      // Lógica corrigida para extrair nomes de integrantes, sejam strings ou objetos
+      const projectMembersStr = project.equipe
+        ? (Array.isArray(project.equipe)
+            ? project.equipe.map((p: any) => 
+                typeof p === 'string' ? p : (p.nomeCompleto || p.Nome || '')
+              ).join(' ')
+            : project.equipe.toString()
+          ).toLowerCase()
+        : '';
+
       return (
         (project.titulo?.toLowerCase().includes(searchInput) ||
           palavrasChave.includes(searchInput) || // Usando palavras_chave como string
           project.tema?.toLowerCase().includes(searchInput)) &&
-        (project.equipe ? project.equipe.toString().toLowerCase().includes(searchMembers) : '') &&
+        projectMembersStr.includes(searchMembers) &&
         (themes == null ? true : checker(searchThemes, projectThemes)) &&
         project.semestre?.toLowerCase().includes(searchSemester)
       );
