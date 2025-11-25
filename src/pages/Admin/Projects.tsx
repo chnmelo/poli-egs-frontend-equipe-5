@@ -718,7 +718,7 @@ function ProjectsAdmin() {
                       {selectedFile ? (
                         <span>Modificar Logo</span>
                       ) : (
-                        <span>Atualizar Logo</span>
+                        <span>Adicionar logo</span>
                       )}
                       <FaFileUpload className="ml-2" />
                     </label>

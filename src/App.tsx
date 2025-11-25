@@ -1,4 +1,5 @@
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import IA from './images/ia.png';
 import CD from './images/cd.png';
 import FIN from './images/financas.png';
@@ -246,35 +247,7 @@ function App() {
         </div>
       </section>
 
-      {/* Seção de Rodapé */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          <div className="flex justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Logo-upe-site.png"
-              alt="UPE"
-              className="h-16"
-            />
-          </div>
-          <div className="flex justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/6/69/Bras%C3%A3o_UFPB.png"
-              alt="UFPB"
-              className="h-16"
-            />
-          </div>
-          <div className="flex justify-center">
-            <img
-              src="https://www.sad.pe.gov.br/images/logo.png"
-              alt="SAD PE"
-              className="h-16"
-            />
-          </div>
-        </div>
-        <div className="mt-8 text-center">
-          <p>© {new Date().getFullYear()} Observatório de Projetos - POLI/UPE. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
