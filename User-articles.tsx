@@ -1,5 +1,5 @@
 import { Table } from "react-bootstrap";
-import HeaderUser from "../../components/HeaderUser";
+import Navbar from "./src/components/Navbar";
 import { SetStateAction, useEffect, useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import ModalDeleteArticle from "../../components/ModalDeleteArticle";
@@ -241,7 +241,7 @@ function Userarticles () {
 
   return (
     <>
-      <HeaderUser />
+      <Navbar userRole="user" />
       <ToastContainer
         position="top-center"
         autoClose={3000}
