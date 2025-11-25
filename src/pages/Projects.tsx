@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
+import backgroundImage from '../images/mainpage.jpg'; 
 
 function Projects() {
   const { slug } = useParams();
@@ -102,11 +102,21 @@ function Projects() {
       
       const checker = (arr, target) => target.every(e => arr.includes(e));
 
+      // Lógica corrigida para extrair nomes de integrantes, sejam strings ou objetos
+      const projectMembersStr = project.equipe
+        ? (Array.isArray(project.equipe)
+            ? project.equipe.map((p: any) => 
+                typeof p === 'string' ? p : (p.nomeCompleto || p.Nome || '')
+              ).join(' ')
+            : project.equipe.toString()
+          ).toLowerCase()
+        : '';
+
       return (
         (project.titulo?.toLowerCase().includes(searchInput) ||
           palavrasChave.includes(searchInput) || // Usando palavras_chave como string
           project.tema?.toLowerCase().includes(searchInput)) &&
-        (project.equipe ? project.equipe.toString().toLowerCase().includes(searchMembers) : '') &&
+        projectMembersStr.includes(searchMembers) &&
         (themes == null ? true : checker(searchThemes, projectThemes)) &&
         project.semestre?.toLowerCase().includes(searchSemester)
       );
