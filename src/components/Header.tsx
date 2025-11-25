@@ -5,7 +5,6 @@ import { ArrowRightStartOnRectangleIcon, UserCircleIcon } from '@heroicons/react
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
   
-  // A função dentro do useState garante que isso rode apenas na criação do componente, sem delay.
   const [userName, setUserName] = useState<string | null>(() => localStorage.getItem('userName'));
   
   const navigate = useNavigate();
@@ -72,10 +71,16 @@ function Header() {
         <div className="hidden md:flex items-center">
           {userName ? (
             <div className="flex items-center gap-4">
-               <div className="flex items-center text-white font-medium">
+               {/* ALTERAÇÃO AQUI: Transformado em NavLink para redirecionar */}
+               <NavLink 
+                 to="/user-projects"
+                 className="flex items-center text-white font-medium hover:text-gray-300 transition duration-200"
+                 title="Ir para o Painel do Usuário"
+               >
                   <UserCircleIcon className="h-6 w-6 mr-2" />
                   Olá, {userName}
-               </div>
+               </NavLink>
+               
                <button 
                  onClick={handleLogout}
                  className="flex items-center px-4 py-2 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition duration-200 text-sm"
@@ -118,15 +123,29 @@ function Header() {
             ))}
             <li>
               {userName ? (
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                  className="block w-full text-left text-lg font-medium text-red-300 hover:text-red-100 transition duration-200"
-                >
-                  Sair ({userName})
-                </button>
+                <>
+                  {/* Link do Usuário no Mobile */}
+                  <NavLink
+                    to="/user-projects"
+                    className="block w-full text-left text-lg font-medium text-white hover:text-gray-300 transition duration-200 mb-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="flex items-center">
+                      <UserCircleIcon className="h-5 w-5 mr-2" />
+                      Olá, {userName}
+                    </div>
+                  </NavLink>
+                  
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                    className="block w-full text-left text-lg font-medium text-red-300 hover:text-red-100 transition duration-200"
+                  >
+                    Sair
+                  </button>
+                </>
               ) : (
                 <NavLink
                   to="/login"
