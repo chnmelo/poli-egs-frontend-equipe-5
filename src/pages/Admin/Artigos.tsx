@@ -41,6 +41,8 @@ function ArticlesAdmin () {
     arquivo: '#',
     revisado: "",
     resumo: '',
+    git_link: '',
+    article_link: '',
   })
 
   const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
@@ -432,6 +434,32 @@ function ArticlesAdmin () {
                       {file ? <span>{file.name}</span> : <span>Subir PDF</span>}
                       <FaFileUpload className="ml-2" />
                     </label>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link Artigo Externo</h3>
+                    <input
+                      type="text"
+                      name="article_link"
+                      id="article_link"
+                      placeholder="www.exemplo.com"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => {
+                        setNewArticle({ ...NewArticle, article_link: e.target.value })
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link GitHub</h3>
+                    <input
+                      type="text"
+                      name="git_link"
+                      id="git_link"
+                      placeholder="www.github.com/exemplo"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => {
+                        setNewArticle({ ...NewArticle, git_link: e.target.value })
+                      }}
+                    />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Equipe</h3>

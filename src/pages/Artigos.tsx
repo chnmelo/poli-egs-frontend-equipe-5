@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import axios from 'axios';
-import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
+import { ArrowDownTrayIcon, GlobeAltIcon } from '@heroicons/react/20/solid';
 import backgroundImage from '../images/mainpage.jpg';
+import { BsGithub } from 'react-icons/bs';
 
 function Articles() {
   const [input, setInput] = useState("");
@@ -144,13 +145,44 @@ function Articles() {
                       <h3 className="font-semibold">Resumo:</h3>
                       <p>{article.resumo || "Resumo não disponível"}</p>
                     </div>
-                    <button
-                      className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
-                      onClick={() => handleDownload(article.id)}
-                    >
-                      <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                      Visualizar
-                    </button>
+                    <div className="mb-4">
+                      <h3 className="font-semibold">Links de acesso:</h3>
+                      {/* Elemento pai com 'flex' para colocar botões lado a lado */}
+                      <div className="flex space-x-4 mt-2"> 
+                        
+                        {/* Botão Visualizar */}
+                        <button
+                          className="flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                          onClick={() => handleDownload(article.id)}
+                        >
+                          <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                          Download
+                        </button>
+                        
+                        {/* Botão GitHub */}
+                        {(article.git_link != null && article.git_link != "") &&<a
+                          className="flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                          href={article.git_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <BsGithub className="h-5 w-5 mr-2" />
+                          GitHub
+                        </a>}
+                        
+                        {/* Botão Link */}
+                        {(article.article_link != null && article.article_link != "") && <a
+                          className="flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                          href={article.article_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <GlobeAltIcon className="h-5 w-5 mr-2" />
+                          Externo
+                        </a>}
+                        
+                      </div>
+                    </div>
                   </div>
                 ))}
             </div>

@@ -21,6 +21,8 @@ export interface ArticleInt {
   id?: string,
   arquivo?: string,
   resumo?: string,
+  git_link?: string,
+  article_link?: string,
 }
 
 const columns = [
@@ -57,6 +59,8 @@ function Userarticles () {
     arquivo: '#',
     revisado: "",
     resumo: '',
+    git_link: '',
+    article_link: '',
   })
 
   const [changedTitle, setChangedTitle] = useState(true)
@@ -348,6 +352,32 @@ function Userarticles () {
                       {semesterGenerator().map((semestre) => (
                           <option key={semestre} value={semestre}>{semestre}</option>))}
                     </select>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link Artigo Externo</h3>
+                    <input
+                      type="text"
+                      name="article_link"
+                      id="article_link"
+                      placeholder="www.exemplo.com"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => {
+                        setNewArticle({ ...NewArticle, article_link: e.target.value })
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link GitHub</h3>
+                    <input
+                      type="text"
+                      name="git_link"
+                      id="git_link"
+                      placeholder="www.github.com/exemplo"
+                      className="focus:outline-none border-b-2 w-[15vw]"
+                      onChange={(e) => {
+                        setNewArticle({ ...NewArticle, git_link: e.target.value })
+                      }}
+                    />
                   </div>
                   <div className="w-[15vw] relative">
                     <input

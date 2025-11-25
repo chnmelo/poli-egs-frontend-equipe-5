@@ -21,6 +21,8 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
     arquivo: article.arquivo || '#',
     revisado: article.revisado || "Pendente",
     resumo: article.resumo || "",
+    git_link: article.git_link || "",
+    article_link: article.article_link || "",
   });
   
   const handleUpdateArticle = () => {
@@ -55,6 +57,8 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
       arquivo: UpdatedArticle.arquivo || '#',
       revisado: article.revisado || "Pendente",
       resumo: UpdatedArticle.resumo || "",
+      git_link: UpdatedArticle.git_link || "",
+      article_link: UpdatedArticle.article_link || "",
     };
 
 
@@ -152,6 +156,14 @@ export default function ModalUpdateArticle({ article }: { article: ArticleInt })
                       </option>))}
                   </select>
                 </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Link Externo</h3>
+                  <input type="text" name="article_link" id="article_link" placeholder="www.exemplo.com" value={UpdatedArticle.article_link} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, article_link:e.target.value}))}/>
+                </div> 
+                <div>
+                  <h3 className="text-lg font-semibold">Repositorio</h3>
+                  <input type="text" name="git_link" id="git_link" placeholder="www.github.com/exemplo" value={UpdatedArticle.git_link} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, git_link:e.target.value}))}/>
+                </div> 
                 <div>
                   <h3 className="text-lg font-semibold">Equipe</h3>
                   <input type="text" name="titulo" id="titulo" placeholder="Pessoa1,Pessoa2,Pessoa3" value={UpdatedArticle.equipe} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => (setUpdatedArticle({...UpdatedArticle, equipe:e.target.value}))}/>
