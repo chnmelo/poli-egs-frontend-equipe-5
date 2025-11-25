@@ -3,73 +3,104 @@ import { Button, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headl
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export default function ModalLikes({ projectId }: { projectId: string }) {
+interface ModalLikesProps {
+  projectId: string;
+  initialLikes?: number;
+  initialLikedUsers?: string[];
+}
+
+export default function ModalLikes({ projectId, initialLikes, initialLikedUsers }: ModalLikesProps) {
   const [open, setOpen] = useState(false);
-  const [likes, setLikes] = useState<number | null>(null);
+  const [likes, setLikes] = useState<number>(initialLikes || 0);
   const [isLiked, setIsLiked] = useState(false);
 
   const handleShow = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // Função para pegar ou criar um ID de visitante anônimo
+  const getVisitorId = () => {
+    let visitorId = localStorage.getItem("visitorId");
+    if (!visitorId) {
+      visitorId = crypto.randomUUID();
+      localStorage.setItem("visitorId", visitorId);
+    }
+    return visitorId;
+  };
+
+  const checkIsLiked = (usersList: string[]) => {
+    const email = localStorage.getItem('email');
+    const visitorId = localStorage.getItem("visitorId");
+    
+    let identifier = email;
+    // Se não estiver logado, tenta identificar pelo ID de visitante
+    if (!identifier && visitorId) {
+        identifier = `anon_${visitorId}`;
+    }
+
+    if (identifier && usersList) {
+        return usersList.includes(identifier);
+    }
+    return false;
+  };
+
+  // Atualiza estado se as props mudarem (ex: recarregamento da lista pai)
+  useEffect(() => {
+    if (initialLikes !== undefined) setLikes(initialLikes);
+    if (initialLikedUsers !== undefined) setIsLiked(checkIsLiked(initialLikedUsers));
+  }, [initialLikes, initialLikedUsers]);
+
+  // Garante dados frescos ao abrir o modal
+  useEffect(() => {
+    if (open) {
+      fetchProjectLikes();
+    }
+  }, [open]);
+
   const handleLike = () => {
     const token = localStorage.getItem("authToken");
-  
-    if (!token) {
-      toast.warning("Você precisa estar logado para curtir.");
-      return;
+    let url = `${import.meta.env.VITE_url_backend}/projetos/${projectId}/curtir?`;
+
+    if (token) {
+        url += `id_token=${token}`;
+    } else {
+        const vId = getVisitorId();
+        url += `visitor_id=${vId}`;
     }
   
-    // Enviando id_token na query string para satisfazer a dependência do backend
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/curtir?id_token=${token}`, {})
+    axios.post(url, {})
       .then((response) => {
         if (response.data.msg === 'Projeto descurtido com sucesso!') {
             setIsLiked(false);
-            toast.info("Você descurtiu este projeto.");
         } else if (response.data.msg === 'Projeto curtido com sucesso!') {
             setIsLiked(true);
-            toast.success("Projeto curtido!");
         }
         setLikes(response.data.curtidas);
       })
       .catch((error) => {
         console.error("Erro ao curtir:", error);
-        const msg = error.response?.data?.detail || "Erro ao processar a curtida.";
-        
-        if (msg.includes("token") || error.response?.status === 401) {
-            toast.error("Sua sessão expirou. Faça login novamente.");
-        } else {
-            toast.error(msg);
-        }
+        toast.error("Erro ao processar a curtida.");
       });
   };
   
-
   const fetchProjectLikes = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_url_backend}/projetos/${projectId}`);
-      const email = localStorage.getItem('email');
-      
       setLikes(response.data.curtidas);
-      if (email && response.data.user_curtidas_email) {
-          setIsLiked(response.data.user_curtidas_email.includes(email));
+      if (response.data.user_curtidas_email) {
+          setIsLiked(checkIsLiked(response.data.user_curtidas_email));
       }
     } catch (error) {
       console.error("Erro ao obter curtidas:", error);
     }
   };
 
-  useEffect(() => {
-      if (open) {
-          fetchProjectLikes();
-      }
-  }, [open]);
-
   return (
     <>
         <Button
             onClick={handleShow}
-            className="text-dark-color h-full w-5 transition-transform hover:scale-110"
-            title={isLiked ? "Você curtiu este projeto" : "Clique para ver curtidas"}
+            // CORREÇÃO AQUI: 'inline-flex' para respeitar o alinhamento da tabela
+            className="text-dark-color h-full w-5 transition-transform hover:scale-110 inline-flex items-center gap-1 justify-center"
+            title={isLiked ? "Você curtiu este projeto" : "Clique para curtir"}
         >
             {isLiked ? (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 text-red-500">
@@ -98,23 +129,13 @@ export default function ModalLikes({ projectId }: { projectId: string }) {
                             </div>
                         </div>
                         <div className="bg-gray-100 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                            {isLiked ? (
-                                <button
-                                    type="button"
-                                    onClick={handleLike}
-                                    className="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-red-700 transition sm:ml-3 sm:w-auto"
-                                >
-                                    Descurtir Projeto
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleLike}
-                                    className="inline-flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition sm:ml-3 sm:w-auto"
-                                >
-                                    Curtir Projeto
-                                </button>
-                            )}
+                            <button
+                                type="button"
+                                onClick={handleLike}
+                                className={`inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-md transition sm:ml-3 sm:w-auto ${isLiked ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                            >
+                                {isLiked ? 'Descurtir' : 'Curtir'}
+                            </button>
                             <button
                                 type="button"
                                 onClick={handleClose}

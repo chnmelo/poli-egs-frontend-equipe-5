@@ -386,8 +386,8 @@ function Userprojects() {
                       ) : column.key === "curtir" ? (
                         <ModalLikes 
                           projectId={project.id} 
-                          initialLikes={project.curtidas} 
-                          initialLikedUsers={project.user_curtidas_email} 
+                          initialLikes={project.curtidas}
+                          initialLikedUsers={project.user_curtidas_email}
                         />
                       ) : column.key === "revisar" ? (
                         project.revisado
