@@ -76,8 +76,7 @@ function Projects() {
 
     const fetchLogo = async (id: string) => {
       try {
-        const apiUrl = import.meta.env.VITE_url_backend;
-        const response = await axios.get(`${apiUrl}/view_logo_projeto/${id}`);
+        const response = await axios.get(`/view_logo_projeto/${id}`);
         if (response.data && response.data.url) {
           setLogos(prevLogos => ({ ...prevLogos, [id]: response.data.url }));
         }
