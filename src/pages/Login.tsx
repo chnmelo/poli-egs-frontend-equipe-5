@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/backgroundlogin.jpg';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,18 +13,17 @@ const Login = () => {
     e.preventDefault();
     try {
       // 1. Enviar a requisição para o login com email e senha na URL
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/login?email=${email}&password=${password}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await axios.post('/login', null, {
+        params: { 
+            email: email, 
+            password: password 
+        }
       });
   
-      // Verificar se a resposta do login foi bem-sucedida
-      if (!response.ok) {
-        throw new Error('Login falhou');
-      }
-  
+      // O Axios já devolve o JSON em response.data
+      const data = response.data;
       // 2. Captura do token e dados do usuário
-      const data = await response.json();
+      // const data = await response.json();
       // Verificando se o token foi retornado
       if (!data.idToken) {
         throw new Error('Token não encontrado');

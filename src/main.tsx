@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import Projects from './pages/Projects'
+import axios from 'axios';
 import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import Project from './pages/Project.tsx'
 import ProjectsAdmin from './pages/Admin/Projects.tsx'
@@ -23,6 +24,22 @@ import Userprojects from './pages/User/User-projects.tsx';
 import Userarticles from './pages/User/User-articles.tsx';
 import Userprodutos from './pages/User/User-produtos.tsx';
 import ForgotPassword from './pages/ForgotPassword.tsx';
+
+const envURL = import.meta.env.VITE_url_backend || 'https://api.observatorio.poli.br';
+axios.defaults.baseURL = envURL.replace(/^http:\/\//i, 'https://');
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// Interceptor para injetar o Token em TODAS as requisições
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

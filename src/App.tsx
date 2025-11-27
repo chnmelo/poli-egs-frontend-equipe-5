@@ -34,19 +34,9 @@ function App() {
   const handleNavigation = async (input) => {
     try {
       // Requisição para obter os projetos
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/projetos`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao buscar projetos.");
-      }
-  
-      const data = await response.json();
-
+      const response = await axios.get('/projetos');
+      
+      const data = response.data; // Dados diretos
   
       // Busca o projeto pelo nome
       const foundProject = data.projetos.find(
@@ -93,19 +83,14 @@ function App() {
       data_de_postagem: new Date(0)
     }
 
-    axios.post(`${import.meta.env.VITE_url_backend}/duvidas_add`, NewQuestion)
+    axios.post('/duvidas_add', NewQuestion) 
     .then(response => {
-      console.log(`Upload realizado com sucesso! ${response.data.duvida}`);
-
       toast.success("Mensagem enviada com sucesso!");
-      
-      // Limpa os campos após o envio
       QuestionForm?.reset();
     })
-
     .catch(error => {
       console.log(error);
-      toast.error(error.response.data.detail);
+      toast.error(error.response?.data?.detail || "Erro ao enviar");
     });
   }
 

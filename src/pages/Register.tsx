@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import backgroundImage from '../images/backgroundlogin.jpg';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from "axios";
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -55,29 +56,22 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await axios.post('/register', {
           username,
           email,
           password,
           is_admin: false,
-        }),
       });
 
-      if (response.ok) {
-        alert('Registro realizado com sucesso!');
-        navigate('/login');
-      } else {
-        const data = await response.json();
-        setError(data.message || "O endereço de e-mail já existe.");
-      }
-    } catch (error) {
+      // Se chegou aqui, deu certo (2xx)
+      alert('Registro realizado com sucesso!');
+      navigate('/login');
+
+    } catch (error: any) {
       console.error('Erro de rede:', error);
-      setError('Erro de rede. Verifique sua conexão.');
+      // Captura mensagem do backend se houver
+      const msg = error.response?.data?.message || "O endereço de e-mail já existe ou erro no servidor.";
+      setError(msg);
     }
   };
 
