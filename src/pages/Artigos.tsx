@@ -10,7 +10,7 @@ function Articles() {
   const [articles, setArticles] = useState([]);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`)
+    axios.get(`/artigos/`)
       .then((response) => {
         setArticles(response.data.artigos || []);
       })
@@ -23,7 +23,7 @@ function Articles() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_url_backend}/view_pdf_artigo/${id}`);
+      const response = await axios.get(`/view_pdf_artigo/${id}`);
       const url = response.data.url;
       if (url) {
         const link = document.createElement('a');

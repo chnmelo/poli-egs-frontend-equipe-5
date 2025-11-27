@@ -97,7 +97,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
         palavras_chave: stringToArray(UpdatedProject.palavras_chave),
       };
 
-      axios.put(`${import.meta.env.VITE_url_backend}/projetos/${project.id}/?id_token=${token}`, updatedProjectToSend)
+      axios.put(`/projetos/${project.id}/?id_token=${token}`, updatedProjectToSend)
       .then(response => {
         handleFotosUpload(project.id,integrantes)
       })
@@ -106,7 +106,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
           const formData = new FormData();
           formData.append("file", selectedFile);
 
-          axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${project.id}/?id_token=${token}`, formData, {
+          axios.post(`/upload_logo_projeto/${project.id}/?id_token=${token}`, formData, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },

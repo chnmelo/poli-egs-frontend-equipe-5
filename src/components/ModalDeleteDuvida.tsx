@@ -16,7 +16,7 @@ function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateA
         console.error('Token não encontrado. Usuário não está autenticado.');
         return;
     }
-    axios.delete(`${import.meta.env.VITE_url_backend}/duvidas/${id}/`, {
+    axios.delete(`/duvidas/${id}/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }

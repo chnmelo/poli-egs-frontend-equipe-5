@@ -109,14 +109,14 @@ function ProjectsAdmin() {
 
   const handleUpdate = () => {
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
+      .get(`/projetos/`)
       .then((response) => setProject(response.data))
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
   const handleApprove = (project) => {
     const token = localStorage.getItem("authToken");
-    axios.put(`${import.meta.env.VITE_url_backend}/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
+    axios.put(`/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -133,7 +133,7 @@ function ProjectsAdmin() {
     const token = localStorage.getItem("authToken");
     axios
       .put(
-        `${import.meta.env.VITE_url_backend}/projeto_revisado/${
+        `/projeto_revisado/${
           project.id
         }/?novo_revisado=Reprovado&id_token=${token}`,
         null,
@@ -158,7 +158,7 @@ function ProjectsAdmin() {
       return
     }
     formData.append('file', selectedFile);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+    axios.post(`/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -180,7 +180,7 @@ function ProjectsAdmin() {
       }
     })
 
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/?id_token=${token}`, formData, {
+    axios.post(`/upload_fotos_integrantes/?id_token=${token}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -239,7 +239,7 @@ function ProjectsAdmin() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+    axios.post(`/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -295,7 +295,7 @@ function ProjectsAdmin() {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
+      .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos))
       .catch((error) => console.error("Erro ao carregar projetos:", error));
   }, []);

@@ -56,7 +56,7 @@ const Register = () => {
     }
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/register`, {
+      const response = await fetch(`/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

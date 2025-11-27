@@ -88,7 +88,7 @@ function Userprodutos () {
   };
 
   const handleUpdate = () => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
+    axios.get(`/produtos/`).then(response => {
       setProduto(response.data);
     }).catch(error => {
       console.error('Erro ao atualizar produto', error.response.data.detail || '');
@@ -106,7 +106,7 @@ function Userprodutos () {
     if (!file) return;
     const formData = new FormData();
     formData.append('file', file);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+    axios.post(`/upload_pdf_artigo/${id}/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -144,7 +144,7 @@ function Userprodutos () {
       status: NewProduto.status || "Pendente",
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
+    axios.post(`/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ function Userprodutos () {
     }, [open]);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(function (response) {
+    axios.get(`/produtos/`).then(function (response) {
       setProduto(response.data)
 
 

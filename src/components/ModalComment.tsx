@@ -25,7 +25,7 @@ export default function ModalComment({ projectId }: { projectId: string }) {
       return;
     }
 
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}&id_token=${token}`)
+    axios.post(`/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}&id_token=${token}`)
       .then(() => {
         setComment(""); 
         toast.success("Comentário enviado!");

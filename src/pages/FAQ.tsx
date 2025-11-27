@@ -60,7 +60,7 @@ function FAQ() {
     const [Duvida, setDuvida] = useState<DuvidaType[]>([]);
 
 	useEffect(() => {
-		axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+		axios.get(`/duvidas/`)
 		    .then(response => {
 		        const duvidas = response.data.duvidas;
                 const apenasPostadas = duvidas.filter((d: DuvidaType) => d.postado);
@@ -76,7 +76,7 @@ function FAQ() {
 	];
 
 	const handleUpdate = () => {
-		axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+		axios.get(`/duvidas/`)
 			.then(response => { setDuvida(response.data.duvidas || []); })
 			.catch(error => { console.error('Erro ao atualizar duvida', error); });
 		};

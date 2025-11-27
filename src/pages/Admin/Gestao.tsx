@@ -33,7 +33,7 @@ function GestaoAdmin() {
     };
 
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+        axios.get(`/duvidas/`)
             .then(response => {
                 console.log("DÚVIDAS RECEBIDAS:", response.data);
 
@@ -62,7 +62,7 @@ function GestaoAdmin() {
         }
 
         axios.put(
-            `${import.meta.env.VITE_url_backend}/duvida_publicado/${duvida.id}/?id_token=${token}`,
+            `/duvida_publicado/${duvida.id}/?id_token=${token}`,
             null,
             {
                 headers: {
@@ -82,7 +82,7 @@ function GestaoAdmin() {
     /*checar se ta funcionando posteriormente*/
 
     const handleUpdate = () => {
-        axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`).then(response => {
+        axios.get(`/duvidas/`).then(response => {
             setDuvida(response.data.duvidas || []);
         }).catch(error => {
             console.error('Erro ao atualizar duvida', error);
@@ -95,7 +95,7 @@ function GestaoAdmin() {
 
         if (duvida.visualizacoes.includes(email)) { return; }
 
-        axios.put(`${import.meta.env.VITE_url_backend}/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null,{
+        axios.put(`/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null,{
             headers: {
                 Authorization: `Bearer ${token}`,
             },

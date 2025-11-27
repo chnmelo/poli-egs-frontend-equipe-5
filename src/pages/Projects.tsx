@@ -37,7 +37,7 @@ function Projects() {
   useEffect(() => {
     setInput(searchQuery);
     setThemes(location.state?.themes ? location.state?.themes : null)
-    axios.get(`${import.meta.env.VITE_url_backend}/projetos/`)
+    axios.get(`/projetos/`)
       .then((response) => {
         const data = response.data.projetos;
 

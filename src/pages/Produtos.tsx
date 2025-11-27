@@ -10,7 +10,7 @@ function Produtos() {
   const [produtos, setProdutos] = useState([]);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`)
+    axios.get(`/produtos/`)
       .then((response) => {
         setProdutos(response.data.produtos || []);
       })
@@ -23,7 +23,7 @@ function Produtos() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_url_backend}/view_pdf_produto/${id}`);
+      const response = await axios.get(`/view_pdf_produto/${id}`);
       const url = response.data.url;
       if (url) {
         const link = document.createElement('a');

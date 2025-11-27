@@ -22,7 +22,7 @@ function handleOptionDelete(id: string | undefined, setOpen: { (value: SetStateA
   }
 
   // Fazendo a requisição de deletar projeto com o token no cabeçalho de autorização
-  axios.delete(`${import.meta.env.VITE_url_backend}/artigos/${id}/`, {
+  axios.delete(`/artigos/${id}/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
