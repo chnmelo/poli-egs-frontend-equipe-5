@@ -173,7 +173,7 @@ function ProdutosAdmin () {
       status: NewProduto.status || "Pendente",
     };
 
-    axios.post(`/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
+    axios.post(`/produtos_add/?id_token=${token}`, NewProdutoWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

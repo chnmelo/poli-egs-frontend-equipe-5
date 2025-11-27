@@ -52,7 +52,7 @@ export default function ModalUpdateProduto({ produto }: { produto: ProdutoInt })
 
 
     // Fazendo a requisição de update do projeto com o token no cabeçalho de autorização
-    axios.put(`/produtos/${produto.id}?id_token=${token}`, UpdatedProdutoWithDefaults, {
+    axios.put(`/produtos/${produto.id}/?id_token=${token}`, UpdatedProdutoWithDefaults, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`, // Usando o token no cabeçalho

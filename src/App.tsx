@@ -34,7 +34,7 @@ function App() {
   const handleNavigation = async (input) => {
     try {
       // Requisição para obter os projetos
-      const response = await axios.get('/projetos');
+      const response = await axios.get('/projetos/');
       
       const data = response.data; // Dados diretos
   
@@ -83,7 +83,7 @@ function App() {
       data_de_postagem: new Date(0)
     }
 
-    axios.post('/duvidas_add', NewQuestion) 
+    axios.post('/duvidas_add/', NewQuestion) 
     .then(response => {
       toast.success("Mensagem enviada com sucesso!");
       QuestionForm?.reset();

@@ -162,7 +162,7 @@ function Userarticles () {
   
     console.log('Dados do novo projeto (com valores padrão, se necessário):', NewArticleWithDefaults);
   
-    axios.post(`/artigos_add?id_token=${token}`, NewArticleWithDefaults, {
+    axios.post(`/artigos_add/?id_token=${token}`, NewArticleWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

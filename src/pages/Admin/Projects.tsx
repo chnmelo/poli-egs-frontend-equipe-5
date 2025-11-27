@@ -239,7 +239,7 @@ function ProjectsAdmin() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios.post(`/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+    axios.post(`/projeto_add/?id_token=${token}`, NewProjectWithDefaults, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

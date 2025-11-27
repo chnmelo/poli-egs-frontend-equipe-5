@@ -58,7 +58,7 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
 
   const handleLike = () => {
     const token = localStorage.getItem("authToken");
-    let url = `/projetos/${projectId}/curtir?`;
+    let url = `/projetos/${projectId}/curtir/?`;
 
     if (token) {
         url += `id_token=${token}`;
@@ -84,7 +84,7 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
   
   const fetchProjectLikes = async () => {
     try {
-      const response = await axios.get(`/projetos/${projectId}`);
+      const response = await axios.get(`/projetos/${projectId}/`);
       setLikes(response.data.curtidas);
       if (response.data.user_curtidas_email) {
           setIsLiked(checkIsLiked(response.data.user_curtidas_email));

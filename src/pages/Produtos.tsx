@@ -23,7 +23,7 @@ function Produtos() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`/view_pdf_produto/${id}`);
+      const response = await axios.get(`/view_pdf_produto/${id}/`);
       const url = response.data.url;
       if (url) {
         const link = document.createElement('a');

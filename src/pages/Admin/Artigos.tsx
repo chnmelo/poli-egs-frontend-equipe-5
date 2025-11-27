@@ -136,7 +136,7 @@ function ArticlesAdmin () {
     };
   
 
-    axios.post(`/artigos_add?id_token=${token}`, NewArticleWithDefaults, {
+    axios.post(`/artigos_add/?id_token=${token}`, NewArticleWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ function Articles() {
 
   const handleDownload = async (id) => {
     try {
-      const response = await axios.get(`/view_pdf_artigo/${id}`);
+      const response = await axios.get(`/view_pdf_artigo/${id}/`);
       const url = response.data.url;
       if (url) {
         const link = document.createElement('a');

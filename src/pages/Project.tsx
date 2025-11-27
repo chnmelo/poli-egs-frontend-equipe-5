@@ -59,7 +59,7 @@ function Project() {
       // Tenta buscar foto personalizada
       try {
         if (pessoa.id) {
-            const response = await axios.get(`/view_fotos_integrantes/${pessoa.id}`);
+            const response = await axios.get(`/view_fotos_integrantes/${pessoa.id}/`);
             if (response.data.url){
             integranteFormatado.Foto = response.data.url;
             }
@@ -79,7 +79,7 @@ function Project() {
       const fetchData = async () => {
         try {
           // 1. Busca dados do projeto
-          const response = await axios.get(`/projetos/${slug}`);
+          const response = await axios.get(`/projetos/${slug}/`);
           const projeto = response.data;
           const projectId = projeto.id;
 
@@ -95,17 +95,17 @@ function Project() {
           // 2. Busca Logo e Galeria se houver ID
           if (projectId) {
             // Logo
-            axios.get(`/view_logo_projeto/${projectId}`)
+            axios.get(`/view_logo_projeto/${projectId}/`)
               .then((res) => setImg(res.data.url))
               .catch(() => console.log("Logo não encontrada"));
 
             // Galeria
-            axios.get(`/view_fotos_projeto/${projectId}`)
+            axios.get(`/view_fotos_projeto/${projectId}/`)
               .then((res) => setGalleryImages(res.data.urls || []))
               .catch(() => setGalleryImages([]));
           } else {
              // Fallback para buscar logo pelo slug se o ID falhar (mantendo sua lógica original)
-             axios.get(`/view_logo_projeto/${slug}`)
+             axios.get(`/view_logo_projeto/${slug}/`)
              .then((res) => setImg(res.data.url))
              .catch(() => {});
           }
@@ -124,7 +124,7 @@ function Project() {
 
     try {
       const response = await axios.post(
-        `/projetos/${Data.id}/comentar?usuario=${userName}&comentario=${commentText}&id_token=${token}`
+        `/projetos/${Data.id}/comentar/?usuario=${userName}&comentario=${commentText}&id_token=${token}`
       );
 
       if (response.data.comentarios) {
@@ -159,7 +159,7 @@ function Project() {
 
     try {
       const response = await axios.delete(
-        `/projetos/${Data.id}/comentar`,
+        `/projetos/${Data.id}/comentar/`,
         {
           params: { id_token: token }, 
           data: comentario 
