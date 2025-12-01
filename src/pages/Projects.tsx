@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg';
+import backgroundImage from '../assets/mainpage.jpg';
 import Loading from '../components/Loading';
 
 function Projects() {

@@ -3,7 +3,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import axios from 'axios';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
-import backgroundImage from '../images/mainpage.jpg';
+import backgroundImage from '../assets/mainpage.jpg';
 import Loading from '../components/Loading';
 
 function Produtos() {
