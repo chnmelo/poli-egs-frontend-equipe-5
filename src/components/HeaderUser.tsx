@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-// import { ArrowLeftStartOnRectangleIcon } from '@heroicons/react/20/solid';
-=======
 import { ArrowLeftStartOnRectangleIcon, ArrowRightStartOnRectangleIcon, UserCircleIcon } from '@heroicons/react/20/solid';
->>>>>>> bb14ec5 (bug fix)
 import Nav from 'react-bootstrap/Nav';
 import { useNavigate, Link } from 'react-router-dom'; // Importe Link
 
@@ -17,15 +13,9 @@ function HeaderUser() {
 
   return (
     <header className="bg-primary-color shadow text-light-color h-[10vh] w-full flex justify-between items-center px-4">     
-<<<<<<< HEAD
-      <Nav className="flex flex-1">
-        <Nav.Link href="/" className="mr-auto ml-8 relative flex items-center">
-          Início
-=======
       <Nav className="flex flex-1 items-center">
         <Nav.Link href="/" className="mr-6 relative flex items-center text-light-color hover:text-white transition-colors" title="Voltar para o Início">
           <ArrowLeftStartOnRectangleIcon className="w-8 h-8"/>
->>>>>>> bb14ec5 (bug fix)
         </Nav.Link>
         
         <div className="flex space-x-6">
