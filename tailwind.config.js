@@ -6,7 +6,11 @@ export default {
     "./src/components/Header/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'primary-color': 'var(--primary-color)',
+      },
+    },
   },
   plugins: [
     function ({ addUtilities }) {

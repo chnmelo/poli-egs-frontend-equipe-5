@@ -106,14 +106,14 @@ function ProjectsAdmin() {
 
   const handleUpdate = () => {
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data.projetos || []))
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data))
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
   const handleApprove = (project) => {
     const token = localStorage.getItem("authToken");
-    axios.put(`${import.meta.env.VITE_url_backend}/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
+    axios.put(`/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ function ProjectsAdmin() {
     const token = localStorage.getItem("authToken");
     axios
       .put(
-        `${import.meta.env.VITE_url_backend}/projeto_revisado/${
+        `/projeto_revisado/${
           project.id
         }/?novo_revisado=Reprovado&id_token=${token}`,
         null,
@@ -155,7 +155,7 @@ function ProjectsAdmin() {
       return
     }
     formData.append('file', selectedFile);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+    axios.post(`/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -173,7 +173,8 @@ function ProjectsAdmin() {
         formData.append('file_ids', integrante.id);
       }
     })
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/?id_token=${token}`, formData, {
+
+    axios.post(`/upload_fotos_integrantes/?id_token=${token}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -223,7 +224,7 @@ function ProjectsAdmin() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+    axios.post(`/projeto_add/?id_token=${token}`, NewProjectWithDefaults, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -273,10 +274,9 @@ function ProjectsAdmin() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data.projetos || []))
-      .catch((error) => console.error("Erro ao carregar projetos:", error))
-      .finally(() => setLoading(false));
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data.projetos))
+      .catch((error) => console.error("Erro ao carregar projetos:", error));
   }, []);
 
   const filteredProject = Array.isArray(Project)
@@ -527,9 +527,29 @@ function ProjectsAdmin() {
                     <input type="text" name="descricao" id="descricao" placeholder="Descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("descricao", e.target.value)}/>
                   </div>
                   <div className="w-[15vw] relative">
-                    <input type="file" className="hidden" name="logo" id="logo" onChange={(e: any) => setSelectedFile(e.target.files[0])}/>
-                    <label htmlFor="logo" className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${!selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"} hover:opacity-60 select-none whitespace-nowrap`}>
-                      {selectedFile ? <span>Modificar Logo</span> : <span>Atualizar Logo</span>}
+                    <input
+                      type="file"
+                      className="hidden"
+                      name="logo"
+                      id="logo"
+                      onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                    />
+                    <label
+                      htmlFor="logo"
+                      className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
+                        !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
+                      } hover:opacity-60 select-none whitespace-nowrap`}
+                      style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {selectedFile ? (
+                        <span>Modificar Logo</span>
+                      ) : (
+                        <span>Adicionar logo</span>
+                      )}
                       <FaFileUpload className="ml-2" />
                     </label>
                   </div>

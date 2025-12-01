@@ -1,27 +1,19 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../assets/firebaseConfig'
 
 function Logout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleLogout = async () => {
-        try {
-            await signOut(auth);
-            navigate('/login');
-        } catch (error) {
-        }
-    };
-
-    handleLogout();
+    // Limpa todos os dados salvos no login
+    localStorage.clear();
+    // Redireciona para o login
+    navigate('/login');
   }, [navigate]);
 
-
   return (
-    <div>Loggin out...</div>
+    <div>Saindo...</div>
   )
-};
+}
 
 export default Logout;

@@ -2,52 +2,44 @@ import { useState } from "react";
 import { Button, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/20/solid';
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function ModalComment({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
   const [comment, setComment] = useState("");
-  const [projectData, setProjectData] = useState(null);
 
   const handleShow = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const handleSendComment = () => {
     const token = localStorage.getItem("authToken");
-    const user = localStorage.getItem("userName")
+    const user = localStorage.getItem("userName");
+  
     if (!token) {
-      console.error("Token não encontrado. Usuário não autenticado.");
+      toast.warning("Você precisa estar logado para comentar.");
       return;
     }
   
-    // Verifica se o 'comment' e 'projectId' estão preenchidos
     if (!comment || !projectId) {
-      console.error("Comentário ou ID do projeto não fornecido.");
+      toast.warning("Escreva um comentário.");
       return;
     }
-    fetchProjectData();
-    // Requisição POST para enviar o comentário
-    axios.post(`${import.meta.env.VITE_url_backend}/projetos/${projectId}/comentar?usuario=${user}&comentario=${comment}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
 
-        setComment(""); // Limpa o campo de texto
-        handleClose(); // Fecha o modal ou qualquer outro fechamento de interface
+    axios.post(`/projetos/${projectId}/comentar/?usuario=${user}&comentario=${comment}&id_token=${token}`)
+      .then(() => {
+        setComment(""); 
+        toast.success("Comentário enviado!");
+        handleClose();
       })
       .catch((error) => { 
-        console.error("Erro ao enviar comentário:", error.response?.data || error.message);
+        console.error("Erro ao enviar comentário:", error);
+        const msg = error.response?.data?.detail || "Erro ao enviar comentário.";
+        if (msg.includes("token") || error.response?.status === 401) {
+            toast.error("Sessão expirada. Faça login novamente.");
+        } else {
+            toast.error(msg);
+        }
       });
-  };
-  const fetchProjectData = async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_url_backend}/projetos/${projectId}`);
-      setProjectData(response.data); // Armazena os dados do projeto no estado
-
-    } catch (error) {
-      console.error("Erro ao obter os dados do projeto:", error);
-    }
   };
 
   return (
@@ -57,16 +49,10 @@ export default function ModalComment({ projectId }: { projectId: string }) {
       </Button>
 
       <Dialog open={open} onClose={handleClose} className="relative z-10">
-        <DialogBackdrop
-          transition
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        />
+        <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <DialogPanel
-              transition
-              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg"
-            >
+            <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">
                   Adicionar Comentário
@@ -85,7 +71,7 @@ export default function ModalComment({ projectId }: { projectId: string }) {
                 <button
                   type="button"
                   onClick={handleSendComment}
-                  className="inline-flex w-full justify-center rounded-md bg-primary-color px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark sm:ml-3 sm:w-auto"
+                  className="inline-flex w-full justify-center rounded-md bg-primary-color px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 sm:ml-3 sm:w-auto"
                 >
                   Enviar
                 </button>

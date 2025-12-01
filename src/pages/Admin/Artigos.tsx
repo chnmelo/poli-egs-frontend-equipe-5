@@ -69,7 +69,7 @@ function ArticlesAdmin () {
 
   const handleApprove = (artigo) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/artigo_revisado/${artigo.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
+    axios.put(`/artigo_revisado/${artigo.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ function ArticlesAdmin () {
 
   const handleReprove = (artigo) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/artigo_revisado/${artigo.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
+    axios.put(`/artigo_revisado/${artigo.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ function ArticlesAdmin () {
   const handlePdfUpload = (id: string) => {
     const formData = new FormData();
     formData.append('file', file);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+    axios.post(`/upload_pdf_artigo/${id}/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -138,7 +138,7 @@ function ArticlesAdmin () {
       resumo: NewArticle.resumo || "Resumo ausente",
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/artigos_add?id_token=${token}`, NewArticleWithDefaults, {
+    axios.post(`/artigos_add/?id_token=${token}`, NewArticleWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -154,20 +154,20 @@ function ArticlesAdmin () {
   };
 
   const handleUpdate = () => {
-    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`).then(response => {
-      setArticle(response.data.artigos || []);
+    axios.get(`/artigos/`).then(response => {
+      setArticle(response.data);
     }).catch(error => {
       console.error('Erro ao atualizar artigo', error);
     });
   }; 
   
   useEffect(() => {
-    setLoading(true);
-    axios.get(`${import.meta.env.VITE_url_backend}/artigos/`)
-      .then(function (response) {
-        setArticle(response.data.artigos || [])
-      })
-      .finally(() => setLoading(false));
+    axios.get(`/artigos/`).then(function (response) {
+      setArticle(response.data)
+
+
+
+    })
   }, []);
 
   const filteredArticle = Array.isArray(Article) ? Article.filter((article) => {   

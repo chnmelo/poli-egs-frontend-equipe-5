@@ -16,7 +16,7 @@ export default function ModalPreview({ isOpen, onClose, title, data, type }: Mod
   const handleDownload = async () => {
     const endpoint = type === 'artigo' ? 'view_pdf_artigo' : 'view_pdf_produto';
     try {
-      const response = await axios.get(`${import.meta.env.VITE_url_backend}/${endpoint}/${data.id}`);
+      const response = await axios.get(`/${endpoint}/${data.id}/`);
       const url = response.data.url;
       if (url) {
         window.open(url, '_blank');

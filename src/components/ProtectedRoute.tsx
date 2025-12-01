@@ -1,16 +1,11 @@
-import { useAuth } from '../contexts/AuthContext'
 import { Outlet, Navigate } from 'react-router-dom';
 
 function ProtectedRoute() {
-    const { currentUser, loading }:any = useAuth();
+    // Verifica se existe um token salvo no armazenamento local
+    const token = localStorage.getItem('authToken');
 
-    if (loading) {
-        return <div>Loading...</div>
-    }
-
-  return (
-    currentUser ? <Outlet/> : <Navigate to="/login"/>
-  );
-};
+    // Se tiver token, renderiza a rota, senão manda para o login
+    return token ? <Outlet/> : <Navigate to="/login"/>;
+}
 
 export default ProtectedRoute;

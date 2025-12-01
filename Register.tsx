@@ -56,7 +56,7 @@ const Register = () => {
     }
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/register`, {
+      const response = await fetch(`/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const Register = () => {
             Cadastro realizado com sucesso! Um link de verificação foi enviado para o seu e-mail. Por favor, clique no link para ativar sua conta.
           </p>
           <button
-            onClick={() => navigate('/logintest')}
+            onClick={() => navigate('/login')}
             className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-300"
           >
             Ir para o Login
@@ -226,7 +226,7 @@ const Register = () => {
           <div className="mt-4 text-center">
             <p className="text-white">
               Já tem uma conta?{' '}
-              <a href="/logintest" className="text-blue-300 underline">
+              <a href="/login" className="text-blue-300 underline">
                 Faça login
               </a>
             </p>

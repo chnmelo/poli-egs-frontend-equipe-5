@@ -11,6 +11,7 @@ import { ProjectInt } from "../pages/Projects";
 import { useEffect, useState } from "react";
 import ModalCadastrarIntegrante from "../components/ModalCadastrarIntegrante";
 import { Navigate } from "react-router-dom";
+import { FaFileUpload } from "react-icons/fa";
 
 const semesterGenerator = (): string[] => {
   const current = new Date();
@@ -96,7 +97,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
         palavras_chave: stringToArray(UpdatedProject.palavras_chave),
       };
 
-      axios.put(`${import.meta.env.VITE_url_backend}/projetos/${project.id}/?id_token=${token}`, updatedProjectToSend)
+      axios.put(`/projetos/${project.id}/?id_token=${token}`, updatedProjectToSend)
       .then(response => {
         handleFotosUpload(project.id,integrantes)
       })
@@ -105,7 +106,7 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
           const formData = new FormData();
           formData.append("file", selectedFile);
 
-          axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${project.id}/?id_token=${token}`, formData, {
+          axios.post(`/upload_logo_projeto/${project.id}/?id_token=${token}`, formData, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
@@ -375,6 +376,33 @@ export default function ModalUpdate({ project, handleFotosUpload }/*: { project:
                         })
                       }
                     />
+                  </div>
+                  <div className="w-[15vw] relative mb-10">
+                    <input
+                      type="file"
+                      className="hidden"
+                      name="logo"
+                      id="logo-update"
+                      onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                    />
+                    <label
+                      htmlFor="logo-update"
+                      className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
+                        !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
+                      } hover:opacity-60 select-none whitespace-nowrap`}
+                      style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {selectedFile ? (
+                        <span>Logo selecionada!</span>
+                      ) : (
+                        <span>Atualizar logo</span>
+                      )}
+                      <FaFileUpload className="ml-2" />
+                    </label>
                   </div>
                 </div>
               </form>

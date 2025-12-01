@@ -106,7 +106,7 @@ function Userprojects() {
 
   const handleUpdate = () => {
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
+      .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos || [])) // Garante atualização correta
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
@@ -123,7 +123,7 @@ function Userprojects() {
     const formData = new FormData();
 
     formData.append('file', selectedFile);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+    axios.post(`/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -149,7 +149,7 @@ function Userprojects() {
       }
     })
 
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/?id_token=${token}`, formData, {
+    axios.post(`/upload_fotos_integrantes/?id_token=${token}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -208,7 +208,7 @@ function Userprojects() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+    axios.post(`/projeto_add/?id_token=${token}`, NewProjectWithDefaults, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -262,7 +262,7 @@ function Userprojects() {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
+      .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos || []))
       .catch((error) => console.error("Erro ao carregar projetos:", error))
       .finally(() => setLoading(false));
@@ -384,7 +384,11 @@ function Userprojects() {
                       ) : column.key === "comentar" ? (
                         <ModalComment projectId={project.id}></ModalComment>
                       ) : column.key === "curtir" ? (
-                        <ModalLikes projectId={project.id} />
+                        <ModalLikes 
+                          projectId={project.id} 
+                          initialLikes={project.curtidas}
+                          initialLikedUsers={project.user_curtidas_email}
+                        />
                       ) : column.key === "revisar" ? (
                         project.revisado
                       ) : (
