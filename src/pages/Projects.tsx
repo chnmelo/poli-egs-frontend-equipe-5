@@ -48,10 +48,6 @@ function Projects() {
         const data = response.data.projetos;
         setCards(data);
 
-<<<<<<< HEAD
-=======
-        // Extrai semestres únicos
->>>>>>> bb14ec5 (bug fix)
         const semesters = data.map((project) => project.semestre);
         const uniqueSemesters = [...new Set(semesters)];
         setSelectedSemesters(uniqueSemesters);
