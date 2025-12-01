@@ -5,8 +5,12 @@ import axios from 'axios';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+<<<<<<< HEAD
 import backgroundImage from '../images/mainpage.jpg';
 import Loading from '../components/Loading';
+=======
+import backgroundImage from '../assets/mainpage.jpg';
+>>>>>>> bb14ec5 (bug fix)
 
 function Projects() {
   const { slug } = useParams();
@@ -44,6 +48,10 @@ function Projects() {
         const data = response.data.projetos;
         setCards(data);
 
+<<<<<<< HEAD
+=======
+        // Extrai semestres únicos
+>>>>>>> bb14ec5 (bug fix)
         const semesters = data.map((project) => project.semestre);
         const uniqueSemesters = [...new Set(semesters)];
         setSelectedSemesters(uniqueSemesters);

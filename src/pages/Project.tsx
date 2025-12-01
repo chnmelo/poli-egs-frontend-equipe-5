@@ -3,9 +3,9 @@ import { CalendarIcon, Cog8ToothIcon, FolderIcon, UserGroupIcon, UserIcon, Heart
 import axios from 'axios';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import Footer from '../components/Footer';
-import iconImage from '../images/avatar.png'; // Verifique se o caminho está correto
+import iconImage from '../assets/avatar.png';
 import Header from '../components/Header';
-import backgroundImage from '../images/mainpage.jpg'; // Verifique se o caminho está correto
+import backgroundImage from '../assets/mainpage.jpg';
 import ModalIntegrantesProjeto from '../components/ModalIntegrantesProjeto';
 import { toast } from 'react-toastify';
 
@@ -13,23 +13,21 @@ function Project() {
   const { slug } = useParams();
   const navigate = useNavigate();
   
-  // Estados Unificados
   const [Data, setData] = useState<any>({});
   const [images, setImg] = useState<string | undefined>();
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [comentarios, setComentarios] = useState<any[]>([]);
   
-  // Estados do Modal
   const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
   const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
   
-  // Estados para o comentário
   const [commentText, setCommentText] = useState("");
   
   const token = localStorage.getItem('authToken');
   const userName = localStorage.getItem('userName');
+  const userEmail = localStorage.getItem('email'); // Necessário para verificar autoria
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-  // Função auxiliar para obter ID do YouTube
   const getYouTubeID = (url: string) => {
     if (!url) return '';
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -39,7 +37,6 @@ function Project() {
 
   const videoId = Data.pitch ? getYouTubeID(Data.pitch) : '';
 
-  // Manipulação do clique no integrante
   const handleClickIntegrante = async (pessoa: any) => {
     if (typeof pessoa === 'string') {
       setIntegranteSelecionado({ Nome: pessoa });
@@ -48,7 +45,7 @@ function Project() {
       const integranteFormatado = {
           Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
           Minibio: pessoa.minibio || pessoa.Minibio || "",
-          Foto: iconImage, // Foto padrão inicial
+          Foto: iconImage, 
           Lattes: pessoa.lattes || pessoa.Lattes || "",
           LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
           GitHub: pessoa.github || pessoa.GitHub || "",
@@ -56,7 +53,6 @@ function Project() {
           RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
       };
       
-      // Tenta buscar foto personalizada
       try {
         if (pessoa.id) {
             const response = await axios.get(`/view_fotos_integrantes/${pessoa.id}/`);
@@ -73,14 +69,29 @@ function Project() {
     }
   };
 
-  // useEffect ÚNICO para buscar dados
   useEffect(() => {
     if (slug) {
       const fetchData = async () => {
         try {
-          // 1. Busca dados do projeto
           const response = await axios.get(`/projetos/${slug}/`);
           const projeto = response.data;
+          
+          if (projeto.revisado !== "Aprovado") {
+            // Verifica se o usuário logado faz parte da equipe
+            const isAuthor = projeto.equipe?.some((membro: any) => {
+                // Tenta comparar por email se o objeto tiver, ou pelo nome (menos seguro, mas funcional se for string)
+                if (typeof membro === 'object' && membro.email === userEmail) return true;
+                return false; 
+            });
+
+            // Se não for admin E não for autor, bloqueia
+            if (!isAdmin && !isAuthor) {
+                toast.error("Este projeto não está disponível publicamente.");
+                navigate('/'); // Redireciona para a Home
+                return;
+            }
+          }
+
           const projectId = projeto.id;
 
           const equipeFormatada = (projeto.equipe || []).map((pessoa: any) => {
@@ -92,19 +103,15 @@ function Project() {
           setData({ ...projeto, equipe: equipeFormatada });
           setComentarios(projeto.comentarios || []);
 
-          // 2. Busca Logo e Galeria se houver ID
           if (projectId) {
-            // Logo
             axios.get(`/view_logo_projeto/${projectId}/`)
               .then((res) => setImg(res.data.url))
               .catch(() => console.log("Logo não encontrada"));
 
-            // Galeria
             axios.get(`/view_fotos_projeto/${projectId}/`)
               .then((res) => setGalleryImages(res.data.urls || []))
               .catch(() => setGalleryImages([]));
           } else {
-             // Fallback para buscar logo pelo slug se o ID falhar (mantendo sua lógica original)
              axios.get(`/view_logo_projeto/${slug}/`)
              .then((res) => setImg(res.data.url))
              .catch(() => {});
@@ -112,12 +119,13 @@ function Project() {
 
         } catch (error) {
           console.error("Erro ao carregar projeto:", error);
-          toast.error("Erro ao carregar projeto.");
+          toast.error("Erro ao carregar projeto ou projeto inexistente.");
+          navigate('/projetos');
         }
       };
       fetchData();
     }
-  }, [slug]);
+  }, [slug, navigate, userEmail, isAdmin]);
 
   const handleSendComment = async () => {
     if (!commentText.trim()) return;
@@ -130,7 +138,6 @@ function Project() {
       if (response.data.comentarios) {
         setComentarios(response.data.comentarios);
       } else {
-        // Fallback local caso o backend não retorne a lista atualizada
         const novoComentario = {
             username: userName,
             comentario: commentText,
@@ -145,9 +152,7 @@ function Project() {
     } catch (error: any) {
       console.error("Erro ao enviar comentário:", error);
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        toast.error("Sua sessão expirou. Faça login novamente.");
-        localStorage.clear();
-        setTimeout(() => navigate('/login'), 2000);
+        toast.error("Sessão expirada.");
       } else {
         toast.error(error.response?.data?.detail || "Erro ao enviar comentário.");
       }
@@ -176,11 +181,21 @@ function Project() {
     }
   };
 
+  // Flag para saber se pode interagir (apenas se Aprovado)
+  const isApproved = Data.revisado === "Aprovado";
+
   return (
     <>
       <Header />
       
-      {/* Seção Hero */}
+      {/* Aviso para o Autor/Admin se o projeto não estiver público */}
+      {!isApproved && Data.id && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-center">
+            <p className="font-bold">Atenção</p>
+            <p>Este projeto está com status <strong>{Data.revisado}</strong> e visível apenas para você e administradores.</p>
+        </div>
+      )}
+
       <section
         className="relative bg-cover bg-center h-[50vh] text-white"
         style={{ backgroundImage: `url(${images || backgroundImage})` }}
@@ -198,15 +213,16 @@ function Project() {
         <section className="bg-white shadow-2xl rounded-lg p-8 z-10">
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-3xl font-bold text-gray-800">Sobre o Projeto</h2>
-            <div className="flex items-center gap-2 text-gray-600">
-              <button className="p-2 rounded-full transition-colors hover:bg-red-100">
-                <HeartIcon className="h-8 w-8 text-red-500" />
-              </button>
-              <span className="font-semibold text-lg">{Data.curtidas || 0}</span>
-            </div>
+            
+            {isApproved && (
+                <div className="flex items-center gap-2 text-gray-600">
+                {/* Aqui seria o componente ModalLikes, mas simplificado para visualização */}
+                <HeartIcon className="h-8 w-8 text-red-500" title="Total de curtidas" />
+                <span className="font-semibold text-lg">{Data.curtidas || 0}</span>
+                </div>
+            )}
           </div>
 
-          {/* Imagem Thumb e Descrição */}
           <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
             <div className="flex-shrink-0">
               <div className="h-32 w-32 md:h-48 md:w-48 rounded-full overflow-hidden border-4 border-gray-200 shadow-md flex items-center justify-center">
@@ -235,7 +251,7 @@ function Project() {
           </section>
         )}
 
-        {/* Vídeo do pitch */}
+        {/* Vídeo */}
         {videoId && (
           <section className="bg-white shadow-2xl rounded-lg p-8 flex flex-col items-center w-full">
             <h2 className="text-3xl font-bold text-gray-800 mb-6 self-start">Vídeo de Apresentação</h2>
@@ -252,10 +268,10 @@ function Project() {
           </section>
         )}
 
-        {/* GRID DE INFORMAÇÕES (Equipe, Tech, etc) */}
+        {/* GRID DE INFORMAÇÕES */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            {/* 1. Equipe */}
+            {/* Equipe */}
             <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center bg-blue-600 text-white px-4 py-3">
                     <UserGroupIcon className="h-5 w-5 mr-2" />
@@ -276,7 +292,7 @@ function Project() {
                 </div>
             </section>
 
-            {/* 2. Tecnologias */}
+            {/* Tecnologias */}
             <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center bg-blue-600 text-white px-4 py-3">
                     <Cog8ToothIcon className="h-5 w-5 mr-2" />
@@ -291,7 +307,7 @@ function Project() {
                 </div>
             </section>
 
-             {/* 3. Cliente / Parceiro */}
+             {/* Parceiro */}
              <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center bg-blue-600 text-white px-4 py-3">
                     <UserIcon className="h-5 w-5 mr-2" />
@@ -302,7 +318,7 @@ function Project() {
                 </div>
             </section>
 
-            {/* 4. Semestre */}
+            {/* Semestre */}
             <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center bg-blue-600 text-white px-4 py-3">
                     <CalendarIcon className="h-5 w-5 mr-2" />
@@ -313,7 +329,7 @@ function Project() {
                 </div>
             </section>
 
-            {/* 5. Links Úteis */}
+            {/* Links Úteis */}
             <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center bg-blue-600 text-white px-4 py-3">
                     <FolderIcon className="h-5 w-5 mr-2" />
@@ -336,83 +352,86 @@ function Project() {
 
         </div>
 
-        {/* Seção de Comentários */}
-        <section className="bg-white shadow-2xl rounded-lg p-8 mt-4">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">Comentários</h2>
-          <hr className="border-t border-gray-200 mb-6" />
+        {isApproved ? (
+            <section className="bg-white shadow-2xl rounded-lg p-8 mt-4">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Comentários</h2>
+            <hr className="border-t border-gray-200 mb-6" />
 
-          {/* Formulário */}
-          <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
-            {token ? (
-              <>
-                <h3 className="text-lg font-medium mb-3 text-gray-800">Deixe seu comentário</h3>
-                <textarea
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                  placeholder="Escreva o que você achou deste projeto..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                ></textarea>
-                <div className="flex justify-end mt-3">
-                  <button
-                    onClick={handleSendComment}
-                    disabled={!commentText.trim()}
-                    className={`px-6 py-2 rounded-md text-white font-semibold transition-colors ${
-                      commentText.trim() 
-                        ? "bg-blue-600 hover:bg-blue-700" 
-                        : "bg-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    Enviar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-gray-600 mb-2">Faça login para comentar.</p>
-                <Link to="/login" className="text-blue-600 font-bold hover:underline">Ir para Login</Link>
-              </div>
-            )}
-          </div>
-
-          {/* Lista */}
-          <div className="flex flex-col gap-4">
-            {comentarios && comentarios.length > 0 ? (
-              comentarios.map((comentario: any, index: number) => (
-                <div key={index} className="flex items-start bg-white p-4 rounded-lg border border-gray-100 relative group shadow-sm">
-                  <div className="flex-shrink-0 mr-4">
-                     <img
-                        src={iconImage}
-                        alt="Avatar"
-                        className="w-10 h-10 rounded-full bg-gray-200"
-                      />
-                  </div>
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-baseline mb-1">
-                      <h4 className="text-md font-bold text-gray-900">{comentario.username || "Usuário"}</h4>
-                      <span className="text-xs text-gray-500">{comentario.data}</span>
-                    </div>
-                    <p className="text-gray-700">{comentario.comentario}</p>
-                  </div>
-                  
-                  {userName && comentario.username === userName && (
-                    <button 
-                        onClick={() => handleDeleteComment(comentario)}
-                        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
-                        title="Excluir"
+            <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                {token ? (
+                <>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800">Deixe seu comentário</h3>
+                    <textarea
+                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    placeholder="Escreva o que você achou deste projeto..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    ></textarea>
+                    <div className="flex justify-end mt-3">
+                    <button
+                        onClick={handleSendComment}
+                        disabled={!commentText.trim()}
+                        className={`px-6 py-2 rounded-md text-white font-semibold transition-colors ${
+                        commentText.trim() 
+                            ? "bg-blue-600 hover:bg-blue-700" 
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
                     >
-                        <TrashIcon className="h-5 w-5" />
+                        Enviar
                     </button>
-                  )}
+                    </div>
+                </>
+                ) : (
+                <div className="text-center py-4">
+                    <p className="text-gray-600 mb-2">Faça login para comentar.</p>
+                    <Link to="/login" className="text-blue-600 font-bold hover:underline">Ir para Login</Link>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  <p className="text-gray-500 italic">Seja o primeiro a comentar!</p>
-              </div>
-            )}
-          </div>
-        </section>
+                )}
+            </div>
+
+            <div className="flex flex-col gap-4">
+                {comentarios && comentarios.length > 0 ? (
+                comentarios.map((comentario: any, index: number) => (
+                    <div key={index} className="flex items-start bg-white p-4 rounded-lg border border-gray-100 relative group shadow-sm">
+                    <div className="flex-shrink-0 mr-4">
+                        <img
+                            src={iconImage}
+                            alt="Avatar"
+                            className="w-10 h-10 rounded-full bg-gray-200"
+                        />
+                    </div>
+                    <div className="flex-grow">
+                        <div className="flex justify-between items-baseline mb-1">
+                        <h4 className="text-md font-bold text-gray-900">{comentario.username || "Usuário"}</h4>
+                        <span className="text-xs text-gray-500">{comentario.data}</span>
+                        </div>
+                        <p className="text-gray-700">{comentario.comentario}</p>
+                    </div>
+                    
+                    {userName && comentario.username === userName && (
+                        <button 
+                            onClick={() => handleDeleteComment(comentario)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                            title="Excluir"
+                        >
+                            <TrashIcon className="h-5 w-5" />
+                        </button>
+                    )}
+                    </div>
+                ))
+                ) : (
+                <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <p className="text-gray-500 italic">Seja o primeiro a comentar!</p>
+                </div>
+                )}
+            </div>
+            </section>
+        ) : (
+            <div className="text-center text-gray-500 mt-10">
+                <p>Comentários e interações desativados para este projeto no momento.</p>
+            </div>
+        )}
 
       </main>
 

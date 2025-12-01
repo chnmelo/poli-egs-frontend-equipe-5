@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from '../images/backgroundlogin.jpg';
+import backgroundImage from '../assets/backgroundlogin.jpg';
 import axios from 'axios';
 
 const Login = () => {
@@ -13,17 +13,13 @@ const Login = () => {
     e.preventDefault();
     try {
       // 1. Enviar a requisição para o login com email e senha na URL
-      const response = await axios.post('/login/', null, {
-        params: { 
-            email: email, 
-            password: password 
-        }
-      });
+      const response = await axios.post('/login/', { 
+    email: email, 
+    password: password 
+});
   
       // O Axios já devolve o JSON em response.data
       const data = response.data;
-      // 2. Captura do token e dados do usuário
-      // const data = await response.json();
       // Verificando se o token foi retornado
       if (!data.idToken) {
         throw new Error('Token não encontrado');

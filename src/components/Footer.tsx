@@ -1,6 +1,6 @@
-import logoPoli from '../images/logo-poli.png';
-import logoUpe60 from '../images/logo-upe-60.png';
-import logoSCTIGov from '../images/logo-scti-gov.png';
+import logoPoli from '../assets/logo-poli.png';
+import logoUpe60 from '../assets/logo-upe-60.png';
+import logoSCTIGov from '../assets/logo-scti-gov.png';
 
 function Footer() {
   const currentYear = new Date().getFullYear();

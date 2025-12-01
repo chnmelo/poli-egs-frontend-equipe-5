@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
+import backgroundImage from '../assets/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
 import { Table } from 'react-bootstrap';
 import axios from 'axios';
 

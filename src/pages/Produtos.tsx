@@ -3,8 +3,12 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import axios from 'axios';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
+<<<<<<< HEAD
 import backgroundImage from '../images/mainpage.jpg';
 import Loading from '../components/Loading';
+=======
+import backgroundImage from '../assets/mainpage.jpg';
+>>>>>>> bb14ec5 (bug fix)
 
 function Produtos() {
   const [input, setInput] = useState("");

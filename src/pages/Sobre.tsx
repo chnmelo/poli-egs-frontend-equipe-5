@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
+import backgroundImage from '../assets/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
 
 function Sobre() {
   return (
@@ -63,7 +63,7 @@ function Sobre() {
               className="h-16"
             />
             <img
-              src="https://www.sad.pe.gov.br/images/logo.png"
+              src="https://www.sad.pe.gov.br/assets/logo.png"
               alt="SAD PE"
               className="h-16"
             />

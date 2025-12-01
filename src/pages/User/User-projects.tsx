@@ -18,14 +18,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
 import Loading from "../../components/Loading";
-import { EyeIcon } from "@heroicons/react/20/solid";
+import { EyeIcon, LockClosedIcon } from "@heroicons/react/20/solid";
+import RichTextEditor from "../../components/RichTextEditor";
 
 const columns = [
-  { key: "titulo", label: "Titulo" },
-  { key: "preview", label: "Visualizar" },
-  { key: "curtir", label: "Curtir" },
-  { key: "comentar", label: "Comentar" },
-  { key: "revisar", label: "Status" },
+  { key: "titulo", label: "Titulo", align: "text-left pl-3" },
+  { key: "equipe", label: "Autores", align: "text-left" },
+  { key: "preview", label: "Visualizar", align: "text-center" },
+  { key: "curtir", label: "Curtir", align: "text-center" },
+  { key: "comentar", label: "Comentar", align: "text-center" },
+  { key: "revisar", label: "Status", align: "text-center" }, 
 ];
 
 function Userprojects() {
@@ -60,10 +62,44 @@ function Userprojects() {
 
   const userIsAdmin = localStorage.getItem("isAdmin") === "true"; 
 
-  // Se for admin, redireciona para a rota correta
   if (userIsAdmin) {
     return <Navigate to="/admin-projects" />;
   }
+
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status}
+      </span>
+    );
+  };
+
+  const renderEquipe = (equipe: any) => {
+    if (!equipe) return "Não informado";
+    if (typeof equipe === "string") return equipe;
+    if (Array.isArray(equipe)) {
+        return equipe.map(membro => {
+            if (typeof membro === 'string') return membro;
+            return membro.nomeCompleto || membro.Nome || "";
+        }).filter(Boolean).join(", ");
+    }
+    return "Formato inválido";
+  };
 
   const validateFormWithData = (projectData) => {
     const requiredFields = [
@@ -107,7 +143,7 @@ function Userprojects() {
   const handleUpdate = () => {
     axios
       .get(`/projetos/`)
-      .then((response) => setProject(response.data.projetos || [])) // Garante atualização correta
+      .then((response) => setProject(response.data.projetos || [])) 
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
@@ -166,7 +202,6 @@ function Userprojects() {
       return;
     }
 
-    // Verificar novamente se todos os campos obrigatórios estão preenchidos
     if (!validateForm()) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
@@ -189,7 +224,6 @@ function Userprojects() {
       NewProject.user_curtidas_email
     );
 
-    // Atualiza os dados do projeto com os arrays processados
     const NewProjectWithDefaults = {
       id: NewProject.id || "default-id",
       titulo: NewProject.titulo,
@@ -258,7 +292,6 @@ function Userprojects() {
     }
   }, [open]);
 
-  // UseEffect de carregamento com Loading
   useEffect(() => {
     setLoading(true);
     axios
@@ -271,12 +304,25 @@ function Userprojects() {
   const filteredProject = Array.isArray(Project)
     ? Project.filter((project) => {
         const input = Input.toLowerCase();
+        
+        const checkEquipe = (equipe: any) => {
+            if (!equipe) return false;
+            if (typeof equipe === 'string') return equipe.toLowerCase().includes(input);
+            if (Array.isArray(equipe)) {
+                return equipe.some((membro: any) => {
+                    const nome = typeof membro === 'string' ? membro : (membro.nomeCompleto || membro.Nome || "");
+                    return nome.toLowerCase().includes(input);
+                });
+            }
+            return false;
+        };
+        // ---------------------------------
+
         return (
           project.titulo?.toLowerCase().includes(input) ||
-          project.palavras_chave?.some((p) =>
-            p.toLowerCase().includes(input)
-          ) ||
-          project.tema?.toLowerCase().includes(input)
+          project.palavras_chave?.some((p: string) => p.toLowerCase().includes(input)) ||
+          project.tema?.toLowerCase().includes(input) ||
+          checkEquipe(project.equipe) // Adiciona a verificação de autores
         );
       })
     : [];
@@ -327,7 +373,7 @@ function Userprojects() {
           name="searchbar"
           id="searchbar"
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
-          placeholder="Pesquise por título, tema, palavra-chave"
+          placeholder="Pesquise por título, tema, palavra-chave ou autor"
           value={Input}
           onChange={(e) => setInput(e.target.value)}
         />
@@ -342,9 +388,7 @@ function Userprojects() {
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={
-                      column.key === "titulo" ? "text-left" : "text-right "
-                    }
+                    className={column.align}
                   >
                     {column.label}
                   </th>
@@ -357,11 +401,7 @@ function Userprojects() {
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={`items-center py-3  ${
-                        column.key === "titulo"
-                          ? "text-left pl-3"
-                          : "text-right pr-3"
-                      }`}
+                      className={`items-center py-3 ${column.align}`}
                     >
                       {column.key === "preview" ? (
                         <a 
@@ -373,6 +413,10 @@ function Userprojects() {
                         >
                           <EyeIcon className="h-5 w-5" />
                         </a>
+                      ) : column.key === "equipe" ? (
+                        <span className="text-sm text-gray-700 truncate block max-w-[200px]" title={renderEquipe(project.equipe)}>
+                            {renderEquipe(project.equipe)}
+                        </span>
                       ) : column.key === "editar" ? (
                         <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
                       ) : column.key === "excluir" ? (
@@ -381,16 +425,36 @@ function Userprojects() {
                           id={project.id}
                           handleUpdate={handleUpdate}
                         />
+                      
                       ) : column.key === "comentar" ? (
-                        <ModalComment projectId={project.id}></ModalComment>
+                        project.revisado === "Aprovado" ? (
+                          <ModalComment projectId={project.id}></ModalComment>
+                        ) : (
+                          <span 
+                            className="text-gray-400 cursor-not-allowed inline-flex justify-center" 
+                            title="Apenas projetos aprovados podem receber comentários."
+                          >
+                             <LockClosedIcon className="h-4 w-4" />
+                          </span>
+                        )
                       ) : column.key === "curtir" ? (
-                        <ModalLikes 
-                          projectId={project.id} 
-                          initialLikes={project.curtidas}
-                          initialLikedUsers={project.user_curtidas_email}
-                        />
+                        project.revisado === "Aprovado" ? (
+                          <ModalLikes 
+                            projectId={project.id} 
+                            initialLikes={project.curtidas}
+                            initialLikedUsers={project.user_curtidas_email}
+                          />
+                        ) : (
+                          <span 
+                            className="text-gray-400 cursor-not-allowed inline-flex justify-center" 
+                            title="Apenas projetos aprovados podem receber curtidas."
+                          >
+                             <LockClosedIcon className="h-4 w-4" />
+                          </span>
+                        )
+
                       ) : column.key === "revisar" ? (
-                        project.revisado
+                        getStatusBadge(project.revisado)
                       ) : (
                         project.titulo
                       )}
@@ -402,7 +466,7 @@ function Userprojects() {
           </Table>
         )}
       </div>
-      {/* Modal de Cadastro */}
+      
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition

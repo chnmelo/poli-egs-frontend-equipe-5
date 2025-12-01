@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
+import { Button } from "@headlessui/react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -10,14 +10,10 @@ interface ModalLikesProps {
 }
 
 export default function ModalLikes({ projectId, initialLikes, initialLikedUsers }: ModalLikesProps) {
-  const [open, setOpen] = useState(false);
   const [likes, setLikes] = useState<number>(initialLikes || 0);
   const [isLiked, setIsLiked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleShow = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  // Função para pegar ou criar um ID de visitante anônimo
   const getVisitorId = () => {
     let visitorId = localStorage.getItem("visitorId");
     if (!visitorId) {
@@ -32,7 +28,6 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
     const visitorId = localStorage.getItem("visitorId");
     
     let identifier = email;
-    // Se não estiver logado, tenta identificar pelo ID de visitante
     if (!identifier && visitorId) {
         identifier = `anon_${visitorId}`;
     }
@@ -43,20 +38,15 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
     return false;
   };
 
-  // Atualiza estado se as props mudarem (ex: recarregamento da lista pai)
   useEffect(() => {
     if (initialLikes !== undefined) setLikes(initialLikes);
     if (initialLikedUsers !== undefined) setIsLiked(checkIsLiked(initialLikedUsers));
   }, [initialLikes, initialLikedUsers]);
 
-  // Garante dados frescos ao abrir o modal
-  useEffect(() => {
-    if (open) {
-      fetchProjectLikes();
-    }
-  }, [open]);
+  const handleLike = async () => {
+    if (loading) return;
+    setLoading(true);
 
-  const handleLike = () => {
     const token = localStorage.getItem("authToken");
     let url = `/projetos/${projectId}/curtir/?`;
 
@@ -67,40 +57,34 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
         url += `visitor_id=${vId}`;
     }
   
-    axios.post(url, {})
-      .then((response) => {
-        if (response.data.msg === 'Projeto descurtido com sucesso!') {
-            setIsLiked(false);
-        } else if (response.data.msg === 'Projeto curtido com sucesso!') {
-            setIsLiked(true);
-        }
-        setLikes(response.data.curtidas);
-      })
-      .catch((error) => {
-        console.error("Erro ao curtir:", error);
-        toast.error("Erro ao processar a curtida.");
-      });
-  };
-  
-  const fetchProjectLikes = async () => {
     try {
-      const response = await axios.get(`/projetos/${projectId}/`);
-      setLikes(response.data.curtidas);
-      if (response.data.user_curtidas_email) {
-          setIsLiked(checkIsLiked(response.data.user_curtidas_email));
+      const response = await axios.post(url, {});
+      
+      if (response.data.msg === 'Projeto descurtido com sucesso!') {
+          setIsLiked(false);
+      } else if (response.data.msg === 'Projeto curtido com sucesso!') {
+          setIsLiked(true);
       }
+      
+      if (response.data.curtidas !== undefined) {
+        setLikes(response.data.curtidas);
+      }
+      
     } catch (error) {
-      console.error("Erro ao obter curtidas:", error);
+      console.error("Erro ao curtir:", error);
+      toast.error("Erro ao processar a curtida.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
+    <div className="inline-flex items-center gap-2">
         <Button
-            onClick={handleShow}
-            // CORREÇÃO AQUI: 'inline-flex' para respeitar o alinhamento da tabela
-            className="text-dark-color h-full w-5 transition-transform hover:scale-110 inline-flex items-center gap-1 justify-center"
-            title={isLiked ? "Você curtiu este projeto" : "Clique para curtir"}
+            onClick={handleLike}
+            disabled={loading}
+            className={`text-dark-color h-full w-5 transition-transform hover:scale-110 inline-flex items-center gap-1 justify-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title={isLiked ? "Descurtir" : "Curtir"}
         >
             {isLiked ? (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6 text-red-500">
@@ -112,42 +96,9 @@ export default function ModalLikes({ projectId, initialLikes, initialLikedUsers 
                 </svg>
             )}
         </Button>
-
-        <Dialog open={open} onClose={handleClose} className="relative z-10">
-            <DialogBackdrop className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" />
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-                <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
-                    <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-2xl transition-all sm:w-full sm:max-w-lg">
-                        <div className="bg-gradient-to-br from-blue-50 to-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <DialogTitle as="h3" className="text-lg font-bold text-blue-800">
-                                Curtir Projeto
-                            </DialogTitle>
-                            <div className="mt-3 text-sm text-gray-700">
-                                <p>
-                                    Este projeto possui <span className="font-semibold text-blue-600">{likes !== null ? likes : 0}</span> {likes === 1 ? "curtida" : "curtidas"}.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="bg-gray-100 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                            <button
-                                type="button"
-                                onClick={handleLike}
-                                className={`inline-flex w-full justify-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-md transition sm:ml-3 sm:w-auto ${isLiked ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                            >
-                                {isLiked ? 'Descurtir' : 'Curtir'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                            >
-                                Fechar
-                            </button>
-                        </div>
-                    </DialogPanel>
-                </div>
-            </div>
-        </Dialog>
-    </>
+        <span className="text-sm font-semibold text-gray-700 select-none min-w-[20px] text-right">
+            {likes}
+        </span>
+    </div>
   );
 }

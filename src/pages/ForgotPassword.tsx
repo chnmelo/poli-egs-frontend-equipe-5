@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from '../images/backgroundlogin.jpg';
+import backgroundImage from '../assets/backgroundlogin.jpg';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

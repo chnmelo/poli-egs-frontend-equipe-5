@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import backgroundImage from '../images/backgroundlogin.jpg';
+import backgroundImage from '../assets/backgroundlogin.jpg';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from "axios";
