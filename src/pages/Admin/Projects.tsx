@@ -17,9 +17,12 @@ import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
+import Loading from "../../components/Loading";
+import { EyeIcon } from "@heroicons/react/20/solid";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
+  { key: "preview", label: "Visualizar" },
   { key: "curtir", label: "Curtir" },
   { key: "comentar", label: "Comentar" },
   { key: "editar", label: "Editar" },
@@ -31,9 +34,10 @@ const columns = [
 
 function ProjectsAdmin() {
   const [Input, setInput] = useState<string>("");
-  const [Project, setProject] = useState([]);
+  const [Project, setProject] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [formValid, setFormValid] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [NewProject, setNewProject] = useState({
     titulo: "",
@@ -44,8 +48,8 @@ function ProjectsAdmin() {
     tema: "",
     semestre: "",
     video_tecnico: "",
-    tecnologias_utilizadas: [] as string[], // Agora é um array de strings
-    palavras_chave: [] as string[], // Agora é um array de strings
+    tecnologias_utilizadas: [] as string[],
+    palavras_chave: [] as string[],
     id: "",
     link_repositorio: "",
     revisado: "",
@@ -54,17 +58,12 @@ function ProjectsAdmin() {
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
-
   const [changedTitle, setChangedTitle] = useState(true);
-
-  const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
-
   const [editIntegrante,setEditIntegrante] = useState(null);
   
-  const userIsAdmin = localStorage.getItem("isAdmin") === "true"; // Verificando se o usuário é admin no localStorage
+  const userIsAdmin = localStorage.getItem("isAdmin") === "true"; 
   
   if (!userIsAdmin) {
-    // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-projects" />;
   }
 
@@ -85,7 +84,6 @@ function ProjectsAdmin() {
 
     return requiredFields.every((field) => {
       const value = projectData[field];
-
       if (typeof value === "string") {
         return value.trim() !== "";
       } else if (Array.isArray(value)) {
@@ -102,7 +100,6 @@ function ProjectsAdmin() {
   const handleChangeProject = (field, value) => {
     const updatedProject = { ...NewProject, [field]: value };
     setNewProject(updatedProject);
-
     const isValid = validateFormWithData(updatedProject);
     setFormValid(isValid);
   };
@@ -167,12 +164,9 @@ function ProjectsAdmin() {
   }
 
   const handleFotosUpload = (id: string, equipe) => {
-
     if (equipe.map(integrante => {if (integrante.foto) integrante.foto}).length == 0 ) return;
-
     const token = localStorage.getItem('authToken')
     const formData = new FormData();
-
     equipe.forEach((integrante) => {
       if (integrante.foto instanceof File) {
         formData.append('files', integrante.foto);
@@ -191,13 +185,10 @@ function ProjectsAdmin() {
 
   const handlePost = () => {
     const token = localStorage.getItem("authToken");
-
     if (!token) {
       alert("Token de autenticação não encontrado.");
       return;
     }
-
-    // Verificar novamente se todos os campos obrigatórios estão preenchidos
     if (!validateForm()) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
@@ -206,21 +197,15 @@ function ProjectsAdmin() {
     const stringToArray = (value) => {
       if (Array.isArray(value)) return value;
       if (typeof value === "string")
-        return value
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
+        return value.split(",").map((s) => s.trim()).filter(Boolean);
       return [];
     };
 
     const tecnologiasArray = stringToArray(NewProject.tecnologias_utilizadas);
     const equipeArray = stringToArray(NewProject.equipe);
     const palavrasChaveArray = stringToArray(NewProject.palavras_chave);
-    const userCurtidasEmailArray = stringToArray(
-      NewProject.user_curtidas_email
-    );
+    const userCurtidasEmailArray = stringToArray(NewProject.user_curtidas_email);
 
-    // Atualiza os dados do projeto com os arrays processados
     const NewProjectWithDefaults = {
       id: NewProject.id || "default-id",
       titulo: NewProject.titulo,
@@ -252,27 +237,20 @@ function ProjectsAdmin() {
     .then((response) => {
       handleLogoUpload(response);
       toast.success("Projeto cadastrado com sucesso!");
-      return;
-    })
-    .then(response => {
       setProject([...Project, NewProjectWithDefaults])
       setOpen(false);
     })
     .catch((error) => {
       console.error("Erro ao adicionar projeto:", error);
       setChangedTitle(false);
-      toast.error(
-        `Erro ao cadastrar projeto: ${
-          error.response?.data?.detail || "Verifique sua conexão"}`);
+      toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || "Verifique sua conexão"}`);
     });
   };
 
   useEffect(() => {
     if (open) {
-      // Quando o modal é aberto, verifica a validade do formulário
       setFormValid(validateForm());
     } else {
-      // Quando o modal é fechado, reset do NewProject para o estado inicial
       setNewProject({
         titulo: "",
         descricao: "",
@@ -294,61 +272,45 @@ function ProjectsAdmin() {
   }, [open]);
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos))
       .catch((error) => console.error("Erro ao carregar projetos:", error));
   }, []);
 
-
   const filteredProject = Array.isArray(Project)
     ? Project.filter((project) => {
         const input = Input.toLowerCase();
         return (
           project.titulo?.toLowerCase().includes(input) ||
-          project.palavras_chave?.some((p) =>
-            p.toLowerCase().includes(input)
-          ) ||
+          project.palavras_chave?.some((p) => p.toLowerCase().includes(input)) ||
           project.tema?.toLowerCase().includes(input)
         );
       })
     : [];
+
   const semesterGenerator = (): string[] => {
     const current = new Date();
     const currentYear = current.getFullYear();
     const currentMonth = current.getMonth();
-
     const semesters: string[] = [];
-
     for (let year = 2023; year <= currentYear; year++) {
       semesters.push(`${year}.1`);
       if (year < currentYear || currentMonth >= 6) {
         semesters.push(`${year}.2`);
       }
     }
-
     return semesters.reverse();
   };
 
   return (
     <>
       <HeaderAdmin />
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
+      <ToastContainer position="top-center" autoClose={3000} theme="colored" />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-start text-dark-color ">
-            Projetos
-          </h1>
+          <h1 className="text-2xl font-bold text-start text-dark-color ">Projetos</h1>
           <button
             type="submit"
             onClick={() => setOpen(true)}
@@ -368,100 +330,94 @@ function ProjectsAdmin() {
         />
       </div>
       <div className="px-[13vw] pt-10">
-        <Table className="h-auto w-full">
-          <thead>
-            <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  className={
-                    column.key === "titulo"
-                      ? "text-left pl-3"
-                      : "text-right pr-3"
-                  }
-                >
-                  {column.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProject.map((project) => (
-              <tr key={project.id} className="border border-light-color">
+        {loading ? (
+          <Loading />
+        ) : (
+          <Table className="h-auto w-full">
+            <thead>
+              <tr>
                 {columns.map((column) => (
-                  <td
+                  <th
                     key={column.key}
-                    className={`items-center py-3 ${
-                      column.key === "titulo"
-                        ? "text-left pl-3"
-                        : "text-right pr-3"
-                    }`}
+                    className={column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}
                   >
-                    {column.key === "editar" ? (
-                      <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
-                    ) : column.key === "excluir" ? (
-                      <ModalDelete
-                        title={project.titulo}
-                        id={project.id}
-                        handleUpdate={handleUpdate}
-                      />
-                    ) : column.key === "comentar" ? (
-                      <ModalComment projectId={project.id} />
-                    ) : column.key === "revisar" ? (
-                      project.revisado
-                    ) : column.key === "botao" &&
-                      project.revisado === "Pendente" ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                        onClick={() => handleApprove(project)}
-                      >
-                        Aprovar
-                      </button>
-                    ) : column.key === "botao2" &&
-                      project.revisado === "Pendente" ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                        onClick={() => handleReprove(project)}
-                      >
-                        Reprovar
-                      </button>
-                    ) : column.key === "botao" &&
-                      project.revisado === "Reprovado" ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                        onClick={() => handleApprove(project)}
-                      >
-                        Aprovar
-                      </button>
-                    ) : column.key === "botao2" &&
-                      project.revisado === "Aprovado" ? (
-                      <button
-                        type="button"
-                        className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                        onClick={() => handleReprove(project)}
-                      >
-                        Reprovar
-                      </button>
-                    ) : column.key === "botao2" &&
-                      project.revisado === "Reprovado" ? (
-                      <div> </div>
-                    ) : column.key === "botao" &&
-                      project.revisado === "Aprovado" ? (
-                      <div> </div>
-                    ) : column.key === "curtir" ? (
-                      <ModalLikes projectId={project.id} />
-                    ) : (
-                      project.titulo
-                    )}
-                  </td>
+                    {column.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {filteredProject.map((project) => (
+                <tr key={project.id} className="border border-light-color">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
+                    >
+                      {column.key === "preview" ? (
+                        <a 
+                          href={`/projetos/${project.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block text-dark-color hover:text-blue-600 transition-colors"
+                          title="Visualizar projeto em nova guia"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </a>
+                      ) : column.key === "editar" ? (
+                        <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
+                      ) : column.key === "excluir" ? (
+                        <ModalDelete title={project.titulo} id={project.id} handleUpdate={handleUpdate} />
+                      ) : column.key === "comentar" ? (
+                        <ModalComment projectId={project.id} />
+                      ) : column.key === "curtir" ? (
+                        <ModalLikes projectId={project.id} />
+                      ) : column.key === "revisar" ? (
+                        project.revisado
+                      ) : column.key === "botao" && project.revisado === "Pendente" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
+                          onClick={() => handleApprove(project)}
+                        >
+                          Aprovar
+                        </button>
+                      ) : column.key === "botao2" && project.revisado === "Pendente" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
+                          onClick={() => handleReprove(project)}
+                        >
+                          Reprovar
+                        </button>
+                      ) : column.key === "botao" && project.revisado === "Reprovado" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
+                          onClick={() => handleApprove(project)}
+                        >
+                          Aprovar
+                        </button>
+                      ) : column.key === "botao2" && project.revisado === "Aprovado" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
+                          onClick={() => handleReprove(project)}
+                        >
+                          Reprovar
+                        </button>
+                      ) : (column.key === "botao" || column.key === "botao2") ? (
+                        <div></div>
+                      ) : (
+                        project.titulo
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </div>
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
@@ -487,12 +443,7 @@ function ProjectsAdmin() {
                 </div>
               </div>
               <form action="POST">
-                <div className="grid grid-cols-2 gap-y-[2vh] gap-x-8 pt-4 px-6">
-                  <div className="col-span-2">
-                    <h3 className="text-lg font-semibold whitespace-nowrap pl-[2px]">
-                      Equipe <span className="text-red-500">*</span>
-                    </h3>
-                  </div>
+                <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
                   <div className="col-span-2 flex items-center gap-4 mt-2">
                     <ModalCadastrarIntegrante
                       integrante={editIntegrante}
@@ -500,7 +451,6 @@ function ProjectsAdmin() {
                       setIntegrantes={(e) => handleChangeProject('equipe',e)}
                       onClose={() => {setEditIntegrante(null)}}
                     />
-
                     <div className="flex flex-wrap gap-2 max-w-[80%]">
                       {NewProject.equipe.length > 0 ? (
                         NewProject.equipe.map((int, idx) => (
@@ -516,7 +466,6 @@ function ProjectsAdmin() {
                             }}>
                             {int.nomeCompleto}
                             </button>
-
                             <button 
                             className="cursor-pointer text-red-600 hover:underline text:bold list-disc ml-3"
                             onClick={(e) => {
@@ -525,7 +474,6 @@ function ProjectsAdmin() {
                             }}>
                               X
                             </button>
-
                           </span>
                         ))
                       ) : (
@@ -536,165 +484,47 @@ function ProjectsAdmin() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Título <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="titulo"
-                      id="titulo"
-                      placeholder="Título"
-                      className="focus:outline-none border-b-2 w-full"
-                      onChange={(e) => {
-                        setChangedTitle(true);
-                        handleChangeProject("titulo", e.target.value);
-                      }}
-                    />
+                    <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
+                    <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) =>{ setChangedTitle(true); handleChangeProject("titulo", e.target.value) }}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Organização Parceira{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="cliente"
-                      id="cliente"
-                      placeholder="Ex: POLI/UPE"
-                      className="focus:outline-none border-b-2 w-full"
-                      onChange={(e) =>
-                        handleChangeProject("cliente", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
+                    <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("cliente", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Tema <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="tema"
-                      id="tema"
-                      placeholder="Ex: Engenharia de Software"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("tema", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tema" id="tema" placeholder="Ex: Engenharia de Software" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tema", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Semestre <span className="text-red-500">*</span>
-                    </h3>
-                    <select
-                      name="semestre"
-                      id="semestre"
-                      value={NewProject.semestre}
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => handleChangeProject('semestre',e.target.value)}
-                    >
+                    <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
+                    <select name="semestre" id="semestre" value={NewProject.semestre} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('semestre',e.target.value)}>
                       <option value="">Selecione um semestre</option>
-                      {semesterGenerator().map((semestre) => (
-                        <option key={semestre} value={semestre}>
-                          {semestre}
-                        </option>
-                      ))}
+                      {semesterGenerator().map((semestre) => (<option key={semestre} value={semestre}>{semestre}</option>))}
                     </select>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Tecnologias Utilizadas{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="tecnologias"
-                      id="tecnologias"
-                      placeholder="Tecnologia1,Tecnologia2,Tecnologia3"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject(
-                          "tecnologias_utilizadas",
-                          e.target.value
-                        )
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tecnologias" id="tecnologias" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tecnologias_utilizadas", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Link do Pitch <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="pitch"
-                      id="pitch"
-                      placeholder="Pitch"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("pitch", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Link do Pitch <span className="text-red-500">*</span></h3>
+                    <input type="text" name="pitch" id="pitch" placeholder="Pitch" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("pitch", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Link do Vídeo Técnico{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="video"
-                      id="video"
-                      placeholder="Vídeo Técnico"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("video_tecnico", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Link do Vídeo Técnico <span className="text-red-500">*</span></h3>
+                    <input type="text" name="video" id="video" placeholder="Vídeo Técnico" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("video_tecnico", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Repositório <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="repositorio"
-                      id="repositorio"
-                      placeholder="Repositório"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("link_repositorio", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Repositório <span className="text-red-500">*</span></h3>
+                    <input type="text" name="repositorio" id="repositorio" placeholder="Repositório" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("link_repositorio", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Palavras Chave <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="palavras"
-                      id="palavras"
-                      placeholder="Palavra1,Palavra2,Palavra3"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("palavras_chave", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Palavras Chave <span className="text-red-500">*</span></h3>
+                    <input type="text" name="palavras" id="palavras" placeholder="Palavra1,Palavra2,Palavra3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("palavras_chave", e.target.value)}/>
                   </div>
                   <div className="mb-10">
-                    <h3 className="text-lg font-semibold">
-                      Descrição <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="descricao"
-                      id="descricao"
-                      placeholder="Descrição"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("descricao", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
+                    <input type="text" name="descricao" id="descricao" placeholder="Descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("descricao", e.target.value)}/>
                   </div>
                   <div className="w-[15vw] relative">
                     <input
@@ -728,33 +558,27 @@ function ProjectsAdmin() {
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="button"
-                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                    formValid && changedTitle
-                      ? "bg-primary-color hover:bg-blue-700"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
+                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${formValid && changedTitle ? "bg-primary-color hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"}`}
                   onClick={handlePost}
-                  disabled={!formValid || !changedTitle}
+                  disabled={!formValid}
                 >
                   Enviar
                 </button>
                 <button
                   type="button"
                   data-autofocus
-                  onClick={() => {
-                    setOpen(false);
-				          }}
+                  onClick={() => { setOpen(false); }}
                   className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 >
                   Cancelar
                 </button>
-            </div>
-          </DialogPanel>
+              </div>
+            </DialogPanel>
+          </div>
         </div>
-      </div>
       </Dialog>
     </>
-  )
+  );
 }
 
 export default ProjectsAdmin;

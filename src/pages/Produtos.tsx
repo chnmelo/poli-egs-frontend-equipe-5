@@ -4,17 +4,20 @@ import Footer from '../components/Footer';
 import axios from 'axios';
 import { ArrowDownTrayIcon } from '@heroicons/react/20/solid';
 import backgroundImage from '../images/mainpage.jpg';
+import Loading from '../components/Loading';
 
 function Produtos() {
   const [input, setInput] = useState("");
   const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get(`/produtos/`)
       .then((response) => {
         setProdutos(response.data.produtos || []);
       })
-      .catch((error) => console.error('Erro ao carregar produtos:', error));
+      .catch((error) => console.error('Erro ao carregar produtos:', error))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleInputChange = (event) => {
@@ -98,52 +101,57 @@ function Produtos() {
       {/* Lista de produtos */}
       <section className="py-20 bg-gray-100">
         <div className="container mx-auto">
-          {filteredProdutos.filter(produto => produto.status === "Aprovado").length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProdutos
-                .filter(produto => produto.status === "Aprovado") // Filtra apenas os artigos aprovados
-                .map((produto) => (
-                  <div
-                    key={produto.id}
-                    className="bg-white rounded-xl shadow-lg p-6 flex flex-col"
-                  >
-                    <h2 className="text-2xl font-bold text-blue-600 mb-4">{produto.titulo}</h2>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Autor(es):</h3>
-                      <ul className="list-disc list-inside">
-                        {produto.equipe?.map((autor, index) => (
-                          <li key={index}>{autor}</li>
-                        )) || <p>Autor não informado</p>}
-                      </ul>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Tipo de produto:</h3>
-                      <p>{produto.tipo || "Tipo não informado"}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Semestre:</h3>
-                      <p>{produto.semestre || "Semesstre não disponível"}</p>
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-semibold">Descrição:</h3>
-                      <p>{produto.descricao || "Semesstre não disponível"}</p>
-                    </div>
-                    <button
-                      className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
-                      onClick={() => handleDownload(produto.id)}
-                    >
-                      <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                      Visualizar
-                    </button>
-                  </div>
-                ))}
-            </div>
+          {loading ? (
+            <Loading />
           ) : (
-            <p className="text-center text-gray-600">Nenhum produto encontrado.</p>
+            <>
+              {filteredProdutos.filter(produto => produto.status === "Aprovado").length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {filteredProdutos
+                    .filter(produto => produto.status === "Aprovado") // Filtra apenas os artigos aprovados
+                    .map((produto) => (
+                      <div
+                        key={produto.id}
+                        className="bg-white rounded-xl shadow-lg p-6 flex flex-col"
+                      >
+                        <h2 className="text-2xl font-bold text-blue-600 mb-4">{produto.titulo}</h2>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Autor(es):</h3>
+                          <ul className="list-disc list-inside">
+                            {produto.equipe?.map((autor, index) => (
+                              <li key={index}>{autor}</li>
+                            )) || <p>Autor não informado</p>}
+                          </ul>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Tipo de produto:</h3>
+                          <p>{produto.tipo || "Tipo não informado"}</p>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Semestre:</h3>
+                          <p>{produto.semestre || "Semesstre não disponível"}</p>
+                        </div>
+                        <div className="mb-4">
+                          <h3 className="font-semibold">Descrição:</h3>
+                          <p>{produto.descricao || "Semesstre não disponível"}</p>
+                        </div>
+                        <button
+                          className="mt-auto flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+                          onClick={() => handleDownload(produto.id)}
+                        >
+                          <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                          Visualizar
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-600">Nenhum produto encontrado.</p>
+              )}
+            </>
           )}
         </div>
       </section>
-
 
       <Footer />
     </>
