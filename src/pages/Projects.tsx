@@ -5,12 +5,8 @@ import axios from 'axios';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-<<<<<<< HEAD
 import backgroundImage from '../images/mainpage.jpg';
 import Loading from '../components/Loading';
-=======
-import backgroundImage from '../assets/mainpage.jpg';
->>>>>>> bb14ec5 (bug fix)
 
 function Projects() {
   const { slug } = useParams();
