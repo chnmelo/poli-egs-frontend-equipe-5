@@ -1,496 +1,615 @@
-import { useEffect, useState } from 'react';
-import { CalendarIcon, Cog8ToothIcon, FolderIcon, UserGroupIcon, UserIcon, HeartIcon, TrashIcon } from '@heroicons/react/20/solid';
-import axios from 'axios';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import Footer from '../components/Footer';
-import iconImage from '../assets/avatar.png';
-import Header from '../components/Header';
-import backgroundImage from '../assets/mainpage.jpg';
-import ModalIntegrantesProjeto from '../components/ModalIntegrantesProjeto';
-import { Carousel } from 'react-responsive-carousel';
-import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { toast } from 'react-toastify';
+import { Table } from "react-bootstrap";
+import HeaderAdmin from "../../components/HeaderAdmin";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ModalDelete from "../../components/ModalDelete";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import ModalUpdate from "../../components/ModalUpdate";
+import ModalComment from "../../components/ModalComment";
+import ModalLikes from "../../components/ModalLikes";
+import { FaFileUpload } from "react-icons/fa";
+import { Navigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
+import Loading from "../../components/Loading";
+import { EyeIcon } from "@heroicons/react/20/solid";
 
-function Project() {
-  const { slug } = useParams();
-  const navigate = useNavigate();
-  
-  const [Data, setData] = useState<any>({});
-  const [images, setImg] = useState<string | undefined>();
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [comentarios, setComentarios] = useState<any[]>([]);
-  
-  const [modalIntegranteAberto, setModalIntegranteAberto] = useState(false);
-  const [integranteSelecionado, setIntegranteSelecionado] = useState<any>(null);
-  const [fotoIntegrante, setFotoIntegrante] = useState([])
-  const [images_project, setImages_project] = useState([])
-  
-  const [commentText, setCommentText] = useState("");
-  
-  const token = localStorage.getItem('authToken');
-  const userName = localStorage.getItem('userName');
-  const userEmail = localStorage.getItem('email'); // Necessário para verificar autoria
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+const columns = [
+  { key: "titulo", label: "Titulo" },
+  { key: "preview", label: "Visualizar" },
+  { key: "curtir", label: "Curtir" },
+  { key: "comentar", label: "Comentar" },
+  { key: "editar", label: "Editar" },
+  { key: "excluir", label: "Excluir" },
+  { key: "revisar", label: "Status" },
+  { key: "botao", label: "" },
+  { key: "botao2", label: "" },
+];
 
-  const getYouTubeID = (url: string) => {
-    if (!url) return '';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : '';
+function ProjectsAdmin() {
+  const [Input, setInput] = useState<string>("");
+  const [Project, setProject] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
+  const [formValid, setFormValid] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [NewProject, setNewProject] = useState({
+    titulo: "",
+    descricao: "",
+    equipe: [],
+    cliente: "",
+    pitch: "",
+    tema: "",
+    semestre: "",
+    video_tecnico: "",
+    tecnologias_utilizadas: [] as string[],
+    palavras_chave: [] as string[],
+    id: "",
+    link_repositorio: "",
+    revisado: "",
+    curtidas: 0,
+    user_curtidas_email: [] as string[],
+  });
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [changedTitle, setChangedTitle] = useState(true);
+  const [editIntegrante,setEditIntegrante] = useState(null);
+  
+  const userIsAdmin = localStorage.getItem("isAdmin") === "true"; 
+  
+  if (!userIsAdmin) {
+    return <Navigate to="/user-projects" />;
+  }
+
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
   };
 
-  const videoId = Data.pitch ? getYouTubeID(Data.pitch) : '';
+  const validateFormWithData = (projectData) => {
+    const requiredFields = [
+      "titulo",
+      "cliente",
+      "semestre",
+      "pitch",
+      'equipe',
+      "link_repositorio",
+      "descricao",
+      "tema",
+      "tecnologias_utilizadas",
+      "video_tecnico",
+      "palavras_chave",
+    ];
 
-  const handleClickIntegrante = async (pessoa: any) => {
-    if (typeof pessoa === 'string') {
-      setIntegranteSelecionado({ Nome: pessoa });
-      setModalIntegranteAberto(true);
-    } else {
-      const integranteFormatado = {
-          Nome: pessoa.nomeCompleto || pessoa.Nome || "Nome não disponível",
-          Minibio: pessoa.minibio || pessoa.Minibio || "",
-          Foto: iconImage, 
-          Lattes: pessoa.lattes || pessoa.Lattes || "",
-          LinkedIn: pessoa.linkedin || pessoa.LinkedIn || "",
-          GitHub: pessoa.github || pessoa.GitHub || "",
-          Email: pessoa.email || pessoa.Email || "",
-          RedeSocial: pessoa.redeSocial || pessoa.RedeSocial || "",
-      };
-      
-      try {
-        if (pessoa.id) {
-            const response = await axios.get(`/view_fotos_integrantes/${pessoa.id}/`);
-            if (response.data.url){
-            integranteFormatado.Foto = response.data.url;
-            }
-        }
-      } catch (error) {
-        console.log("Sem foto personalizada, usando padrão.");
+    return requiredFields.every((field) => {
+      const value = projectData[field];
+      if (typeof value === "string") {
+        return value.trim() !== "";
+      } else if (Array.isArray(value)) {
+        return value.length > 0;
       }
-      
-      setIntegranteSelecionado(integranteFormatado);
-      setModalIntegranteAberto(true);
+      return false;
+    });
+  };
+
+  const validateForm = () => {
+    return validateFormWithData(NewProject);
+  };
+
+  const handleChangeProject = (field, value) => {
+    const updatedProject = { ...NewProject, [field]: value };
+    setNewProject(updatedProject);
+    const isValid = validateFormWithData(updatedProject);
+    setFormValid(isValid);
+  };
+
+  const handleUpdate = () => {
+    axios
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data.projetos || []))
+      .catch((error) => console.error("Erro ao atualizar projetos:", error));
+  };
+
+  const handleApprove = (project) => {
+    const token = localStorage.getItem("authToken");
+    axios.put(`/projeto_revisado/${project.id}/?novo_revisado=Aprovado&id_token=${token}`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    )
+    .then((response) => {
+      window.location.reload();
+    })
+    .catch((error) => console.error("Erro ao aprovar projeto:", error));
+  };
+
+  const handleReprove = (project) => {
+    const token = localStorage.getItem("authToken");
+    axios
+      .put(
+        `/projeto_revisado/${
+          project.id
+        }/?novo_revisado=Reprovado&id_token=${token}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        window.location.reload();
+      })
+      .catch((error) => console.error("Erro ao reprovar projeto:", error));
+  };
+
+  const handleLogoUpload = (id: string) => {
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    if (!selectedFile) {
+      setOpen(false);
+      return
     }
+    formData.append('file', selectedFile);
+    axios.post(`/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
+
+  const handleFotosUpload = (id: string, equipe) => {
+    if (equipe.map(integrante => {if (integrante.foto) integrante.foto}).length == 0 ) return;
+    const token = localStorage.getItem('authToken')
+    const formData = new FormData();
+    equipe.forEach((integrante) => {
+      if (integrante.foto instanceof File) {
+        formData.append('files', integrante.foto);
+        formData.append('file_ids', integrante.id);
+      }
+    })
+
+    axios.post(`/upload_fotos_integrantes/?id_token=${token}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .catch(error => console.log('Erro ao fazer upload da logo:', error))
+  }
+
+  const handlePost = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Token de autenticação não encontrado.");
+      return;
+    }
+    if (!validateForm()) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const stringToArray = (value) => {
+      if (Array.isArray(value)) return value;
+      if (typeof value === "string")
+        return value.split(",").map((s) => s.trim()).filter(Boolean);
+      return [];
+    };
+
+    const tecnologiasArray = stringToArray(NewProject.tecnologias_utilizadas);
+    const equipeArray = stringToArray(NewProject.equipe);
+    const palavrasChaveArray = stringToArray(NewProject.palavras_chave);
+    const userCurtidasEmailArray = stringToArray(NewProject.user_curtidas_email);
+
+    const NewProjectWithDefaults = {
+      id: NewProject.id || "default-id",
+      titulo: NewProject.titulo,
+      tema: NewProject.tema,
+      palavras_chave: palavrasChaveArray,
+      descricao: NewProject.descricao,
+      cliente: NewProject.cliente,
+      semestre: NewProject.semestre,
+      equipe: NewProject.equipe.map(({foto,...resto}) => resto),
+      link_repositorio: NewProject.link_repositorio,
+      tecnologias_utilizadas: tecnologiasArray,
+      video_tecnico: NewProject.video_tecnico,
+      pitch: NewProject.pitch,
+      revisado: NewProject.revisado || "Pendente",
+      curtidas: NewProject.curtidas || 0,
+      user_curtidas_email: userCurtidasEmailArray,
+    };
+
+    axios.post(`/projeto_add/?id_token=${token}`, NewProjectWithDefaults, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+    })
+    .then((response) => {
+      handleFotosUpload(response.data.projeto.id, NewProject.equipe);
+      return response.data.projeto.id;
+    })
+    .then((response) => {
+      handleLogoUpload(response);
+      toast.success("Projeto cadastrado com sucesso!");
+      setProject([...Project, NewProjectWithDefaults])
+      setOpen(false);
+    })
+    .catch((error) => {
+      console.error("Erro ao adicionar projeto:", error);
+      setChangedTitle(false);
+      toast.error(`Erro ao cadastrar projeto: ${error.response?.data?.detail || "Verifique sua conexão"}`);
+    });
   };
 
   useEffect(() => {
-    if (slug) {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(`/projetos/${slug}/`);
-          const projeto = response.data;
-          
-          if (projeto.revisado !== "Aprovado") {
-            // Verifica se o usuário logado faz parte da equipe
-            const isAuthor = projeto.equipe?.some((membro: any) => {
-                // Tenta comparar por email se o objeto tiver, ou pelo nome (menos seguro, mas funcional se for string)
-                if (typeof membro === 'object' && membro.email === userEmail) return true;
-                return false; 
-            });
-
-            // Se não for admin E não for autor, bloqueia
-            if (!isAdmin && !isAuthor) {
-                toast.error("Este projeto não está disponível publicamente.");
-                navigate('/'); // Redireciona para a Home
-                return;
-            }
-          }
-
-          const projectId = projeto.id;
-
-          const equipeFormatada = (projeto.equipe || []).map((pessoa: any) => {
-            if (typeof pessoa === 'string') return { nomeCompleto: pessoa };
-            if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
-            return pessoa;
-          });
-
-          setData({ ...projeto, equipe: equipeFormatada });
-          setComentarios(projeto.comentarios || []);
-
-          if (projeto.imagens && Array.isArray(projeto.imagens)) {
-            setGalleryImages(projeto.imagens);
-          } else {
-              setGalleryImages([]);
-          }
-
-          if (projectId) {
-            axios.get(`/view_logo_projeto/${projectId}/`)
-              .then((res) => setImg(res.data.url))
-              .catch(() => console.log("Logo não encontrada"));
-              
-          } else {
-            axios.get(`/view_logo_projeto/${slug}/`)
-            .then((res) => setImg(res.data.url))
-            .catch(() => {});
-          }
-
-        } catch (error) {
-          console.error("Erro ao carregar projeto:", error);
-          toast.error("Erro ao carregar projeto ou projeto inexistente.");
-          navigate('/projetos');
-        }
-      };
-      fetchData();
+    if (open) {
+      setFormValid(validateForm());
+    } else {
+      setNewProject({
+        titulo: "",
+        descricao: "",
+        equipe: [],
+        cliente: "",
+        pitch: "",
+        tema: "",
+        semestre: "",
+        video_tecnico: "",
+        tecnologias_utilizadas: [],
+        palavras_chave: [],
+        id: "",
+        link_repositorio: "",
+        revisado: "",
+        curtidas: 0,
+        user_curtidas_email: [],
+      });
     }
-  }, [slug, navigate, userEmail, isAdmin]);
+  }, [open]);
 
-  const handleSendComment = async () => {
-    if (!commentText.trim()) return;
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data.projetos || []))
+      .catch((error) => console.error("Erro ao carregar projetos:", error))
+      .finally(() => setLoading(false));
+  }, []);
 
-    try {
-      const response = await axios.post(
-        `/projetos/${Data.id}/comentar/?usuario=${userName}&comentario=${commentText}&id_token=${token}`
-      );
+  const filteredProject = Array.isArray(Project)
+    ? Project.filter((project) => {
+        const input = Input.toLowerCase();
+        return (
+          project.titulo?.toLowerCase().includes(input) ||
+          project.palavras_chave?.some((p: string) => p.toLowerCase().includes(input)) ||
+          project.tema?.toLowerCase().includes(input)
+        );
+      })
+    : [];
 
-      if (response.data.comentarios) {
-        setComentarios(response.data.comentarios);
-      } else {
-        const novoComentario = {
-            username: userName,
-            comentario: commentText,
-            data: new Date().toLocaleDateString('pt-BR')
-        };
-        setComentarios([...comentarios, novoComentario]);
-      }
-      
-      setCommentText("");
-      toast.success("Comentário enviado!"); 
-
-    } catch (error: any) {
-      console.error("Erro ao enviar comentário:", error);
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        toast.error("Sessão expirada.");
-      } else {
-        toast.error(error.response?.data?.detail || "Erro ao enviar comentário.");
+  const semesterGenerator = (): string[] => {
+    const current = new Date();
+    const currentYear = current.getFullYear();
+    const currentMonth = current.getMonth();
+    const semesters: string[] = [];
+    for (let year = 2023; year <= currentYear; year++) {
+      semesters.push(`${year}.1`);
+      if (year < currentYear || currentMonth >= 6) {
+        semesters.push(`${year}.2`);
       }
     }
+    return semesters.reverse();
   };
-
-  const handleDeleteComment = async (comentario: any) => {
-    if (!window.confirm("Deseja realmente apagar este comentário?")) return;
-
-    try {
-      const response = await axios.delete(
-        `/projetos/${Data.id}/comentar/`,
-        {
-          params: { id_token: token }, 
-          data: comentario 
-        }
-      );
-
-      if (response.data.comentarios) {
-        setComentarios(response.data.comentarios);
-        toast.success("Comentário removido!");
-      }
-    } catch (error: any) {
-        console.error("Erro ao deletar:", error);
-        toast.error("Erro ao excluir comentário.");
-    }
-  };
-
-  // Flag para saber se pode interagir (apenas se Aprovado)
-  const isApproved = Data.revisado === "Aprovado";
 
   return (
     <>
-      <Header />
-      
-      {/* Aviso para o Autor/Admin se o projeto não estiver público */}
-      {!isApproved && Data.id && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 text-center">
-            <p className="font-bold">Atenção</p>
-            <p>Este projeto está com status <strong>{Data.revisado}</strong> e visível apenas para você e administradores.</p>
-        </div>
-      )}
-
-      <section
-        className="relative bg-cover bg-center h-[50vh] text-white"
-        style={{ backgroundImage: `url(${images || backgroundImage})` }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-70" />
-        <div className="relative z-10 flex flex-col items-center justify-center h-full p-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4">{Data.titulo}</h1>
-          <p className="text-lg md:text-xl max-w-3xl">{Data.resumo}</p>
-        </div>
-      </section>
-
-      <main className="flex flex-col gap-14 px-[10vw] lg:px-[15vw] mb-20 pb-20 -mt-16">
-        
-        {/* Carousel projeto */}
-        <section className="flex flex-col items-center w-full mt-12">
-          <Carousel 
-          className='flex flex-col md:flex-row items-center gap-4 bg-white shadow-lg rounded-lg p-4 md:p-4 max-w-4xl w-full'
-          
-          showThumbs={false} 
-          autoPlay={false}>
-            {Data.pitch && (<div>
-              <iframe
-                width="560"
-                height="400"
-                src={"https://www.youtube.com/embed/" + Data.pitch}
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              ></iframe>
-              <p className="legend">Video demonstração</p>
-            </div>)}
-            {images_project.map((image, index) => (
-              <div key={index}>
-                <img src={image} style={{height: 400, width: 560}} alt={`Project Image ${index + 1}`}/>
-                <p className="legend">Imagem {index + 1}</p>
-              </div>
-              ))}
-          </Carousel>
+      <HeaderAdmin />
+      <ToastContainer position="top-center" autoClose={3000} theme="colored" />
+      <div className="flex flex-col px-[13vw] pt-10 gap-6">
+        <section className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-start text-dark-color ">Projetos</h1>
+          <button
+            type="submit"
+            onClick={() => setOpen(true)}
+            className="rounded-md bg-primary-color h-full w-[15vw] text-white"
+          >
+            Novo projeto
+          </button>
         </section>
-        {/* Sobre o Projeto e Likes */}
-        <section className="bg-white shadow-2xl rounded-lg p-8 z-10">
-          <div className="flex justify-between items-start mb-6">
-            <h2 className="text-3xl font-bold text-gray-800">Sobre o Projeto</h2>
-            
-            {isApproved && (
-                <div className="flex items-center gap-2 text-gray-600">
-                {/* Aqui seria o componente ModalLikes, mas simplificado para visualização */}
-                <HeartIcon className="h-8 w-8 text-red-500" title="Total de curtidas" />
-                <span className="font-semibold text-lg">{Data.curtidas || 0}</span>
-                </div>
-            )}
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
-            <div className="flex-shrink-0">
-              <div className="h-32 w-32 md:h-48 md:w-48 rounded-full overflow-hidden border-4 border-gray-200 shadow-md flex items-center justify-center">
-                <img className="w-full h-full object-cover" src={images || iconImage} alt="Project Thumbnail" />
-              </div>
-            </div>
-            <div className="flex flex-col justify-center text-center md:text-left w-full">
-               <p className="text-gray-700 text-lg leading-relaxed">
-                {Data.descricao || "Descrição do projeto não disponível."}
-              </p>
-            </div>
-          </div>
-        </section>
-        
-        {/* Vídeo do pitch */}
-        {/* <section className="flex flex-col items-center w-full mt-12">
-          <iframe
-            width="560"
-            height="315"
-            src={"https://www.youtube.com/embed/" + Data.pitch}
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          ></iframe>
-        </section> */}
-
-        {/* Galeria */}
-        {galleryImages.length > 0 && (
-          <section className="bg-white shadow-2xl rounded-lg p-8">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Galeria</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {galleryImages.map((url, index) => (
-                <div key={index} className="overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                  <img src={url} alt={`Imagem da galeria ${index}`} className="w-full h-full object-cover"/>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Vídeo */}
-        {videoId && (
-          <section className="bg-white shadow-2xl rounded-lg p-8 flex flex-col items-center w-full">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 self-start">Vídeo de Apresentação</h2>
-            <div className="aspect-w-16 aspect-h-9 w-full h-[400px]">
-              <iframe
-                className="w-full h-full rounded-lg"
-                src={`https://www.youtube.com/embed/${videoId}`}
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              ></iframe>
-            </div>
-          </section>
-        )}
-
-        {/* GRID DE INFORMAÇÕES */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* Equipe */}
-            <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex items-center bg-blue-600 text-white px-4 py-3">
-                    <UserGroupIcon className="h-5 w-5 mr-2" />
-                    <h2 className="text-base font-semibold">Equipe</h2>
-                </div>
-                <div className="p-4">
-                    <ul className="list-disc ml-5 text-gray-700">
-                        {Array.isArray(Data.equipe) && Data.equipe.map((pessoa: any, index: number) => (
-                            <li
-                                key={index}
-                                className="cursor-pointer text-blue-600 hover:underline hover:text-blue-800"
-                                onClick={() => handleClickIntegrante(pessoa)}
-                            >
-                                {pessoa.nomeCompleto || "Nome não disponível"}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </section>
-
-            {/* Tecnologias */}
-            <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex items-center bg-blue-600 text-white px-4 py-3">
-                    <Cog8ToothIcon className="h-5 w-5 mr-2" />
-                    <h2 className="text-base font-semibold">Tecnologias</h2>
-                </div>
-                <div className="p-4 flex flex-wrap gap-2">
-                    {Data.tecnologias_utilizadas?.map((tech: string, index: number) => (
-                        <span key={index} className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                            {tech}
-                        </span>
-                    ))}
-                </div>
-            </section>
-
-             {/* Parceiro */}
-             <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex items-center bg-blue-600 text-white px-4 py-3">
-                    <UserIcon className="h-5 w-5 mr-2" />
-                    <h2 className="text-base font-semibold">Parceiro</h2>
-                </div>
-                <div className="p-4">
-                    <p className="text-gray-700">{Data.cliente || "Não informado"}</p>
-                </div>
-            </section>
-
-            {/* Semestre */}
-            <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex items-center bg-blue-600 text-white px-4 py-3">
-                    <CalendarIcon className="h-5 w-5 mr-2" />
-                    <h2 className="text-base font-semibold">Semestre</h2>
-                </div>
-                <div className="p-4">
-                    <p className="text-gray-700">{Data.semestre || "Não informado"}</p>
-                </div>
-            </section>
-
-            {/* Links Úteis */}
-            <section className="flex flex-col border border-gray-200 bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="flex items-center bg-blue-600 text-white px-4 py-3">
-                    <FolderIcon className="h-5 w-5 mr-2" />
-                    <h2 className="text-base font-semibold">Links Úteis</h2>
-                </div>
-                <div className="p-4 flex flex-col gap-2">
-                     {Data.link_repositorio && (
-                        <a href={Data.link_repositorio} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Repositório GitHub
-                        </a>
-                     )}
-                     {Data.video_tecnico && (
-                        <a href={Data.video_tecnico} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            Vídeo Técnico
-                        </a>
-                     )}
-                     {!Data.link_repositorio && !Data.video_tecnico && <span className="text-gray-500">Nenhum link disponível</span>}
-                </div>
-            </section>
-
-        </div>
-
-        {isApproved ? (
-            <section className="bg-white shadow-2xl rounded-lg p-8 mt-4">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Comentários</h2>
-            <hr className="border-t border-gray-200 mb-6" />
-
-            <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
-                {token ? (
-                <>
-                    <h3 className="text-lg font-medium mb-3 text-gray-800">Deixe seu comentário</h3>
-                    <textarea
-                    className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows={3}
-                    placeholder="Escreva o que você achou deste projeto..."
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    ></textarea>
-                    <div className="flex justify-end mt-3">
-                    <button
-                        onClick={handleSendComment}
-                        disabled={!commentText.trim()}
-                        className={`px-6 py-2 rounded-md text-white font-semibold transition-colors ${
-                        commentText.trim() 
-                            ? "bg-blue-600 hover:bg-blue-700" 
-                            : "bg-gray-400 cursor-not-allowed"
-                        }`}
-                    >
-                        Enviar
-                    </button>
-                    </div>
-                </>
-                ) : (
-                <div className="text-center py-4">
-                    <p className="text-gray-600 mb-2">Faça login para comentar.</p>
-                    <Link to="/login" className="text-blue-600 font-bold hover:underline">Ir para Login</Link>
-                </div>
-                )}
-            </div>
-
-            <div className="flex flex-col gap-4">
-                {comentarios && comentarios.length > 0 ? (
-                comentarios.map((comentario: any, index: number) => (
-                    <div key={index} className="flex items-start bg-white p-4 rounded-lg border border-gray-100 relative group shadow-sm">
-                    <div className="flex-shrink-0 mr-4">
-                        <img
-                            src={iconImage}
-                            alt="Avatar"
-                            className="w-10 h-10 rounded-full bg-gray-200"
-                        />
-                    </div>
-                    <div className="flex-grow">
-                        <div className="flex justify-between items-baseline mb-1">
-                        <h4 className="text-md font-bold text-gray-900">{comentario.username || "Usuário"}</h4>
-                        <span className="text-xs text-gray-500">{comentario.data}</span>
-                        </div>
-                        <p className="text-gray-700">{comentario.comentario}</p>
-                    </div>
-                    
-                    {userName && comentario.username === userName && (
-                        <button 
-                            onClick={() => handleDeleteComment(comentario)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
-                            title="Excluir"
-                        >
-                            <TrashIcon className="h-5 w-5" />
-                        </button>
-                    )}
-                    </div>
-                ))
-                ) : (
-                <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                    <p className="text-gray-500 italic">Seja o primeiro a comentar!</p>
-                </div>
-                )}
-            </div>
-            </section>
+        <input
+          type="search"
+          name="searchbar"
+          id="searchbar"
+          className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
+          placeholder="Pesquise por título, tema, palavra-chave"
+          value={Input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+      </div>
+      <div className="px-[13vw] pt-10">
+        {loading ? (
+          <Loading />
         ) : (
-            <div className="text-center text-gray-500 mt-10">
-                <p>Comentários e interações desativados para este projeto no momento.</p>
-            </div>
+          <Table className="h-auto w-full table-fixed">
+            <thead>
+              <tr>
+                {columns.map((column) => (
+                  <th
+                    key={column.key}
+                    className={`${column.key === "titulo" ? "text-left pl-3 w-1/4" : "text-center w-auto"} `}
+                  >
+                    {column.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProject.map((project) => (
+                <tr key={project.id} className="border border-light-color">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-center"}`}
+                    >
+                      {column.key === "preview" ? (
+                        <a 
+                          href={`/projetos/${project.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block text-dark-color hover:text-blue-600 transition-colors"
+                          title="Visualizar projeto em nova guia"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </a>
+                      ) : column.key === "editar" ? (
+                        <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
+                      ) : column.key === "excluir" ? (
+                        <ModalDelete title={project.titulo} id={project.id} handleUpdate={handleUpdate} />
+                      ) : column.key === "comentar" ? (
+                        <ModalComment projectId={project.id} />
+                      ) : column.key === "curtir" ? (
+                        <ModalLikes 
+                          projectId={project.id} 
+                          initialLikes={project.curtidas} 
+                          initialLikedUsers={project.user_curtidas_email} 
+                        />
+                      ) : column.key === "revisar" ? (
+                        getStatusBadge(project.revisado)
+                      ) : column.key === "botao" && project.revisado === "Pendente" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
+                          onClick={() => handleApprove(project)}
+                        >
+                          Aprovar
+                        </button>
+                      ) : column.key === "botao2" && project.revisado === "Pendente" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
+                          onClick={() => handleReprove(project)}
+                        >
+                          Reprovar
+                        </button>
+                      ) : column.key === "botao" && project.revisado === "Reprovado" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
+                          onClick={() => handleApprove(project)}
+                        >
+                          Aprovar
+                        </button>
+                      ) : column.key === "botao2" && project.revisado === "Aprovado" ? (
+                        <button
+                          type="button"
+                          className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
+                          onClick={() => handleReprove(project)}
+                        >
+                          Reprovar
+                        </button>
+                      ) : (column.key === "botao" || column.key === "botao2") ? (
+                        <div></div>
+                      ) : (
+                        // Ajuste para truncar o título
+                        <div className="truncate max-w-[200px]" title={project.titulo}>
+                            {project.titulo}
+                        </div>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         )}
-
-      </main>
-
-      <ModalIntegrantesProjeto
-        isOpen={modalIntegranteAberto}
-        onClose={() => setModalIntegranteAberto(false)}
-        integrante={integranteSelecionado}
-      />
-      
-      <Footer />
+      </div>
+      <Dialog open={open} onClose={setOpen} className="relative z-10">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
+        />
+        <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <DialogPanel
+              transition
+              className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-[40vw] data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            >
+              <div className="bg-[#D8DBE2] pt-5 sm:p-3 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <DialogTitle
+                      as="h2"
+                      className="text-lg font-semibold leading-6 text-dark-color"
+                    >
+                      Cadastrar novo projeto
+                    </DialogTitle>
+                  </div>
+                </div>
+              </div>
+              <form action="POST">
+                <div className="grid grid-cols-2 justify-start pt-4 px-6 gap-y-[2vh]">
+                  <div className="col-span-2 flex items-center gap-4 mt-2">
+                    <ModalCadastrarIntegrante
+                      integrante={editIntegrante}
+                      integrantes={NewProject.equipe}
+                      setIntegrantes={(e) => handleChangeProject('equipe',e)}
+                      onClose={() => {setEditIntegrante(null)}}
+                    />
+                    <div className="flex flex-wrap gap-2 max-w-[80%]">
+                      {NewProject.equipe.length > 0 ? (
+                        NewProject.equipe.map((int, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
+                          >
+                            <button 
+                            className="cursor-pointer text-blue-600 hover:underline text:bold list-disc"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              setEditIntegrante(int)
+                            }}>
+                            {int.nomeCompleto}
+                            </button>
+                            <button 
+                            className="cursor-pointer text-red-600 hover:underline text:bold list-disc ml-3"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleChangeProject('equipe',NewProject.equipe.filter(i => i !== int))
+                            }}>
+                              X
+                            </button>
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-gray-500">
+                          Nenhum integrante adicionado
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
+                    <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) =>{ setChangedTitle(true); handleChangeProject("titulo", e.target.value) }}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
+                    <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("cliente", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tema" id="tema" placeholder="Ex: Engenharia de Software" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tema", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
+                    <select name="semestre" id="semestre" value={NewProject.semestre} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('semestre',e.target.value)}>
+                      <option value="">Selecione um semestre</option>
+                      {semesterGenerator().map((semestre) => (<option key={semestre} value={semestre}>{semestre}</option>))}
+                    </select>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tecnologias" id="tecnologias" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tecnologias_utilizadas", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link do Pitch <span className="text-red-500">*</span></h3>
+                    <input type="text" name="pitch" id="pitch" placeholder="Pitch" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("pitch", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Link do Vídeo Técnico <span className="text-red-500">*</span></h3>
+                    <input type="text" name="video" id="video" placeholder="Vídeo Técnico" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("video_tecnico", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Repositório <span className="text-red-500">*</span></h3>
+                    <input type="text" name="repositorio" id="repositorio" placeholder="Repositório" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("link_repositorio", e.target.value)}/>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Palavras Chave <span className="text-red-500">*</span></h3>
+                    <input type="text" name="palavras" id="palavras" placeholder="Palavra1,Palavra2,Palavra3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("palavras_chave", e.target.value)}/>
+                  </div>
+                  <div className="mb-10">
+                    <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
+                    <input type="text" name="descricao" id="descricao" placeholder="Descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("descricao", e.target.value)}/>
+                  </div>
+                  <div className="w-[15vw] relative">
+                    <input
+                      type="file"
+                      className="hidden"
+                      name="logo"
+                      id="logo"
+                      onChange={(e: any) => setSelectedFile(e.target.files[0])}
+                    />
+                    <label
+                      htmlFor="logo"
+                      className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
+                        !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
+                      } hover:opacity-60 select-none whitespace-nowrap`}
+                      style={{
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {selectedFile ? (
+                        <span>Modificar Logo</span>
+                      ) : (
+                        <span>Adicionar logo</span>
+                      )}
+                      <FaFileUpload className="ml-2" />
+                    </label>
+                  </div>
+                </div>
+              </form>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                <button
+                  type="button"
+                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${formValid && changedTitle ? "bg-primary-color hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"}`}
+                  onClick={handlePost}
+                  disabled={!formValid}
+                >
+                  Enviar
+                </button>
+                <button
+                  type="button"
+                  data-autofocus
+                  onClick={() => { setOpen(false); }}
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
     </>
   );
 }
 
-export default Project;
+export default ProjectsAdmin;

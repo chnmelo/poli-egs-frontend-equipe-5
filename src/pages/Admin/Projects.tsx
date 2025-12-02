@@ -277,7 +277,7 @@ function ProjectsAdmin() {
       .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos))
       .catch((error) => console.error("Erro ao carregar projetos:", error))
-      .finally(() => setLoading(false));
+      .finally(() => setLoading(false)); // CORREÇÃO: Finally adicionado
   }, []);
 
   const filteredProject = Array.isArray(Project)
@@ -372,7 +372,12 @@ function ProjectsAdmin() {
                       ) : column.key === "comentar" ? (
                         <ModalComment projectId={project.id} />
                       ) : column.key === "curtir" ? (
-                        <ModalLikes projectId={project.id} />
+                        // CORREÇÃO: Passando as props completas para o ModalLikes
+                        <ModalLikes 
+                          projectId={project.id} 
+                          initialLikes={project.curtidas} 
+                          initialLikedUsers={project.user_curtidas_email} 
+                        />
                       ) : column.key === "revisar" ? (
                         project.revisado
                       ) : column.key === "botao" && project.revisado === "Pendente" ? (

@@ -67,6 +67,29 @@ function ArticlesAdmin () {
 
   const [changedTitle, setChangedTitle] = useState(true);
 
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
+  };
+
   const handleApprove = (artigo) => {
     const token = localStorage.getItem('authToken');
     axios.put(`/artigo_revisado/${artigo.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
@@ -155,21 +178,20 @@ function ArticlesAdmin () {
 
   const handleUpdate = () => {
     axios.get(`/artigos/`).then(response => {
-      setArticle(response.data);
+      setArticle(response.data.artigos || []);
     }).catch(error => {
       console.error('Erro ao atualizar artigo', error);
     });
   }; 
   
- useEffect(() => {
-  setLoading(true);
-  axios.get(`/artigos/`)
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`/artigos/`)
     .then(function (response) {
-      setArticle(response.data.artigos || response.data); 
+      setArticle(response.data.artigos || []);
     })
-    .catch(error => console.error(error))
     .finally(() => setLoading(false));
-}, []);
+  }, []);
 
   const filteredArticle = Array.isArray(Article) ? Article.filter((article) => {   
     const input = Input.toLowerCase();
@@ -223,16 +245,18 @@ function ArticlesAdmin () {
         {loading ? (
           <Loading />
         ) : (
-          <Table className="h-auto w-full">
+          <Table className="h-auto w-full table-fixed">
             <thead>
+              <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={column.key === "titulo" ? "text-left" : "text-right"}
+                  className={`${column.key === "titulo" ? "text-left w-1/3" : "text-center w-auto"}`}
                 >
                   {column.label}
                 </th>
               ))}
+              </tr>
             </thead>
             <tbody>
               {filteredArticle.map((article) => (
@@ -240,7 +264,7 @@ function ArticlesAdmin () {
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
+                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-center pr-3"}`}
                     >
                       {column.key === "preview" ? (
                         <button
@@ -264,7 +288,7 @@ function ArticlesAdmin () {
                       ) : column.key === "comentar" ? (
                         <ModalComment projectId={article.id} />
                       ) : column.key === "revisar" ? (
-                        article.revisado
+                        getStatusBadge(article.revisado)
                       ) : column.key === "botao" && (article.revisado === "Pendente" || article.revisado === "Reprovado") ? (
                         <button
                           type="button"
@@ -284,7 +308,9 @@ function ArticlesAdmin () {
                       ) : (column.key === "botao" || column.key === "botao2") ? (
                         <div></div>
                       ) : (
-                        article.titulo
+                        <div className="truncate max-w-[200px]" title={article.titulo}>
+                            {article.titulo}
+                        </div>
                       )}
                     </td>
                   ))}

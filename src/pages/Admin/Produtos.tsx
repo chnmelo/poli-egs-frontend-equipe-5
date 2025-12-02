@@ -50,6 +50,29 @@ function ProdutosAdmin () {
     return <Navigate to="/user-produtos" />;
   }
 
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
+  };
+
   const validateFormWithData = (produtoData) => {
     const requiredFields = [
       'titulo',
@@ -84,7 +107,7 @@ function ProdutosAdmin () {
   
     const handleUpdate = () => {
     axios.get(`/produtos/`).then(response => {
-      setProduto(response.data);
+      setProduto(response.data.produtos || []);
     }).catch(error => {
       console.error('Erro ao atualizar produto', error.response.data.detail || '');
     });
@@ -188,7 +211,7 @@ function ProdutosAdmin () {
       setNewProduto({
         titulo: "",
         descricao: "",
-        equipe: "",
+        equipe: [],
         tipo: "",
         semestre: "",
         id: "",
@@ -199,10 +222,10 @@ function ProdutosAdmin () {
   }, [open]);
 
   useEffect(() => {
-  axios.get(`/produtos/`).then(function (response) {
-    setProduto(response.data.produtos || []); 
-  })
-}, []);
+    axios.get(`/produtos/`).then(function (response) {
+      setProduto(response.data.produtos || [])
+    })
+  }, []);
 
   const filteredProduto = Array.isArray(Produto) ? Produto.filter((produto) => {
     const input = Input.toLowerCase();
@@ -252,12 +275,12 @@ function ProdutosAdmin () {
         />
       </div>
       <div className="px-[13vw] pt-10">
-        <Table className="h-auto w-full">
+        <Table className="h-auto w-full table-fixed">
           <thead>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={column.key === "titulo" ? "text-left" : "text-right"}
+                className={`${column.key === "titulo" ? "text-left w-1/3" : "text-center w-auto"}`}
               >
                 {column.label}
               </th>
@@ -269,7 +292,7 @@ function ProdutosAdmin () {
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
+                    className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-center pr-3"}`}
                   >
                     {column.key === "preview" ? (
                         <button
@@ -291,7 +314,7 @@ function ProdutosAdmin () {
                         handleUpdate={handleUpdate}
                       />
                     ) : column.key === "status" ? (
-                      produto.status
+                      getStatusBadge(produto.status)
                     ) : column.key === "botao" && (produto.status === "Pendente" || produto.status === "Reprovado") ? (
                       <button
                         type="button"
@@ -311,7 +334,9 @@ function ProdutosAdmin () {
                     ) : (column.key === "botao" || column.key === "botao2") ? (
                       <div></div>
                     ) : (
-                        produto.titulo
+                        <div className="truncate max-w-[200px]" title={produto.titulo}>
+                            {produto.titulo}
+                        </div>
                     )}
                   </td>
                 ))}
