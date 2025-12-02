@@ -107,18 +107,21 @@ function Project() {
           setData({ ...projeto, equipe: equipeFormatada });
           setComentarios(projeto.comentarios || []);
 
+          if (projeto.imagens && Array.isArray(projeto.imagens)) {
+            setGalleryImages(projeto.imagens);
+          } else {
+              setGalleryImages([]);
+          }
+
           if (projectId) {
             axios.get(`/view_logo_projeto/${projectId}/`)
               .then((res) => setImg(res.data.url))
               .catch(() => console.log("Logo não encontrada"));
-
-            axios.get(`/view_fotos_projeto/${projectId}/`)
-              .then((res) => setGalleryImages(res.data.urls || []))
-              .catch(() => setGalleryImages([]));
+              
           } else {
-             axios.get(`/view_logo_projeto/${slug}/`)
-             .then((res) => setImg(res.data.url))
-             .catch(() => {});
+            axios.get(`/view_logo_projeto/${slug}/`)
+            .then((res) => setImg(res.data.url))
+            .catch(() => {});
           }
 
         } catch (error) {
