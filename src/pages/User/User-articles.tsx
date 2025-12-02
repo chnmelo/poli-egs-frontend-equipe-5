@@ -21,6 +21,7 @@ export interface ArticleInt {
   id?: string,
   arquivo?: string,
   resumo?: string,
+  revisado?: string,
 }
 
 const columns = [
@@ -44,7 +45,7 @@ function Userarticles () {
     return <Navigate to="/admin-articles" />;
   }
 
-  const [Article, setArticle] = useState<ArticleInt[]>([]);
+  const [Article, setArticle] = useState<ArticleInt[]>([]); // Ajuste na tipagem do state se necessário
   const [open, setOpen] = useState(false)
   const [NewArticle, setNewArticle] = useState({
     titulo: '',
@@ -71,17 +72,22 @@ function Userarticles () {
 
   const handlePdfUpload = (id: string) => {
     const formData = new FormData();
-    formData.append('file', file);
-    axios.post(`/upload_pdf_artigo/${id}/`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-    })
-    .then(response => {
-      window.location.reload();
-      setOpen(false);
-    })
-    .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+    if (file) {
+        formData.append('file', file);
+        axios.post(`/upload_pdf_artigo/${id}/`, formData, {
+            headers: {
+            'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then(response => {
+        window.location.reload();
+        setOpen(false);
+        })
+        .catch(error => console.log('Erro ao fazer upload do PDF:', error))
+    } else {
+         window.location.reload();
+         setOpen(false);
+    }
   }
 
   const handlePost = () => {
@@ -130,7 +136,7 @@ function Userarticles () {
     })
     .catch(error => {
       setChangedTitle(false)
-      toast.error('Erro ao adicionar artigo:', error.response.data.detail || '')
+      toast.error('Erro ao adicionar artigo:', error.response?.data?.detail || '')
     });
   };
 
@@ -145,9 +151,6 @@ function Userarticles () {
   useEffect(() => {
     axios.get(`/artigos/`).then(function (response) {
       setArticle(response.data)
-
-
-
     })
   }, []);
 
@@ -155,10 +158,11 @@ function Userarticles () {
     const input = Input.toLowerCase();
     return (
       article.titulo?.toLowerCase().includes(input) ||
-      article.palavras_chave?.some(p => p.toLowerCase().includes(input)) ||
+      article.palavras_chave?.some((p: string) => p.toLowerCase().includes(input)) ||
       article.tema?.toLowerCase().includes(input)
     );
   }) : [];
+  
   const semesterGenerator = (): string[] => {
     const current = new Date();
     const currentYear = current.getFullYear();
@@ -174,7 +178,31 @@ function Userarticles () {
     }
 
     return semesters.reverse();
-    };
+  };
+
+  // Função para renderizar o badge de status
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
+  };
 
   return (
     <>
@@ -214,6 +242,7 @@ function Userarticles () {
       <div className="px-[13vw] pt-10">
         <Table className="h-auto w-full">
           <thead>
+            <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
@@ -222,6 +251,7 @@ function Userarticles () {
                 {column.label}
               </th>
             ))}
+            </tr>
           </thead>
           <tbody>
             {filteredArticle.map((article) => (
@@ -245,7 +275,7 @@ function Userarticles () {
                         handleUpdate={handleUpdate}
                       />
                     ) : column.key === "revisar" ? (
-                      article.revisado
+                      getStatusBadge(article.revisado || "Pendente")
                     ) : (
                       article.titulo
                     )}
@@ -392,7 +422,7 @@ function Userarticles () {
                     ? "bg-primary-color hover:bg-blue-700" 
                     : "bg-gray-400 cursor-not-allowed"
                   }`}
-                  onClick={() => handlePost(setOpen)}
+                  onClick={() => handlePost()}
                   disabled={!changedTitle}
                 >
                   Enviar

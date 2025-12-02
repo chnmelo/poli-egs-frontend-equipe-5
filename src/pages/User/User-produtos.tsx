@@ -21,6 +21,7 @@ export interface ProdutoInt {
   id?: string,
   arquivo?: string,
   produto?: string,
+  status?: string,
 }
 
 const columns = [
@@ -35,7 +36,8 @@ function Userprodutos () {
   const [Input, setInput] = useState<string>("");
   const [changedTitle, setChangedTitle] = useState(true);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {setInput(event.target.value);};
-  const [Produto, setProduto ] = useState<ProdutoInt[]>([]);
+  // @ts-ignore
+  const [Produto, setProduto ] = useState<{produtos: ProdutoInt[]} | ProdutoInt[]>({ produtos: [] }); // Ajuste para lidar com a estrutura de retorno
   const [open, setOpen] = useState(false)
   const [formValid, setFormValid] = useState(false);
   const [NewProduto, setNewProduto] = useState({
@@ -82,9 +84,9 @@ function Userprodutos () {
 
     // Função para atualizar o NewProject e verificar a validação
   const handleChangeProduto = (field, value) => {
-    const updatedProduto = {...NewProduto, [field]: value};    // Primeira atualização do estado
+    const updatedProduto = {...NewProduto, [field]: value};
     setNewProduto(updatedProduto);
-    const isValid = validateFormWithData(updatedProduto);    // Validação imediata com o estado atualizado
+    const isValid = validateFormWithData(updatedProduto); 
     setFormValid(isValid);
   };
 
@@ -92,7 +94,7 @@ function Userprodutos () {
     axios.get(`/produtos/`).then(response => {
       setProduto(response.data);
     }).catch(error => {
-      console.error('Erro ao atualizar produto', error.response.data.detail || '');
+      console.error('Erro ao atualizar produto', error.response?.data?.detail || '');
     });
   };
 
@@ -155,10 +157,11 @@ function Userprodutos () {
       toast.success("Produto cadastrado com sucesso!");
       handlePdfUpload(response.data.produto.id)
       setOpen(false);
+      handleUpdate(); // Recarregar a lista
     })
     .catch(error => {
     setChangedTitle(false)
-    toast.error(`Erro ao adicionar artigo: ${error.response.data.detail}`)});
+    toast.error(`Erro ao adicionar artigo: ${error.response?.data?.detail || 'Erro desconhecido'}`)});
   };
 
     useEffect(() => {
@@ -170,7 +173,7 @@ function Userprodutos () {
         setNewProduto({
           titulo: "",
           descricao: "",
-          equipe: "",
+          equipe: [] as string[],
           tipo: "",
           semestre: "",
           id: "",
@@ -183,19 +186,19 @@ function Userprodutos () {
   useEffect(() => {
     axios.get(`/produtos/`).then(function (response) {
       setProduto(response.data)
-
-
-
     })
   }, []);
 
-  const filteredProduto = Array.isArray(Produto.produtos) ? Produto.produtos.filter((produto) => {
+  // @ts-ignore: Manipulação segura caso a resposta varie entre array direto ou objeto {produtos: []}
+  const produtosList = Array.isArray(Produto) ? Produto : (Produto.produtos || []);
+
+  const filteredProduto = produtosList.filter((produto: ProdutoInt) => {
     const input = Input.toLowerCase();
     return (
       produto.titulo?.toLowerCase().includes(input) ||
       produto.tipo?.toLowerCase().includes(input)
     );
-  }) : [];
+  });
 
   const semesterGenerator = (): string[] => {
     const current = new Date();
@@ -213,6 +216,30 @@ function Userprodutos () {
 
     return semesters.reverse();
     };
+
+  // Função para renderizar o badge de status
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
+  };
 
   return (
     <>
@@ -252,6 +279,7 @@ function Userprodutos () {
       <div className="px-[13vw] pt-10">
         <Table className="h-auto w-full">
           <thead>
+            <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
@@ -260,6 +288,7 @@ function Userprodutos () {
                 {column.label}
               </th>
             ))}
+            </tr>
           </thead>
           <tbody>
             {filteredProduto.map((produto) => (
@@ -274,6 +303,7 @@ function Userprodutos () {
                     {column.key === "editar" ? (
                       <ModalUpdateProduto
                         produto={produto}
+                        // @ts-ignore
                         handleUpdate={handleUpdate}
                       />
                     ) : column.key === "excluir" ? (
@@ -283,7 +313,7 @@ function Userprodutos () {
                         handleUpdate={handleUpdate}
                       />
                     ) : column.key === "status" ? (
-                      produto.status
+                      getStatusBadge(produto.status || "Pendente")
                     ) : (
                       produto.titulo
                     )}
