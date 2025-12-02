@@ -9,11 +9,12 @@ import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import { EyeIcon } from "@heroicons/react/20/solid";
+import ModalPreview from "../../components/ModalPreview";
 
 const columns = [
   { key: "titulo", label: "Titulo" },
+  { key: "preview", label: "Visualizar" },
   { key: "editar", label: "Editar" },
   { key: "excluir", label: "Excluir" },
   { key: "status", label: "Status" },
@@ -40,9 +41,12 @@ function ProdutosAdmin () {
     status: "",
   })
 
-  const userIsAdmin = localStorage.getItem('isAdmin') === 'true'; // Verificando se o usuário é admin no localStorage
+  // Estados para o Preview
+  const [previewData, setPreviewData] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const userIsAdmin = localStorage.getItem('isAdmin') === 'true';
   if (!userIsAdmin) {
-    // Se não for admin, redireciona para a página de usuário
     return <Navigate to="/user-produtos" />;
   }
 
@@ -71,16 +75,15 @@ function ProdutosAdmin () {
     return validateFormWithData(NewProduto);
   };
     
-  // Função para atualizar o NewProject e verificar a validação
   const handleChangeProduto = (field, value) => {
-    const updatedProduto = {...NewProduto, [field]: value};   // Primeira atualização do estado
+    const updatedProduto = {...NewProduto, [field]: value};
     setNewProduto(updatedProduto);
-    const isValid = validateFormWithData(updatedProduto);    // Validação imediata com o estado atualizado
+    const isValid = validateFormWithData(updatedProduto);
     setFormValid(isValid);
   };
   
     const handleUpdate = () => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(response => {
+    axios.get(`/produtos/`).then(response => {
       setProduto(response.data);
     }).catch(error => {
       console.error('Erro ao atualizar produto', error.response.data.detail || '');
@@ -96,7 +99,7 @@ function ProdutosAdmin () {
 
   const handleApprove = (produto) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/produto_revisado/${produto.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
+    axios.put(`/produto_revisado/${produto.id}/?novo_revisado=Aprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -109,14 +112,13 @@ function ProdutosAdmin () {
 
   const handleReprove = (produto) => {
     const token = localStorage.getItem('authToken');
-    axios.put(`${import.meta.env.VITE_url_backend}/produto_revisado/${produto.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
+    axios.put(`/produto_revisado/${produto.id}/?novo_revisado=Reprovado&id_token=${token}`, null,{
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     })
       .then(response => {
-
         window.location.reload();
       })
         .catch(error => console.error('Erro ao reprovar produto:', error));
@@ -125,7 +127,7 @@ function ProdutosAdmin () {
   const handlePdfUpload = (id: string) => {
       const formData = new FormData();
       formData.append('file', file);
-      axios.post(`${import.meta.env.VITE_url_backend}/upload_pdf_artigo/${id}/`, formData, {
+      axios.post(`/upload_pdf_artigo/${id}/`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -139,29 +141,20 @@ function ProdutosAdmin () {
 
   const handlePost = () => {
     const token = localStorage.getItem('authToken');
-
     if (!token) {
       alert('Token de autenticação não encontrado.');
       return;
     }
-
-     // Verificar novamente se todos os campos obrigatórios estão preenchidos
     if (!validateForm()) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-  
-    // Função auxiliar para converter string em array
     const stringToArray = (value) => {
       return typeof value === 'string' && value.trim() 
         ? value.split(',').map(item => item.trim()) 
         : [];
     };
-
-    // Conversão usando a função auxiliar
     const equipeArray = stringToArray(NewProduto.equipe);
-
-    // Atualiza os dados do projeto com os arrays processados
     const NewProdutoWithDefaults = {
       id: NewProduto.id || "default-id",
       titulo: NewProduto.titulo,
@@ -173,7 +166,7 @@ function ProdutosAdmin () {
       status: NewProduto.status || "Pendente",
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/produtos_add?id_token=${token}`, NewProdutoWithDefaults, {
+    axios.post(`/produtos_add/?id_token=${token}`, NewProdutoWithDefaults, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -190,10 +183,8 @@ function ProdutosAdmin () {
   
   useEffect(() => {
     if (open) {
-      // Quando o modal é aberto, verifica a validade do formulário
       setFormValid(validateForm());
     } else {
-      // Quando o modal é fechado, reset do NewProject para o estado inicial
       setNewProduto({
         titulo: "",
         descricao: "",
@@ -207,10 +198,8 @@ function ProdutosAdmin () {
     }
   }, [open]);
 
-
-//
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_url_backend}/produtos/`).then(function (response) {
+    axios.get(`/produtos/`).then(function (response) {
       setProduto(response.data)
 
 
@@ -218,7 +207,7 @@ function ProdutosAdmin () {
     })
   }, []);
 
-  const filteredProduto = Array.isArray(Produto.produtos) ? Produto.produtos.filter((produto) => {
+  const filteredProduto = Array.isArray(Produto) ? Produto.filter((produto) => {
     const input = Input.toLowerCase();
     return (
       produto.titulo?.toLowerCase().includes(input) ||
@@ -230,33 +219,20 @@ function ProdutosAdmin () {
     const current = new Date();
     const currentYear = current.getFullYear();
     const currentMonth = current.getMonth();
-
     const semesters: string[] = [];
-
     for (let year = 2023; year <= currentYear; year++) {
       semesters.push(`${year}.1`);
       if (year < currentYear || currentMonth >= 6) {
         semesters.push(`${year}.2`);
       }
     }
-
     return semesters.reverse();
     };
 
   return (
     <>
       <HeaderAdmin />
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-    />
+      <ToastContainer position="top-center" autoClose={3000} theme="colored" />
       <div className="flex flex-col px-[13vw] pt-10 gap-6">
         <section className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-start text-dark-color">Produtos</h1>
@@ -296,25 +272,30 @@ function ProdutosAdmin () {
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className={`items-center py-3 ${
-                      column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"
-                    }`}
+                    className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
                   >
-                    {column.key === "editar" ? (
+                    {column.key === "preview" ? (
+                        <button
+                          className="text-dark-color hover:text-blue-600 transition-colors"
+                          onClick={() => {
+                            setPreviewData(produto);
+                            setIsPreviewOpen(true);
+                          }}
+                          title="Visualizar Detalhes"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
+                    ) : column.key === "editar" ? (
                       <ModalUpdateProduto produto={produto} />
-
                     ) : column.key === "excluir" ? (
                       <ModalDeleteProduto
                         title={produto.titulo}
                         id={produto.id}
                         handleUpdate={handleUpdate}
                       />
-
                     ) : column.key === "status" ? (
                       produto.status
-
-                    ) : column.key === "botao" &&
-                      (produto.status === "Pendente") ? (
+                    ) : column.key === "botao" && (produto.status === "Pendente" || produto.status === "Reprovado") ? (
                       <button
                         type="button"
                         className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
@@ -322,9 +303,7 @@ function ProdutosAdmin () {
                       >
                         Aprovar
                       </button>
-
-                    ) : column.key === "botao2" &&
-                      (produto.status === "Pendente") ? (
+                    ) : column.key === "botao2" && (produto.status === "Pendente" || produto.status === "Aprovado") ? (
                       <button
                         type="button"
                         className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
@@ -332,30 +311,8 @@ function ProdutosAdmin () {
                       >
                         Reprovar
                       </button>
-                    ) : column.key === "botao" &&
-                      (produto.status === "Reprovado") ? (
-                        <button
-                          type="button"
-                          className="px-3 py-2 bg-primary-color text-white rounded-xl hover:bg-blue-700 transition duration-300"
-                          onClick={() => handleApprove(produto)}
-                        >
-                          Aprovar
-                        </button>
-                    ) : column.key === "botao2" &&
-                      (produto.status === "Aprovado") ? (
-                        <button
-                          type="button"
-                          className="px-3 py-2 bg-red-800 text-white rounded-xl hover:bg-red-700 transition duration-300"
-                          onClick={() => handleReprove(produto)}
-                        >
-                          Reprovar
-                        </button>
-                    ) : column.key === "botao2" &&
-                        (produto.status === "Reprovado" ) ? (
-                        <div> </div>
-                    ) : column.key === "botao" &&
-                        (produto.status === "Aprovado" ) ? (
-                        <div> </div>
+                    ) : (column.key === "botao" || column.key === "botao2") ? (
+                      <div></div>
                     ) : (
                         produto.titulo
                     )}
@@ -366,6 +323,15 @@ function ProdutosAdmin () {
           </tbody>
         </Table>
       </div>
+
+      <ModalPreview 
+        isOpen={isPreviewOpen} 
+        onClose={() => setIsPreviewOpen(false)} 
+        title="Detalhes do Produto" 
+        data={previewData} 
+        type="produto" 
+      />
+
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition

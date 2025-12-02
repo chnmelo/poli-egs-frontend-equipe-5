@@ -10,13 +10,6 @@
   text-align: center;
 }
 
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  padding-top: 2vh;
-}
-
 li {
   display: inline;
   margin: 0 1vw 0 1vw;
@@ -131,4 +124,22 @@ header {
 
 .read-the-docs {
   color: #888;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Estilo da barra de rolagem ou resets específicos se necessário */
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
 }

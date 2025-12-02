@@ -17,12 +17,17 @@ import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
+import Loading from "../../components/Loading";
+import { EyeIcon, LockClosedIcon } from "@heroicons/react/20/solid";
+import RichTextEditor from "../../components/RichTextEditor";
 
 const columns = [
-  { key: "titulo", label: "Titulo" },
-  { key: "curtir", label: "Curtir" },
-  { key: "comentar", label: "Comentar" },
-  { key: "revisar", label: "Status" },
+  { key: "titulo", label: "Titulo", align: "text-left pl-3" },
+  { key: "equipe", label: "Autores", align: "text-left" },
+  { key: "preview", label: "Visualizar", align: "text-center" },
+  { key: "curtir", label: "Curtir", align: "text-center" },
+  { key: "comentar", label: "Comentar", align: "text-center" },
+  { key: "revisar", label: "Status", align: "text-center" }, 
 ];
 
 function Userprojects() {
@@ -30,6 +35,7 @@ function Userprojects() {
   const [Project, setProject] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [formValid, setFormValid] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [NewProject, setNewProject] = useState({
     titulo: "",
@@ -50,19 +56,50 @@ function Userprojects() {
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
-
   const [changedTitle, setChangedTitle] = useState(true);
-
   const [equipeTemp, setEquipeTemp] = useState<string[]>([]);
-
   const [editIntegrante,setEditIntegrante] = useState(null);
 
-  const userIsAdmin = localStorage.getItem("isAdmin") === "true"; // Verificando se o usuário é admin no localStorage
+  const userIsAdmin = localStorage.getItem("isAdmin") === "true"; 
 
   if (userIsAdmin) {
-    // Se for admin, redireciona para a página de usuário
-    return <Navigate to="/user-admin" />;
+    return <Navigate to="/admin-projects" />;
   }
+
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status}
+      </span>
+    );
+  };
+
+  const renderEquipe = (equipe: any) => {
+    if (!equipe) return "Não informado";
+    if (typeof equipe === "string") return equipe;
+    if (Array.isArray(equipe)) {
+        return equipe.map(membro => {
+            if (typeof membro === 'string') return membro;
+            return membro.nomeCompleto || membro.Nome || "";
+        }).filter(Boolean).join(", ");
+    }
+    return "Formato inválido";
+  };
 
   const validateFormWithData = (projectData) => {
     const requiredFields = [
@@ -105,8 +142,8 @@ function Userprojects() {
 
   const handleUpdate = () => {
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data))
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data.projetos || [])) 
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
@@ -122,7 +159,7 @@ function Userprojects() {
     const formData = new FormData();
 
     formData.append('file', selectedFile);
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
+    axios.post(`/upload_logo_projeto/${id}/?id_token=${token}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -148,7 +185,7 @@ function Userprojects() {
       }
     })
 
-    axios.post(`${import.meta.env.VITE_url_backend}/upload_fotos_integrantes/?id_token=${token}`, formData, {
+    axios.post(`/upload_fotos_integrantes/?id_token=${token}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -165,7 +202,6 @@ function Userprojects() {
       return;
     }
 
-    // Verificar novamente se todos os campos obrigatórios estão preenchidos
     if (!validateForm()) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
@@ -188,7 +224,6 @@ function Userprojects() {
       NewProject.user_curtidas_email
     );
 
-    // Atualiza os dados do projeto com os arrays processados
     const NewProjectWithDefaults = {
       id: NewProject.id || "default-id",
       titulo: NewProject.titulo,
@@ -207,7 +242,7 @@ function Userprojects() {
       user_curtidas_email: userCurtidasEmailArray,
     };
 
-    axios.post(`${import.meta.env.VITE_url_backend}/projeto_add?id_token=${token}`, NewProjectWithDefaults, {
+    axios.post(`/projeto_add/?id_token=${token}`, NewProjectWithDefaults, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -258,21 +293,36 @@ function Userprojects() {
   }, [open]);
 
   useEffect(() => {
+    setLoading(true);
     axios
-      .get(`${import.meta.env.VITE_url_backend}/projetos/`)
-      .then((response) => setProject(response.data.projetos))
-      .catch((error) => console.error("Erro ao carregar projetos:", error));
+      .get(`/projetos/`)
+      .then((response) => setProject(response.data.projetos || []))
+      .catch((error) => console.error("Erro ao carregar projetos:", error))
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProject = Array.isArray(Project)
     ? Project.filter((project) => {
         const input = Input.toLowerCase();
+        
+        const checkEquipe = (equipe: any) => {
+            if (!equipe) return false;
+            if (typeof equipe === 'string') return equipe.toLowerCase().includes(input);
+            if (Array.isArray(equipe)) {
+                return equipe.some((membro: any) => {
+                    const nome = typeof membro === 'string' ? membro : (membro.nomeCompleto || membro.Nome || "");
+                    return nome.toLowerCase().includes(input);
+                });
+            }
+            return false;
+        };
+        // ---------------------------------
+
         return (
           project.titulo?.toLowerCase().includes(input) ||
-          project.palavras_chave?.some((p) =>
-            p.toLowerCase().includes(input)
-          ) ||
-          project.tema?.toLowerCase().includes(input)
+          project.palavras_chave?.some((p: string) => p.toLowerCase().includes(input)) ||
+          project.tema?.toLowerCase().includes(input) ||
+          checkEquipe(project.equipe) // Adiciona a verificação de autores
         );
       })
     : [];
@@ -281,16 +331,13 @@ function Userprojects() {
     const current = new Date();
     const currentYear = current.getFullYear();
     const currentMonth = current.getMonth();
-
     const semesters: string[] = [];
-
     for (let year = 2023; year <= currentYear; year++) {
       semesters.push(`${year}.1`);
       if (year < currentYear || currentMonth >= 6) {
         semesters.push(`${year}.2`);
       }
     }
-
     return semesters.reverse();
   };
 
@@ -326,61 +373,100 @@ function Userprojects() {
           name="searchbar"
           id="searchbar"
           className="rounded-full w-full h-[5vh] border border-light-color indent-2 bg-[#D8DBE2] "
-          placeholder="Pesquise por título, tema, palavra-chave"
+          placeholder="Pesquise por título, tema, palavra-chave ou autor"
           value={Input}
           onChange={(e) => setInput(e.target.value)}
         />
       </div>
       <div className="px-[13vw] pt-10">
-        <Table className="h-auto w-full">
-          <thead>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={
-                  column.key === "titulo" ? "text-left" : "text-right "
-                }
-              >
-                {column.label}
-              </th>
-            ))}
-          </thead>
-          <tbody>
-            {filteredProject.map((project) => (
-              <tr key={project.id} className="border border-light-color">
+        {loading ? (
+          <Loading />
+        ) : (
+          <Table className="h-auto w-full">
+            <thead>
+              <tr>
                 {columns.map((column) => (
-                  <td
+                  <th
                     key={column.key}
-                    className={`items-center py-3  ${
-                      column.key === "titulo"
-                        ? "text-left pl-3"
-                        : "text-right pr-3"
-                    }`}
+                    className={column.align}
                   >
-                    {column.key === "editar" ? (
-                      <ModalUpdate project={project} />
-                    ) : column.key === "excluir" ? (
-                      <ModalDelete
-                        title={project.titulo}
-                        id={project.id}
-                        handleUpdate={handleUpdate}
-                      />
-                    ) : column.key === "comentar" ? (
-                      <ModalComment projectId={project.id}></ModalComment>
-                    ) : column.key === "curtir" ? (
-                      <ModalLikes projectId={project.id} />
-                    ) : column.key === "revisar" ? (
-                      project.revisado
-                    ) : (
-                      project.titulo
-                    )}
-                  </td>
+                    {column.label}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {filteredProject.map((project) => (
+                <tr key={project.id} className="border border-light-color">
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      className={`items-center py-3 ${column.align}`}
+                    >
+                      {column.key === "preview" ? (
+                        <a 
+                          href={`/projetos/${project.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block text-dark-color hover:text-blue-600 transition-colors"
+                          title="Visualizar projeto"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </a>
+                      ) : column.key === "equipe" ? (
+                        <span className="text-sm text-gray-700 truncate block max-w-[200px]" title={renderEquipe(project.equipe)}>
+                            {renderEquipe(project.equipe)}
+                        </span>
+                      ) : column.key === "editar" ? (
+                        <ModalUpdate project={project} handleFotosUpload={handleFotosUpload} />
+                      ) : column.key === "excluir" ? (
+                        <ModalDelete
+                          title={project.titulo}
+                          id={project.id}
+                          handleUpdate={handleUpdate}
+                        />
+                      
+                      ) : column.key === "comentar" ? (
+                        project.revisado === "Aprovado" ? (
+                          <ModalComment projectId={project.id}></ModalComment>
+                        ) : (
+                          <span 
+                            className="text-gray-400 cursor-not-allowed inline-flex justify-center" 
+                            title="Apenas projetos aprovados podem receber comentários."
+                          >
+                             <LockClosedIcon className="h-4 w-4" />
+                          </span>
+                        )
+                      ) : column.key === "curtir" ? (
+                        project.revisado === "Aprovado" ? (
+                          <ModalLikes 
+                            projectId={project.id} 
+                            initialLikes={project.curtidas}
+                            initialLikedUsers={project.user_curtidas_email}
+                          />
+                        ) : (
+                          <span 
+                            className="text-gray-400 cursor-not-allowed inline-flex justify-center" 
+                            title="Apenas projetos aprovados podem receber curtidas."
+                          >
+                             <LockClosedIcon className="h-4 w-4" />
+                          </span>
+                        )
+
+                      ) : column.key === "revisar" ? (
+                        getStatusBadge(project.revisado)
+                      ) : (
+                        project.titulo
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </div>
+      
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition
@@ -413,7 +499,6 @@ function Userprojects() {
                       setIntegrantes={(e) => handleChangeProject('equipe',e)}
                       onClose={() => {setEditIntegrante(null)}}
                     />
-
                     <div className="flex flex-wrap gap-2 max-w-[80%]">
                       {NewProject.equipe.length > 0 ? (
                         NewProject.equipe.map((int, idx) => (
@@ -421,7 +506,6 @@ function Userprojects() {
                             key={idx}
                             className="inline-block bg-blue-200 text-blue-800 rounded px-2 py-1 text-sm"
                           >
-
                             <button 
                             className="cursor-pointer text-blue-600 hover:underline text:bold list-disc"
                             onClick={(e) => {
@@ -430,7 +514,6 @@ function Userprojects() {
                             }}>
                             {int.nomeCompleto}
                             </button>
-
                             <button 
                             className="cursor-pointer text-red-600 hover:underline text:bold list-disc ml-3"
                             onClick={(e) => {
@@ -439,7 +522,6 @@ function Userprojects() {
                             }}>
                               X
                             </button>
-
                           </span>
                         ))
                       ) : (
@@ -450,191 +532,52 @@ function Userprojects() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Titulo <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="titulo"
-                      id="titulo"
-                      placeholder="Titulo"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>{
-                        setChangedTitle(true)
-                        console.log(NewProject.equipe)
-                        handleChangeProject("titulo", e.target.value)
-                      }}
-                    />
+                    <h3 className="text-lg font-semibold">Titulo <span className="text-red-500">*</span></h3>
+                    <input type="text" name="titulo" id="titulo" placeholder="Titulo" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) =>{ setChangedTitle(true); handleChangeProject("titulo", e.target.value) }}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Organização Parceira{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="cliente"
-                      id="cliente"
-                      placeholder="Ex: POLI/UPE"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("cliente", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Organização Parceira <span className="text-red-500">*</span></h3>
+                    <input type="text" name="cliente" id="cliente" placeholder="Ex: POLI/UPE" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("cliente", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Tema <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="tema"
-                      id="tema"
-                      placeholder="Ex: Engenharia de Software"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("tema", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Tema <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tema" id="tema" placeholder="Ex: Engenharia de Software" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tema", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Semestre <span className="text-red-500">*</span>
-                    </h3>
-                    <select
-                      name="semestre"
-                      id="semestre"
-                      value={NewProject.semestre}
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) => handleChangeProject('semestre',e.target.value)}
-                    >
+                    <h3 className="text-lg font-semibold">Semestre <span className="text-red-500">*</span></h3>
+                    <select name="semestre" id="semestre" value={NewProject.semestre} className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject('semestre',e.target.value)}>
                       <option value="">Selecione um semestre</option>
-                      {semesterGenerator().map((semestre) => (
-                        <option key={semestre} value={semestre}>
-                          {semestre}
-                        </option>
-                      ))}
-                    </select>{" "}
+                      {semesterGenerator().map((semestre) => (<option key={semestre} value={semestre}>{semestre}</option>))}
+                    </select>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Tecnologias Utilizadas{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="tecnologias"
-                      id="tecnologias"
-                      placeholder="Tecnologia1,Tecnologia2,Tecnologia3"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject(
-                          "tecnologias_utilizadas",
-                          e.target.value
-                        )
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Tecnologias Utilizadas <span className="text-red-500">*</span></h3>
+                    <input type="text" name="tecnologias" id="tecnologias" placeholder="Tecnologia1,Tecnologia2,Tecnologia3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("tecnologias_utilizadas", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Link do Pitch <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="pitch"
-                      id="pitch"
-                      placeholder="Pitch"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("pitch", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Link do Pitch <span className="text-red-500">*</span></h3>
+                    <input type="text" name="pitch" id="pitch" placeholder="Pitch" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("pitch", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Link do Vídeo Técnico{" "}
-                      <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="video"
-                      id="video"
-                      placeholder="Vídeo Técnico"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("video_tecnico", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Link do Vídeo Técnico <span className="text-red-500">*</span></h3>
+                    <input type="text" name="video" id="video" placeholder="Vídeo Técnico" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("video_tecnico", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Repositório <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="repositorio"
-                      id="repositorio"
-                      placeholder="Repositório"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("link_repositorio", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Repositório <span className="text-red-500">*</span></h3>
+                    <input type="text" name="repositorio" id="repositorio" placeholder="Repositório" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("link_repositorio", e.target.value)}/>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      Palavras Chave <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="palavras"
-                      id="palavras"
-                      placeholder="Palavra1,Palavra2,Palavra3"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("palavras_chave", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Palavras Chave <span className="text-red-500">*</span></h3>
+                    <input type="text" name="palavras" id="palavras" placeholder="Palavra1,Palavra2,Palavra3" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("palavras_chave", e.target.value)}/>
                   </div>
                   <div className="mb-10">
-                    <h3 className="text-lg font-semibold">
-                      Descrição <span className="text-red-500">*</span>
-                    </h3>
-                    <input
-                      type="text"
-                      name="descricao"
-                      id="descricao"
-                      placeholder="Descrição"
-                      className="focus:outline-none border-b-2 w-[15vw]"
-                      onChange={(e) =>
-                        handleChangeProject("descricao", e.target.value)
-                      }
-                    />
+                    <h3 className="text-lg font-semibold">Descrição <span className="text-red-500">*</span></h3>
+                    <input type="text" name="descricao" id="descricao" placeholder="Descrição" className="focus:outline-none border-b-2 w-[15vw]" onChange={(e) => handleChangeProject("descricao", e.target.value)}/>
                   </div>
                   <div className="w-[15vw] relative">
-                    <input
-                      type="file"
-                      className="hidden"
-                      name="logo"
-                      id="logo"
-                      onChange={(e: any) => setSelectedFile(e.target.files[0])}
-                    />
-                    <label
-                      htmlFor="logo"
-                      className={`absolute flex items-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${
-                        !selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"
-                      } hover:opacity-60 select-none whitespace-nowrap`}
-                      style={{
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {selectedFile ? (
-                        <span>Modificar Logo</span>
-                      ) : (
-                        <span>Atualizar Logo</span>
-                      )}
+                    <input type="file" className="hidden" name="logo" id="logo" onChange={(e: any) => setSelectedFile(e.target.files[0])}/>
+                    <label htmlFor="logo" className={`absolute flex items-center justify-center px-3 py-2 rounded-md w-full text-dark-color text-xs font-semibold cursor-pointer ${!selectedFile ? "bg-green-500" : "bg-[#D8DBE2]"} hover:opacity-60 select-none whitespace-nowrap`}>
+                      {selectedFile ? <span>Modificar Logo</span> : <span>Atualizar Logo</span>}
                       <FaFileUpload className="ml-2" />
                     </label>
                   </div>
@@ -643,11 +586,7 @@ function Userprojects() {
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="button"
-                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${
-                    formValid && changedTitle
-                      ? "bg-primary-color hover:bg-blue-700"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
+                  className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto ${formValid && changedTitle ? "bg-primary-color hover:bg-blue-700" : "bg-gray-400 cursor-not-allowed"}`}
                   onClick={handlePost}
                   disabled={!formValid}
                 >
@@ -656,9 +595,7 @@ function Userprojects() {
                 <button
                   type="button"
                   data-autofocus
-                  onClick={() => {
-                    setOpen(false);
-				          }}
+                  onClick={() => { setOpen(false); }}
                   className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                 >
                   Cancelar
@@ -666,7 +603,6 @@ function Userprojects() {
               </div>
             </DialogPanel>
           </div>
-
         </div>
       </Dialog>
     </>

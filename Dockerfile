@@ -4,6 +4,12 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
+# 1. Declare o argumento que vem do docker-compose
+ARG VITE_url_backend
+
+# 2. Exponha-o como uma variável de ambiente para o build
+ENV VITE_url_backend=$VITE_url_backend
+
 COPY package*.json ./
 RUN npm install
 
@@ -16,7 +22,10 @@ RUN npm run build
 FROM nginx:1.25-alpine
 
 # Copie os arquivos estáticos do Estágio 1 ('build') para a pasta do Nginx
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copia nossa nova configuração para o Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # O Nginx escuta na porta 80 por padrão
 EXPOSE 80

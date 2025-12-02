@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import backgroundImage from '../images/backgroundlogin.jpg';
+import backgroundImage from '../assets/backgroundlogin.jpg';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -20,7 +20,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      await axios.post(`${import.meta.env.VITE_url_backend}/forgot-password`, { email });
+      await axios.post(`/forgot-password/`, { email });
       setMessage('Se um usuário com este e-mail existir, um link de recuperação de senha será enviado.');
     } catch (err) {
       setError('Ocorreu um erro ao tentar enviar o link. Tente novamente mais tarde.');

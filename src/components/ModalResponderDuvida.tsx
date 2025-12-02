@@ -59,7 +59,7 @@ export default function ModalResponderDuvida({
         visualizacoes: UpdatedDuvida.visualizacoes || duvida.visualizacoes || [],
     };
 
-    axios.put(`${import.meta.env.VITE_url_backend}/duvidas/${duvida.id}/`, { resposta: resposta }, {
+    axios.put(`/duvidas/${duvida.id}/`, { resposta: resposta }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

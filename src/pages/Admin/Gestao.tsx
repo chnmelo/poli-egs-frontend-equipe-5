@@ -33,14 +33,14 @@ function GestaoAdmin() {
     };
 
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+        axios.get(`/duvidas/`)
             .then(response => {
                 console.log("DÚVIDAS RECEBIDAS:", response.data);
 
                 const duvidas = response.data.duvidas;
                 const email = localStorage.getItem("email")
-                var duvidas_ordenadas = []
-                for (var i = 0; i < duvidas.length; i++){
+                const duvidas_ordenadas = []
+                for (let i = 0; i < duvidas.length; i++){
                     if(duvidas[i].visualizacoes.includes(email)) {
                         duvidas_ordenadas.push(duvidas[i]);
                     } else {
@@ -62,7 +62,7 @@ function GestaoAdmin() {
         }
 
         axios.put(
-            `${import.meta.env.VITE_url_backend}/duvida_publicado/${duvida.id}/?id_token=${token}`,
+            `/duvida_publicado/${duvida.id}/?id_token=${token}`,
             null,
             {
                 headers: {
@@ -82,32 +82,33 @@ function GestaoAdmin() {
     /*checar se ta funcionando posteriormente*/
 
     const handleUpdate = () => {
-        axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`).then(response => {
+        axios.get(`/duvidas/`).then(response => {
             setDuvida(response.data.duvidas || []);
         }).catch(error => {
             console.error('Erro ao atualizar duvida', error);
         });
     };
 
-    const handleVisualizacao = (duvida) => {
-        const token = localStorage.getItem('authToken');
-        const email = localStorage.getItem('email');
+    const handleVisualizacao = (duvida: DuvidaType) => {
+    const token = localStorage.getItem('authToken');
+    const email = localStorage.getItem('email');
 
-        if (duvida.visualizacoes.includes(email)) { return; }
+    if (!email || duvida.visualizacoes.includes(email)) return;
 
-        axios.put(`${import.meta.env.VITE_url_backend}/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null,{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-        .then(response => {
-            console.log(response.data)
-            duvida.visualizacoes.push(email)
-        })
-        .catch(error => console.log(error))
-
-        
-    }
+    axios.put(`/duvida_visualizacao/${duvida.id}/${email}/?id_token=${token}`, null, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+    .then(response => {
+        // Atualiza o estado localmente sem precisar recarregar
+        setDuvida(prevDuvidas => prevDuvidas.map(item => {
+            if (item.id === duvida.id) {
+                return { ...item, visualizacoes: [...item.visualizacoes, email] };
+            }
+            return item;
+        }));
+    })
+    .catch(error => console.log(error));
+}
 
     const filteredDuvida = Array.isArray(Duvida) ? Duvida.filter((duvida) => {
         const input = Input.toLowerCase();

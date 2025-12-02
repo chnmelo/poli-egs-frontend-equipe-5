@@ -1,15 +1,17 @@
 import Header from "./components/Header";
-import IA from './images/ia.png';
-import CD from './images/cd.png';
-import FIN from './images/financas.png';
-import DT from './images/dt.png';
-import LGPD from './images/lgpd.png';
-import EDUCACAO from './images/educacao.png';
-import SAUDE from './images/saude.png';
-import GESTAO from './images/gestao.png';
+import Footer from "./components/Footer";
+import IA from './assets/ia.png';
+import CD from './assets/cd.png';
+import FIN from './assets/financas.png';
+import DT from './assets/dt.png';
+import LGPD from './assets/lgpd.png';
+import EDUCACAO from './assets/educacao.png';
+import SAUDE from './assets/saude.png';
+import GESTAO from './assets/gestao.png';
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import backgroundImage from './images/mainpage.jpg';
+import emailjs from '@emailjs/browser';
+import backgroundImage from './assets/mainpage.jpg';
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -32,19 +34,9 @@ function App() {
   const handleNavigation = async (input: string) => {
     try {
       // Requisição para obter os projetos
-      const response = await fetch(`${import.meta.env.VITE_url_backend}/projetos`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error("Erro ao buscar projetos.");
-      }
-  
-      const data = await response.json();
-
+      const response = await axios.get('/projetos/');
+      
+      const data = response.data; // Dados diretos
   
       // Busca o projeto pelo nome
       const foundProject = data.projetos.find(
@@ -91,19 +83,14 @@ function App() {
       data_de_postagem: new Date(0)
     }
 
-    axios.post(`${import.meta.env.VITE_url_backend}/duvidas_add`, NewQuestion)
+    axios.post('/duvidas_add/', NewQuestion) 
     .then(response => {
-      console.log(`Upload realizado com sucesso! ${response.data.duvida}`);
-
       toast.success("Mensagem enviada com sucesso!");
-      
-      // Limpa os campos após o envio
       QuestionForm?.reset();
     })
-
     .catch(error => {
       console.log(error);
-      toast.error(error.response.data.detail);
+      toast.error(error.response?.data?.detail || "Erro ao enviar");
     });
   }
 
@@ -245,35 +232,7 @@ function App() {
         </div>
       </section>
 
-      {/* Seção de Rodapé */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-          <div className="flex justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Logo-upe-site.png"
-              alt="UPE"
-              className="h-16"
-            />
-          </div>
-          <div className="flex justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/6/69/Bras%C3%A3o_UFPB.png"
-              alt="UFPB"
-              className="h-16"
-            />
-          </div>
-          <div className="flex justify-center">
-            <img
-              src="https://www.sad.pe.gov.br/images/logo.png"
-              alt="SAD PE"
-              className="h-16"
-            />
-          </div>
-        </div>
-        <div className="mt-8 text-center">
-          <p>© {new Date().getFullYear()} Observatório de Projetos - POLI/UPE. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import backgroundImage from '../images/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
+import backgroundImage from '../assets/mainpage.jpg'; // Certifique-se de que o caminho esteja correto
 import { Table } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -60,7 +60,7 @@ function FAQ() {
     const [Duvida, setDuvida] = useState<DuvidaType[]>([]);
 
 	useEffect(() => {
-		axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+		axios.get(`/duvidas/`)
 		    .then(response => {
 		        const duvidas = response.data.duvidas;
                 const apenasPostadas = duvidas.filter((d: DuvidaType) => d.postado);
@@ -76,7 +76,7 @@ function FAQ() {
 	];
 
 	const handleUpdate = () => {
-		axios.get(`${import.meta.env.VITE_url_backend}/duvidas/`)
+		axios.get(`/duvidas/`)
 			.then(response => { setDuvida(response.data.duvidas || []); })
 			.catch(error => { console.error('Erro ao atualizar duvida', error); });
 		};
