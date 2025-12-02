@@ -8,7 +8,7 @@ import axios from 'axios';
 function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
 
-  const toggleFAQ = (index) => {
+  const toggleFAQ = (index: string | number | any) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
