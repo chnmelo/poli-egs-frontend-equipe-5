@@ -156,15 +156,6 @@ function Project() {
       setCommentText("");
       toast.success("Comentário enviado!"); 
 
-    const equipeFormatada = (projeto.equipe || []).map((pessoa) => {
-      if (typeof pessoa === 'string') return { nomeCompleto: pessoa };
-      if (pessoa.Nome) return { ...pessoa, nomeCompleto: pessoa.Nome };
-      return pessoa;
-    });
-    setImages_project(projeto.imagens || []);
-    setData({ ...projeto, equipe: equipeFormatada });
-    setComentarios(projeto.comentarios || []);
-  });
     } catch (error: any) {
       console.error("Erro ao enviar comentário:", error);
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
