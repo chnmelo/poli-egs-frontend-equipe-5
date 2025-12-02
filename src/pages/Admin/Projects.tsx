@@ -20,16 +20,17 @@ import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante"
 import Loading from "../../components/Loading";
 import { EyeIcon } from "@heroicons/react/20/solid";
 
+// Configuração das colunas com larguras e alinhamentos definidos
 const columns = [
-  { key: "titulo", label: "Titulo" },
-  { key: "preview", label: "Visualizar" },
-  { key: "curtir", label: "Curtir" },
-  { key: "comentar", label: "Comentar" },
-  { key: "editar", label: "Editar" },
-  { key: "excluir", label: "Excluir" },
-  { key: "revisar", label: "Status" },
-  { key: "botao", label: "" },
-  { key: "botao2", label: "" },
+  { key: "titulo", label: "Titulo", align: "text-left pl-4", width: "w-1/3" },
+  { key: "preview", label: "Visualizar", align: "text-center", width: "w-auto" },
+  { key: "curtir", label: "Curtir", align: "text-center", width: "w-auto" },
+  { key: "comentar", label: "Comentar", align: "text-center", width: "w-auto" },
+  { key: "editar", label: "Editar", align: "text-center", width: "w-auto" },
+  { key: "excluir", label: "Excluir", align: "text-center", width: "w-auto" },
+  { key: "revisar", label: "Status", align: "text-center", width: "w-auto" },
+  { key: "botao", label: "", align: "text-center", width: "w-auto" },
+  { key: "botao2", label: "", align: "text-center", width: "w-auto" },
 ];
 
 function ProjectsAdmin() {
@@ -66,6 +67,30 @@ function ProjectsAdmin() {
   if (!userIsAdmin) {
     return <Navigate to="/user-projects" />;
   }
+
+  // Função para renderizar o badge de status colorido
+  const getStatusBadge = (status: string) => {
+    let styles = "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ";
+    
+    switch (status) {
+      case "Aprovado":
+        styles += "bg-green-50 text-green-700 ring-green-600/20";
+        break;
+      case "Reprovado":
+        styles += "bg-red-50 text-red-700 ring-red-600/20";
+        break;
+      case "Pendente":
+      default:
+        styles += "bg-yellow-50 text-yellow-800 ring-yellow-600/20";
+        break;
+    }
+
+    return (
+      <span className={styles}>
+        {status || "Pendente"}
+      </span>
+    );
+  };
 
   const validateFormWithData = (projectData) => {
     const requiredFields = [
@@ -107,7 +132,7 @@ function ProjectsAdmin() {
   const handleUpdate = () => {
     axios
       .get(`/projetos/`)
-      .then((response) => setProject(response.data))
+      .then((response) => setProject(response.data.projetos || []))
       .catch((error) => console.error("Erro ao atualizar projetos:", error));
   };
 
@@ -275,9 +300,9 @@ function ProjectsAdmin() {
     setLoading(true);
     axios
       .get(`/projetos/`)
-      .then((response) => setProject(response.data.projetos))
+      .then((response) => setProject(response.data.projetos || []))
       .catch((error) => console.error("Erro ao carregar projetos:", error))
-      .finally(() => setLoading(false)); // CORREÇÃO: Finally adicionado
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProject = Array.isArray(Project)
@@ -334,13 +359,15 @@ function ProjectsAdmin() {
         {loading ? (
           <Loading />
         ) : (
-          <Table className="h-auto w-full">
+          // Adicionada classe table-fixed para respeitar larguras
+          <Table className="h-auto w-full table-fixed">
             <thead>
               <tr>
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}
+                    // Define largura e alinhamento do cabeçalho
+                    className={`py-3 ${column.align} ${column.width}`}
                   >
                     {column.label}
                   </th>
@@ -353,7 +380,8 @@ function ProjectsAdmin() {
                   {columns.map((column) => (
                     <td
                       key={column.key}
-                      className={`items-center py-3 ${column.key === "titulo" ? "text-left pl-3" : "text-right pr-3"}`}
+                      // Aplica alinhamento na célula
+                      className={`items-center py-3 ${column.align}`}
                     >
                       {column.key === "preview" ? (
                         <a 
@@ -372,14 +400,14 @@ function ProjectsAdmin() {
                       ) : column.key === "comentar" ? (
                         <ModalComment projectId={project.id} />
                       ) : column.key === "curtir" ? (
-                        // CORREÇÃO: Passando as props completas para o ModalLikes
                         <ModalLikes 
                           projectId={project.id} 
                           initialLikes={project.curtidas} 
                           initialLikedUsers={project.user_curtidas_email} 
                         />
                       ) : column.key === "revisar" ? (
-                        project.revisado
+                        // Usando o badge de status
+                        getStatusBadge(project.revisado)
                       ) : column.key === "botao" && project.revisado === "Pendente" ? (
                         <button
                           type="button"
@@ -415,7 +443,10 @@ function ProjectsAdmin() {
                       ) : (column.key === "botao" || column.key === "botao2") ? (
                         <div></div>
                       ) : (
-                        project.titulo
+                        // Título truncado com tooltip
+                        <div className="truncate max-w-[250px]" title={project.titulo}>
+                            {project.titulo}
+                        </div>
                       )}
                     </td>
                   ))}
@@ -425,6 +456,7 @@ function ProjectsAdmin() {
           </Table>
         )}
       </div>
+      
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition
