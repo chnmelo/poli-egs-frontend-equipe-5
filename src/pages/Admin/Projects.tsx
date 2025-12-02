@@ -276,7 +276,8 @@ function ProjectsAdmin() {
     axios
       .get(`/projetos/`)
       .then((response) => setProject(response.data.projetos))
-      .catch((error) => console.error("Erro ao carregar projetos:", error));
+      .catch((error) => console.error("Erro ao carregar projetos:", error))
+      .finally(() => setLoading(false));
   }, []);
 
   const filteredProject = Array.isArray(Project)

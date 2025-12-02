@@ -199,13 +199,10 @@ function ProdutosAdmin () {
   }, [open]);
 
   useEffect(() => {
-    axios.get(`/produtos/`).then(function (response) {
-      setProduto(response.data)
-
-
-
-    })
-  }, []);
+  axios.get(`/produtos/`).then(function (response) {
+    setProduto(response.data.produtos || []); 
+  })
+}, []);
 
   const filteredProduto = Array.isArray(Produto) ? Produto.filter((produto) => {
     const input = Input.toLowerCase();

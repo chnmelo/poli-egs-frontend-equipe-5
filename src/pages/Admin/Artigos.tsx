@@ -161,14 +161,15 @@ function ArticlesAdmin () {
     });
   }; 
   
-  useEffect(() => {
-    axios.get(`/artigos/`).then(function (response) {
-      setArticle(response.data)
-
-
-
+ useEffect(() => {
+  setLoading(true);
+  axios.get(`/artigos/`)
+    .then(function (response) {
+      setArticle(response.data.artigos || response.data); 
     })
-  }, []);
+    .catch(error => console.error(error))
+    .finally(() => setLoading(false));
+}, []);
 
   const filteredArticle = Array.isArray(Article) ? Article.filter((article) => {   
     const input = Input.toLowerCase();
