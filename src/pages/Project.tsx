@@ -1,23 +1,23 @@
 import { Table } from "react-bootstrap";
-import HeaderAdmin from "../../components/HeaderAdmin";
+import HeaderAdmin from "../components/HeaderAdmin";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ModalDelete from "../../components/ModalDelete";
+import ModalDelete from "../components/ModalDelete";
 import {
   Dialog,
   DialogBackdrop,
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import ModalUpdate from "../../components/ModalUpdate";
-import ModalComment from "../../components/ModalComment";
-import ModalLikes from "../../components/ModalLikes";
+import ModalUpdate from "../components/ModalUpdate";
+import ModalComment from "../components/ModalComment";
+import ModalLikes from "../components/ModalLikes";
 import { FaFileUpload } from "react-icons/fa";
 import { Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ModalCadastrarIntegrante from "../../components/ModalCadastrarIntegrante";
-import Loading from "../../components/Loading";
+import ModalCadastrarIntegrante from "../components/ModalCadastrarIntegrante";
+import Loading from "../components/Loading";
 import { EyeIcon } from "@heroicons/react/20/solid";
 
 const columns = [
