@@ -149,3 +149,135 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 - **PRISCILLA DE SOUZA SILVA (SCRUM, PO, TESTER E DEV FRONT-END)**
 - **SILVIO ANDRÉ VITAL JUNIOR (GERENTE DE PROJETO)**
 - **ARTHUR SOBRAL DE MACÊDO (DEV FRONT-END E BACK-END)**
+
+## 2025.2##
+✨ Atualização 1 (Validação de Senha)
+A primeira sprint focou em elevar a segurança e a experiência do usuário durante o processo de registro, implementando uma funcionalidade robusta de validação de senha.
+
+
+🔒 Destaques da Funcionalidade de Validação de Senha
+Feedback em Tempo Real: Implementamos um sistema que fornece feedback em tempo real sobre a força da senha, melhorando a experiência do usuário durante o registro.
+
+Requisitos de Segurança: A aplicação agora verifica se a senha atende a cinco critérios rigorosos de segurança em tempo real:
+
+- Pelo menos 8 caracteres.
+- Uma letra maiúscula.
+- Uma letra minúscula.
+- Um número.
+- Um caractere especial.
+
+Controle de Acesso: O botão "Registrar" é mantido desabilitado até que a senha atenda a todos os critérios e as senhas (senha e confirmação) sejam idênticas.
+
+Componente Reutilizável: A lógica de força da senha foi encapsulada no componente React PasswordStrengthMeter.tsx (utilizando a biblioteca zxcvbn), que é reutilizável e responsável pela apresentação visual da força da senha.
+
+
+⚙️ Modificações Técnicas
+Implementação: O novo sistema foi integrado na página src/pages/Register.tsx.
+
+Ambiente Docker: O arquivo docker-compose.yaml foi modificado para corrigir problemas de comunicação entre o frontend e o backend, garantindo um ambiente de desenvolvimento eficaz.
+
+Configuração: Criamos o arquivo .env no diretório raiz do projeto (poli-egs-frontend-equipe-5/.env) para definir variáveis de ambiente essenciais e corrigir problemas de ambiente.
+
+
+✨ Atualização 2 (Verificação de E-mail)
+A interface do usuário foi ajustada para lidar com o novo fluxo de verificação de e-mail, garantindo uma melhor experiência após o cadastro.
+
+Página de Registro (src/pages/Register.tsx):
+Após o cadastro bem-sucedido, o usuário não é mais redirecionado diretamente para o login.
+Uma mensagem informativa é exibida, comunicando que o cadastro foi concluído e que um e-mail de verificação foi enviado.
+
+Página de Login (src/pages/LoginTest.tsx):
+A página foi ajustada para capturar e exibir a mensagem de erro específica enviada pelo backend caso o usuário tente realizar o login sem ter confirmado o e-mail.
+
+
+✨ Atualização 3 (Usabilidade e Fluxos de Navegação)
+A Sprint 3 foi inteiramente focada em melhorias de usabilidade (UX) e na criação de fluxos de navegação essenciais na interface, tornando o sistema mais intuitivo e acessível.
+
+Funcionalidade "Mostrar Senha" (Login): Implementada a opção de visualizar a senha digitada na tela de Login, melhorando a conveniência e reduzindo erros de digitação.
+
+Fluxo "Breadcrumbs": Criado o fluxo de navegação "Breadcrumbs" na área administrativa, que ajuda o usuário a se orientar dentro do sistema.
+
+Tela "Esqueci Minha Senha": A tela e o fluxo de recuperação de senha foram desenvolvidos e concluídos, garantindo que usuários possam recuperar o acesso à conta.
+
+Implementação Full-Stack Futura: O planejamento inclui a tarefa de inserir screenshots do projeto, que será implementada em uma tarefa Full-Stack.
+
+
+✨ Atualização 04 (Adição e Remoção de Imagens)
+O foco principal da Sprint 4 foi no lado do backend e serviços. No frontend, esta sprint prepara o terreno para a integração da funcionalidade de gestão de imagens.
+
+A implementação da Sprint 4 foi focada na criação da infraestrutura de backend (serviços e endpoints de API) para permitir a adição e remoção de imagens dos projetos.
+
+Esta funcionalidade cobre o requisito de Inserir screenshots do projeto listado em planos futuros da Sprint 3.
+
+O frontend agora está pronto para integrar os novos endpoints de gestão de imagens do projeto, permitindo que os usuários façam o upload e remoção de screenshots.
+
+
+✨ Atualização 05 (Autenticação Resiliente, Imagens e Navegação)
+A Sprint 5 consolidou melhorias essenciais de usabilidade e segurança, garantindo uma experiência mais fluida para o administrador e reforçando a resiliência do sistema.
+
+Gestão de Imagens de Projetos: O frontend foi atualizado para suportar o novo recurso de upload de imagens e agora permite que o usuário envie uma ou várias imagens relacionadas a cada projeto cadastrado. Isso amplia a capacidade de documentação visual dos projetos.
+
+Tratamento de Autenticação Resiliente:
+Implementado um recurso de segurança: se houver uma falha na verificação do token, o sistema espera 10 segundos e tenta novamente utilizando o mesmo token, garantindo maior resiliência no acesso.
+
+Aprimoramento da Área Administrativa (Breadcrumbs): Adicionados Breadcrumbs (trilhas de navegação) na área administrativa, que indicam o caminho percorrido (ex: Dashboard, Gerenciar Artigos, Editar Artigo). Este recurso facilita a orientação e reduz o tempo gasto para retornar a páginas anteriores.
+
+
+✨ Atualização 06 (Vitrine e Detalhes dos Projetos)
+A Sprint 6 concentrou-se na melhoria da experiência do usuário na visualização de projetos, implementando a funcionalidade de filtragem e exibição detalhada de conteúdo.
+
+Página de Projetos Aprimorada: A página inicial de exibição de projetos (/projetos) agora possui um design mais amigável, listando os projetos em formato de cards.
+
+Funcionalidade de Filtros: Implementada a barra lateral de Filtros, permitindo que os usuários busquem projetos por diversos critérios:
+- Área do projeto.
+- Ano/Semestre.
+- Nome, palavra-chave (query de pesquisa).
+- Integrantes.
+
+Visualização Detalhada do Projeto:
+Ao clicar em "Ver mais", o usuário é direcionado para uma página dedicada ao projeto.
+A página exibe todas as imagens e vídeos cadastrados.
+As informações detalhadas incluem o título, descrição, tecnologias utilizadas, links úteis (repositório e vídeo técnico), equipe, pessoa/organização parceira, e semestre/ano.
+
+
+✨ Atualização 07 (Conteúdo Público e Interação)
+A Sprint 7 finalizou a estrutura principal da interface pública, tornando o Observatório um recurso informativo completo, adicionando a visualização de artigos e um canal de comunicação.
+
+Página Inicial Completa: A página Inicial agora exibe os Temas em Destaque, incentivando a navegação por áreas de conhecimento.
+
+Seção de Artigos Científicos:
+Criada a página dedicada a Artigos Científicos, que permite explorar os artigos e publicações acadêmicas.
+Cada card de artigo exibe informações como autores, palavras-chave, área de pesquisa e links de acesso (Download, GitHub, Externo).
+Os links permitem o acesso direto ao PDF de publicação, ao repositório GitHub e a links externos do artigo.
+
+Formulário "Entre em Contato": Implementado o formulário "Entre em Contato", que permite que usuários enviem dúvidas, sugestões ou mensagens para a equipe.
+
+Melhorias na Visualização de Projetos: A página de detalhes do projeto foi atualizada, exibindo claramente a equipe, tecnologias (tags), parceiros, semestre e links úteis (Repositório e Vídeo Técnico).
+
+
+✨ Atualização 08 (Interatividade e Refinamento Visual)
+A Sprint final focou em elevar o nível da interface pública, tornando-a mais interativa e visualmente agradável, além de consolidar a infraestrutura de segurança.
+
+Área de Comentários (Nova Interatividade):
+Implementamos a tão aguardada Área de Comentários nas páginas de Artigos e Projetos.
+Usuários logados agora podem interagir e deixar feedback diretamente na ferramenta, centralizando o feedback acadêmico.
+
+Melhorias Visuais e de Fluxo (UX/UI):
+- Nova Proposta Visual: A interface visual foi aprimorada com uma nova proposta para a página "Sobre o Projeto", adotando um estilo portfólio para valorizar o trabalho dos alunos.
+- Otimização de Links: Criamos botões de ação dedicados para acessar links úteis (GitHub, Vídeo Técnico, Download), agilizando o acesso do usuário aos materiais.
+
+Refinamento Geral: Adicionamos feedbacks visuais de carregamento (loading) e harmonizamos o layout, rodapés e logos para garantir uma navegação fluida em toda a plataforma.
+
+
+🏆 Atualização final (Encerramento do Projeto e Estabilização)
+Esta atualização marca a conclusão do projeto. O foco principal foi a estabilização do Backoffice (Admin), o aprimoramento da interface pública e a eliminação de bugs críticos.
+
+Conclusão de UX/UI: Finalizada a nova proposta visual para a página "Sobre o Projeto", adotando um estilo portfólio para valorizar os trabalhos acadêmicos.
+
+Interatividade Implementada: Implementada a Área de Comentários nas páginas de Projetos e Artigos, permitindo a interação direta de usuários logados.
+
+Correções de Estabilidade:
+- Corrigidos bugs que causavam o deslogamento da plataforma (no Backoffice) ao tentar aceitar/rejeitar artigos ou projetos e ao alterar dados do usuário.
+- Otimizado o fluxo de Recuperação de Senha, com geração segura de tokens e validação de e-mail.
+
+Refinamento Final: O layout recebeu feedbacks visuais de carregamento (loading) e os rodapés/logos foram harmonizados.
