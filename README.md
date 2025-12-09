@@ -150,7 +150,7 @@ Certifique-se de ter as ferramentas abaixo instaladas:
 - **SILVIO ANDRÉ VITAL JUNIOR (GERENTE DE PROJETO)**
 - **ARTHUR SOBRAL DE MACÊDO (DEV FRONT-END E BACK-END)**
 
-## 2025.2##
+## 2025.2
 ✨ Atualização 1 (Validação de Senha)
 A primeira sprint focou em elevar a segurança e a experiência do usuário durante o processo de registro, implementando uma funcionalidade robusta de validação de senha.
 
@@ -281,3 +281,70 @@ Correções de Estabilidade:
 - Otimizado o fluxo de Recuperação de Senha, com geração segura de tokens e validação de e-mail.
 
 Refinamento Final: O layout recebeu feedbacks visuais de carregamento (loading) e os rodapés/logos foram harmonizados.
+
+
+. Relatório Detalhado de Novos Bugs Encontrados
+
+Bug 4: Falta de Feedback Visual Durante o Carregamento
+
+   * Arquivo Afetado: poli-egs-frontend-equipe-5/src/pages/Register.tsx.
+   * Descrição: Ao clicar em "Registrar", a interface não mostra nenhum indicador de carregamento (como um spinner).
+   * Impacto: Causa uma má experiência de usuário (UX), pois a pessoa não sabe se a aplicação está processando a
+     requisição, principalmente em redes lentas.
+   * Sugestão de Correção: Implementar um estado de loading que, quando ativo, desabilita o botão e exibe um texto como
+     "Registrando..." para informar ao usuário que a ação está em andamento.
+
+Bug 5: Uso de alert() para Feedback de Sucesso
+
+   * Arquivo Afetado: poli-egs-frontend-equipe-5/src/pages/Register.tsx.
+   * Descrição: Uma mensagem de sucesso é exibida usando o alert() nativo do navegador.
+   * Impacto: alert() bloqueia a interface, tem aparência datada e é inconsistente com o resto da aplicação, que já usa
+     notificações toast (da biblioteca react-toastify).
+   * Sugestão de Correção: Substituir o alert() por uma notificação toast.success() para manter a consistência visual e
+     uma melhor experiência de usuário.
+
+Bug 6: Tipos do Firebase Desatualizados e Desnecessários
+
+   * Arquivo Afetado: poli-egs-frontend-equipe-5/package.json.
+   * Descrição: O projeto possui a dependência @types/firebase, que é para versões muito antigas do Firebase. O pacote
+     firebase atual já inclui seus próprios tipos TypeScript.
+   * Impacto: Pode causar conflitos de tipos, dificultar o autocomplete no editor e esconder bugs, pois o compilador
+     pode usar definições erradas.
+   * Sugestão de Correção: Remover completamente o pacote @types/firebase do projeto com o comando npm uninstall
+     @types/firebase.
+
+Bug 7: URLs de Imagem Codificadas
+
+   * Arquivo Afetado: poli-egs-frontend-equipe-5/src/components/Header.tsx , poli-egs-frontend-equipe-5/src/pages/Sobre.tsx
+   * Descrição: As imagens (logotipos, fotos) são carregadas usando URLs diretas de websites externos
+     (upload.wikimedia.org, s2.glbimg.com, www.sad.pe.gov.br) que estão codificadas ("hardcoded") diretamente no
+     código-fonte dos componentes Header.tsx e Sobre.tsx.
+   * Impacto: Links Quebrados: Se as imagens forem removidas ou suas URLs mudarem nos sites externos, as imagens não serão
+         exibidas em nossa aplicação.
+              Performance: A dependência de servidores externos para recursos visuais pode aumentar a latência de
+         carregamento da página.
+              Falta de Controle: Não há controle sobre a disponibilidade ou as versões das imagens externas.
+   * Sugestão de Correção: Baixar as imagens externas e adicioná-las aos diretórios de ativos do projeto (ex:
+     public/images/ ou src/assets/). Atualizar os componentes Header.tsx e Sobre.tsx para usar importações de módulos ou
+     caminhos relativos para referenciar essas imagens localmente.
+
+Bug 9: Criação de Artigos em Branco sem Validação de Campos Obrigatórios
+
+   * Arquivo Afetado: poli-egs-frontend-equipe-5/src/pages/Admin/Artigos.tsx
+   * Descrição: O formulário "Cadastrar novo artigo" permite que um usuário clique em "Enviar" sem preencher nenhum dos
+     campos (como Título, Área de pesquisa, Semestre, etc.). Não há validação no lado do cliente (frontend) para
+     garantir que os campos essenciais sejam preenchidos. Em vez de validar, a função handlePost envia valores padrão
+     como "Título não informado".
+   * Impacto: Permite a criação de "artigos fantasmas" no banco de dados, com valores genéricos. Isso polui o banco de
+     dados com entradas inúteis, dificulta a busca e o gerenciamento, e força os administradores a terem que limpar
+     esses dados manualmente.
+   * Sugestão de Correção:
+          Validação no Frontend: Na função handlePost em Artigos.tsx, antes de enviar a requisição, adicione uma
+            verificação para garantir que os campos obrigatórios (ex: NewArticle.titulo, NewArticle.data (semestre), e o
+            arquivo PDF) não estão vazios. Se estiverem, exiba um erro usando toast.error() e impeça o envio.
+          Feedback Visual: Adicione o atributo required aos elementos <input> e <select> no JSX do formulário para usar
+            a validação nativa do navegador e dar feedback imediato ao usuário.
+          Desabilitar Botão: Aprimore a lógica para manter o botão "Enviar" desabilitado (disabled) até que todos os
+            campos obrigatórios tenham sido preenchidos corretamente.
+
+##Os bugs 01, 02, 03 e 08 estão no backend.
